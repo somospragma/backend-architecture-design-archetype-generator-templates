@@ -9,6 +9,10 @@ import reactor.core.publisher.Mono;
 /**
  * REST Controller for ${controllerName}.
  * Handles HTTP requests and delegates to use cases.
+ * 
+ * Note: @RestController and @RequestMapping are required for Spring Web MVC/WebFlux
+ * to recognize this as an HTTP endpoint. These are infrastructure concerns that
+ * belong in the entry-points layer.
  */
 @RestController
 @RequestMapping("/api/${controllerName?lower_case}s")

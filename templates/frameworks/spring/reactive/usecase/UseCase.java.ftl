@@ -1,14 +1,15 @@
 package ${implPackage};
 
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
  * Use case implementation for ${useCaseName}.
  * Contains the business logic for this use case.
+ * 
+ * Note: This class is automatically registered as a Spring bean
+ * through component scanning configured in BeanConfiguration.
  */
-@Service
 public class ${useCaseName}UseCaseImpl {
 
   // TODO: Inject required ports (repositories, services, etc.)

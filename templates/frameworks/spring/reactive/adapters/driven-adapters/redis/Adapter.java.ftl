@@ -1,7 +1,6 @@
 package ${packageName};
 
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.time.Duration;
@@ -9,8 +8,10 @@ import java.time.Duration;
 /**
  * Redis adapter for ${entityName}.
  * Implements caching using Redis.
+ * 
+ * Note: This class is automatically registered as a Spring bean
+ * through component scanning configured in BeanConfiguration.
  */
-@Component
 public class ${adapterName}Adapter {
 
   private final ReactiveRedisTemplate<String, Object> redisTemplate;

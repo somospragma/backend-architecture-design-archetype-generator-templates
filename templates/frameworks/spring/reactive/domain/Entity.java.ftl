@@ -6,6 +6,12 @@ import java.util.UUID;
 <#if needsLocalDateTime>
 import java.time.LocalDateTime;
 </#if>
+<#if needsLocalDate>
+import java.time.LocalDate;
+</#if>
+<#if needsBigDecimal>
+import java.math.BigDecimal;
+</#if>
 
 /**
  * Domain entity: ${entityName}
