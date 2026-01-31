@@ -1,7 +1,5 @@
-package ${packageName}.infrastructure.driven-adapters.redis;
+package ${packageName};
 
-import ${packageName}.domain.model.${entityName};
-import ${packageName}.domain.port.out.${portName};
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -10,46 +8,54 @@ import java.time.Duration;
 
 /**
  * Redis adapter for ${entityName}.
- * Implements caching using Redis with ${cacheStrategy} strategy.
+ * Implements caching using Redis.
  */
 @Component
-public class ${adapterName}RedisAdapter implements ${portName} {
+public class ${adapterName}Adapter {
 
-  private final ReactiveRedisTemplate<String, ${entityName}> redisTemplate;
-  private static final String KEY_PREFIX = "${keyPrefix}";
-  private static final long TTL_SECONDS = ${ttl};
+  private final ReactiveRedisTemplate<String, Object> redisTemplate;
+  private static final String KEY_PREFIX = "${entityName?lower_case}:";
+  private static final long TTL_SECONDS = 3600; // 1 hour
 
-  public ${adapterName}RedisAdapter(
-      ReactiveRedisTemplate<String, ${entityName}> redisTemplate) {
+  public ${adapterName}Adapter(
+      ReactiveRedisTemplate<String, Object> redisTemplate) {
     this.redisTemplate = redisTemplate;
   }
 
-  @Override
-  public Mono<${entityName}> save(${entityName} entity) {
-    String key = KEY_PREFIX + entity.getId();
+  /**
+   * Saves an entity to Redis cache.
+   */
+  public Mono<Object> save(String id, Object entity) {
+    String key = KEY_PREFIX + id;
     
     return redisTemplate.opsForValue()
         .set(key, entity, Duration.ofSeconds(TTL_SECONDS))
         .thenReturn(entity);
   }
 
-  @Override
-  public Mono<${entityName}> findById(String id) {
+  /**
+   * Finds an entity by ID from Redis cache.
+   */
+  public Mono<Object> findById(String id) {
     String key = KEY_PREFIX + id;
     
     return redisTemplate.opsForValue()
         .get(key);
   }
 
-  @Override
-  public Flux<${entityName}> findAll() {
+  /**
+   * Finds all entities from Redis cache.
+   */
+  public Flux<Object> findAll() {
     String pattern = KEY_PREFIX + "*";
     
     return redisTemplate.keys(pattern)
         .flatMap(key -> redisTemplate.opsForValue().get(key));
   }
 
-  @Override
+  /**
+   * Deletes an entity by ID from Redis cache.
+   */
   public Mono<Boolean> deleteById(String id) {
     String key = KEY_PREFIX + id;
     
@@ -57,7 +63,9 @@ public class ${adapterName}RedisAdapter implements ${portName} {
         .map(count -> count > 0);
   }
 
-  @Override
+  /**
+   * Checks if an entity exists in Redis cache.
+   */
   public Mono<Boolean> existsById(String id) {
     String key = KEY_PREFIX + id;
     

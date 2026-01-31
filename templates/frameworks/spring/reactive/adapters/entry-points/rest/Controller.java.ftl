@@ -1,6 +1,5 @@
-package ${packageName}.infrastructure.entry-points.rest;
+package ${packageName};
 
-import ${packageName}.domain.port.in.${useCasePort};
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,47 +11,45 @@ import reactor.core.publisher.Mono;
  * Handles HTTP requests and delegates to use cases.
  */
 @RestController
-@RequestMapping("${basePath}")
+@RequestMapping("/api/${controllerName?lower_case}s")
 public class ${controllerName}Controller {
 
-  private final ${useCasePort} ${useCasePort?uncap_first};
+  // TODO: Inject use case port
+  // private final ${controllerName}UseCase ${controllerName?uncap_first}UseCase;
 
-  public ${controllerName}Controller(${useCasePort} ${useCasePort?uncap_first}) {
-    this.${useCasePort?uncap_first} = ${useCasePort?uncap_first};
+  public ${controllerName}Controller() {
+    // TODO: Initialize with use case
   }
 
   @PostMapping
-  public Mono<ResponseEntity<${responseType}>> create(@RequestBody ${requestType} request) {
-    return ${useCasePort?uncap_first}.execute(request)
-        .map(result -> ResponseEntity.status(HttpStatus.CREATED).body(result))
-        .defaultIfEmpty(ResponseEntity.badRequest().build());
+  public Mono<ResponseEntity<Object>> create(@RequestBody Object request) {
+    // TODO: Implement create logic
+    return Mono.just(ResponseEntity.status(HttpStatus.CREATED).body(request));
   }
 
   @GetMapping("/{id}")
-  public Mono<ResponseEntity<${responseType}>> getById(@PathVariable String id) {
-    return ${useCasePort?uncap_first}.findById(id)
-        .map(ResponseEntity::ok)
-        .defaultIfEmpty(ResponseEntity.notFound().build());
+  public Mono<ResponseEntity<Object>> getById(@PathVariable String id) {
+    // TODO: Implement get by id logic
+    return Mono.just(ResponseEntity.ok().build());
   }
 
   @GetMapping
-  public Flux<${responseType}> getAll() {
-    return ${useCasePort?uncap_first}.findAll();
+  public Flux<Object> getAll() {
+    // TODO: Implement get all logic
+    return Flux.empty();
   }
 
   @PutMapping("/{id}")
-  public Mono<ResponseEntity<${responseType}>> update(
+  public Mono<ResponseEntity<Object>> update(
       @PathVariable String id,
-      @RequestBody ${requestType} request) {
-    return ${useCasePort?uncap_first}.update(id, request)
-        .map(ResponseEntity::ok)
-        .defaultIfEmpty(ResponseEntity.notFound().build());
+      @RequestBody Object request) {
+    // TODO: Implement update logic
+    return Mono.just(ResponseEntity.ok(request));
   }
 
   @DeleteMapping("/{id}")
   public Mono<ResponseEntity<Void>> delete(@PathVariable String id) {
-    return ${useCasePort?uncap_first}.delete(id)
-        .then(Mono.just(ResponseEntity.noContent().<Void>build()))
-        .defaultIfEmpty(ResponseEntity.notFound().build());
+    // TODO: Implement delete logic
+    return Mono.just(ResponseEntity.noContent().build());
   }
 }

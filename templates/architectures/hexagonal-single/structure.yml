@@ -30,16 +30,12 @@ structure:
     path: infrastructure
     description: Infrastructure layer with technical details
     subfolders:
-      adapter:
-        path: adapter
-        description: Adapters implementing ports
-        subfolders:
-          in:
-            path: in
-            description: Input adapters (controllers, consumers)
-          out:
-            path: out
-            description: Output adapters (repositories, clients)
+      entry-points:
+        path: entry-points
+        description: Entry points - input adapters (controllers, consumers)
+      driven-adapters:
+        path: driven-adapters
+        description: Driven adapters - output adapters (repositories, clients)
       config:
         path: config
         description: Configuration classes

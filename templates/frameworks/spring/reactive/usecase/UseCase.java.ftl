@@ -1,8 +1,5 @@
-package ${packageName}.domain.usecase;
+package ${packageName};
 
-import ${packageName}.domain.model.${entityName};
-import ${packageName}.domain.port.in.${useCasePort};
-import ${packageName}.domain.port.out.${repositoryPort};
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,39 +9,57 @@ import reactor.core.publisher.Mono;
  * Contains the business logic for this use case.
  */
 @Service
-public class ${useCaseName}UseCase implements ${useCasePort} {
+public class ${useCaseName}UseCase {
 
-  private final ${repositoryPort} ${repositoryPort?uncap_first};
+  // TODO: Inject required ports (repositories, services, etc.)
+  // Example:
+  // private final SomeRepositoryPort repositoryPort;
+  //
+  // public ${useCaseName}UseCase(SomeRepositoryPort repositoryPort) {
+  //   this.repositoryPort = repositoryPort;
+  // }
 
-  public ${useCaseName}UseCase(${repositoryPort} ${repositoryPort?uncap_first}) {
-    this.${repositoryPort?uncap_first} = ${repositoryPort?uncap_first};
+  public ${useCaseName}UseCase() {
+    // TODO: Initialize with dependencies
   }
 
-  @Override
-  public Mono<${entityName}> execute(${entityName} entity) {
+  /**
+   * Executes the main use case logic.
+   */
+  public Mono<Object> execute(Object input) {
     // TODO: Implement business logic
-    return ${repositoryPort?uncap_first}.save(entity);
+    return Mono.just(input);
   }
 
-  @Override
-  public Mono<${entityName}> findById(String id) {
-    return ${repositoryPort?uncap_first}.findById(id);
+  /**
+   * Finds an entity by ID.
+   */
+  public Mono<Object> findById(String id) {
+    // TODO: Implement find by id logic
+    return Mono.empty();
   }
 
-  @Override
-  public Flux<${entityName}> findAll() {
-    return ${repositoryPort?uncap_first}.findAll();
+  /**
+   * Finds all entities.
+   */
+  public Flux<Object> findAll() {
+    // TODO: Implement find all logic
+    return Flux.empty();
   }
 
-  @Override
-  public Mono<${entityName}> update(String id, ${entityName} entity) {
-    return ${repositoryPort?uncap_first}.findById(id)
-        .flatMap(existing -> ${repositoryPort?uncap_first}.save(entity));
+  /**
+   * Updates an entity.
+   */
+  public Mono<Object> update(String id, Object input) {
+    // TODO: Implement update logic
+    return Mono.just(input);
   }
 
-  @Override
+  /**
+   * Deletes an entity by ID.
+   */
   public Mono<Void> delete(String id) {
-    return ${repositoryPort?uncap_first}.deleteById(id)
-        .then();
+    // TODO: Implement delete logic
+    return Mono.empty();
   }
 }

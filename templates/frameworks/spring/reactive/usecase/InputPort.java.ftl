@@ -1,6 +1,5 @@
-package ${packageName}.domain.port.in;
+package ${packageName};
 
-import ${packageName}.domain.model.${entityName};
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -13,22 +12,22 @@ public interface ${useCasePort} {
   /**
    * Executes the main use case logic.
    */
-  Mono<${entityName}> execute(${entityName} entity);
+  Mono<Object> execute(Object input);
 
   /**
    * Finds an entity by ID.
    */
-  Mono<${entityName}> findById(String id);
+  Mono<Object> findById(String id);
 
   /**
    * Finds all entities.
    */
-  Flux<${entityName}> findAll();
+  Flux<Object> findAll();
 
   /**
    * Updates an entity.
    */
-  Mono<${entityName}> update(String id, ${entityName} entity);
+  Mono<Object> update(String id, Object input);
 
   /**
    * Deletes an entity by ID.
