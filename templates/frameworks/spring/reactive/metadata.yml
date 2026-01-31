@@ -1,0 +1,27 @@
+name: spring-reactive
+displayName: Spring Boot Reactive
+description: Spring Boot with WebFlux for reactive programming
+framework: spring
+paradigm: reactive
+version: 1.0.0
+
+dependencies:
+  springBoot: 3.2.0
+  java: 21
+  mapstruct: 1.5.5.Final
+
+libraries:
+  - name: spring-boot-starter-webflux
+    description: Spring WebFlux for reactive web applications
+  - name: spring-boot-starter-data-r2dbc
+    description: R2DBC for reactive database access
+  - name: spring-boot-starter-data-redis-reactive
+    description: Reactive Redis support
+  - name: reactor-core
+    description: Reactor core library
+
+features:
+  - Non-blocking I/O
+  - Reactive streams (Mono/Flux)
+  - Backpressure support
+  - High scalability

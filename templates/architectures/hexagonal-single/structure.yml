@@ -1,0 +1,59 @@
+name: hexagonal-single
+displayName: Hexagonal Architecture (Single Module)
+description: Arquitectura hexagonal en un solo módulo - ideal para proyectos pequeños y medianos
+moduleType: single
+version: 1.0.0
+
+structure:
+  domain:
+    path: domain
+    description: Domain layer with business logic
+    subfolders:
+      model:
+        path: model
+        description: Domain entities and value objects
+      port:
+        path: port
+        description: Interfaces for adapters
+        subfolders:
+          in:
+            path: in
+            description: Input ports (use cases)
+          out:
+            path: out
+            description: Output ports (repositories, external services)
+      usecase:
+        path: usecase
+        description: Use case implementations
+  
+  infrastructure:
+    path: infrastructure
+    description: Infrastructure layer with technical details
+    subfolders:
+      adapter:
+        path: adapter
+        description: Adapters implementing ports
+        subfolders:
+          in:
+            path: in
+            description: Input adapters (controllers, consumers)
+          out:
+            path: out
+            description: Output adapters (repositories, clients)
+      config:
+        path: config
+        description: Configuration classes
+
+files:
+  - name: build.gradle.kts
+    template: build.gradle.kts.ftl
+    description: Gradle build configuration
+  - name: settings.gradle.kts
+    template: settings.gradle.kts.ftl
+    description: Gradle settings
+  - name: .gitignore
+    template: .gitignore.ftl
+    description: Git ignore file
+  - name: README.md
+    template: README.md.ftl
+    description: Project documentation
