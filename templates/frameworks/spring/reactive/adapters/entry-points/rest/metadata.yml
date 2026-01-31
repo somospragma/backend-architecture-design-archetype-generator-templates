@@ -1,0 +1,82 @@
+name: rest
+displayName: REST API
+description: Controlador REST con Spring WebFlux para exponer endpoints HTTP reactivos
+framework: spring
+paradigm: reactive
+type: entry-point
+version: 1.0.0
+author: Pragma Team
+maintainers:
+  - pragma@pragma.com.co
+
+parameters:
+  required:
+    - name: name
+      type: string
+      description: Nombre del controlador
+      example: Payment
+    - name: basePath
+      type: string
+      description: Ruta base del API
+      example: /api/payments
+  optional:
+    - name: useCasePort
+      type: string
+      description: Nombre del puerto del caso de uso
+      default: "{name}UseCase"
+      example: ProcessPaymentUseCase
+    - name: entityName
+      type: string
+      description: Nombre de la entidad del dominio
+      default: "{name}"
+      example: Payment
+
+dependencies:
+  gradle:
+    - groupId: org.springframework.boot
+      artifactId: spring-boot-starter-webflux
+      version: 3.2.0
+    - groupId: org.springframework.boot
+      artifactId: spring-boot-starter-validation
+      version: 3.2.0
+    - groupId: com.fasterxml.jackson.core
+      artifactId: jackson-databind
+      version: 2.15.0
+
+files:
+  - name: Controller.java.ftl
+    output: "{controllerName}Controller.java"
+    description: Controlador REST
+  - name: RequestDTO.java.ftl
+    output: "dto/{controllerName}Request.java"
+    description: DTO de request
+  - name: ResponseDTO.java.ftl
+    output: "dto/{controllerName}Response.java"
+    description: DTO de response
+  - name: DTOMapper.java.ftl
+    output: "mapper/{controllerName}DtoMapper.java"
+    description: Mapper entre DTOs y dominio
+  - name: Test.java.ftl
+    output: "{controllerName}ControllerTest.java"
+    description: Tests unitarios
+
+examples:
+  - name: API REST básica
+    description: Controlador REST con operaciones CRUD
+    command: |
+      ./gradlew generateInputAdapter \
+        --type=rest \
+        --name=Payment \
+        --basePath=/api/payments
+
+compatibility:
+  plugin: ">=0.1.0"
+  spring: ">=3.0.0"
+  java: ">=17"
+
+tags:
+  - rest
+  - api
+  - http
+  - reactive
+  - webflux
