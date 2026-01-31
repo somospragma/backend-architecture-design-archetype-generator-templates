@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
  * Input port for ${useCaseName}.
  * Defines the contract for this use case.
  */
-public interface ${useCasePort} {
+public interface ${useCaseName}UseCase {
 
   /**
    * Executes the main use case logic.

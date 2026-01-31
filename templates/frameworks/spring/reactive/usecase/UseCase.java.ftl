@@ -1,4 +1,4 @@
-package ${packageName};
+package ${implPackage};
 
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
  * Contains the business logic for this use case.
  */
 @Service
-public class ${useCaseName}UseCase {
+public class ${useCaseName}UseCaseImpl {
 
   // TODO: Inject required ports (repositories, services, etc.)
   // Example:
@@ -19,7 +19,7 @@ public class ${useCaseName}UseCase {
   //   this.repositoryPort = repositoryPort;
   // }
 
-  public ${useCaseName}UseCase() {
+  public ${useCaseName}UseCaseImpl() {
     // TODO: Initialize with dependencies
   }
 

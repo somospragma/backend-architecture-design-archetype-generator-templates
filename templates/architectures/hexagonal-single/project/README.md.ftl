@@ -1,36 +1,39 @@
 # ${projectName}
 
-Clean Architecture project generated with [Clean Architecture Generator](https://github.com/somospragma/backend-architecture-design-archetype-generator-core).
+Clean Architecture project using Hexagonal Architecture pattern.
 
 ## Architecture
 
-- **Type**: ${architecture}
 - **Framework**: ${framework}
 - **Paradigm**: ${paradigm}
-- **Package**: ${basePackage}
+- **Architecture**: Hexagonal (Ports & Adapters)
 
-## Structure
+## Project Structure
 
 ```
-src/main/java/${basePackage?replace(".", "/")}/
-├── domain/
-│   ├── model/              # Domain entities
-│   ├── port/
-│   │   ├── in/             # Input ports (use cases)
-│   │   └── out/            # Output ports (repositories, services)
-│   └── usecase/            # Use case implementations
-└── infrastructure/
-    ├── entry-points/       # Entry points (REST, GraphQL, gRPC, etc.)
-    ├── driven-adapters/    # Driven adapters (DB, Redis, Kafka, etc.)
-    └── config/             # Configuration classes
+src/main/java/${basePackage?replace('.', '/')}/
+├── domain/                    # Business logic (framework-independent)
+│   ├── model/                # Domain entities
+│   └── port/                 # Interfaces
+│       ├── in/              # Input ports (use cases)
+│       └── out/             # Output ports (repositories, services)
+├── application/              # Use case implementations
+│   └── usecase/             # Business logic orchestration
+└── infrastructure/           # Framework-specific implementations
+    ├── entry-points/        # Input adapters (REST, GraphQL, etc.)
+    ├── driven-adapters/     # Output adapters (DB, Cache, APIs, etc.)
+    └── config/              # Configuration classes
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Java ${javaVersion}+
-- Gradle 8.x
+- Java 21
+- Gradle 8.5+
+<#if framework == "spring">
+- Spring Boot 3.2+
+</#if>
 
 ### Build
 
@@ -50,37 +53,36 @@ src/main/java/${basePackage?replace(".", "/")}/
 ./gradlew test
 ```
 
-## Adding Components
-
-### Generate Entity
-
-```bash
-./gradlew generateEntity --name=MyEntity --fields="id:String,name:String"
-```
+## Available Gradle Tasks
 
 ### Generate Use Case
-
 ```bash
-./gradlew generateUseCase --name=MyUseCase
+./gradlew generateUseCase --name=CreateOrder --packageName=${basePackage}.domain.port.in --methods=execute:Order:request:CreateOrderRequest
 ```
 
-### Generate Output Adapter
-
+### Generate Entity
 ```bash
-./gradlew generateOutputAdapter --type=redis --name=MyCache
+./gradlew generateEntity --name=Order --packageName=${basePackage}.domain.model --fields=customerId:String,amount:Double
 ```
 
-### Generate Input Adapter
-
+### Generate Output Adapter (Driven Adapter)
 ```bash
-./gradlew generateInputAdapter --type=rest --name=MyController
+./gradlew generateOutputAdapter --name=OrderCache --type=redis --packageName=${basePackage}.infrastructure.driven-adapters.redis --entity=Order
 ```
 
-## Documentation
+### Generate Input Adapter (Entry Point)
+```bash
+./gradlew generateInputAdapter --name=OrderController --type=rest --packageName=${basePackage}.infrastructure.entry-points.rest --useCase=CreateOrder
+```
 
-- [Clean Architecture Generator Docs](https://docs.clean-arch-generator.com)
-- [Hexagonal Architecture Guide](https://docs.clean-arch-generator.com/guides/architectures/hexagonal)
+## Clean Architecture Principles
+
+1. **Independence of Frameworks**: Business logic doesn't depend on frameworks
+2. **Testability**: Business rules can be tested without UI, database, or external services
+3. **Independence of UI**: UI can change without changing business rules
+4. **Independence of Database**: Business rules don't know about the database
+5. **Independence of External Services**: Business rules don't know about external services
 
 ## License
 
-[Your License Here]
+MIT
