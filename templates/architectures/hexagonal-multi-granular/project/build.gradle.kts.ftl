@@ -16,6 +16,13 @@ allprojects {
 
 subprojects {
     apply(plugin = "java")
+    apply(plugin = "io.spring.dependency-management")
+    
+    configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:3.3.0")
+        }
+    }
     
     java {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -24,8 +31,8 @@ subprojects {
     
     dependencies {
         // Common dependencies for all modules
-        compileOnly("org.projectlombok:lombok:1.18.36")
-        annotationProcessor("org.projectlombok:lombok:1.18.36")
+        compileOnly("org.projectlombok:lombok:1.18.38")
+        annotationProcessor("org.projectlombok:lombok:1.18.38")
         
         testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
         testImplementation("org.mockito:mockito-core:5.7.0")

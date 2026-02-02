@@ -1,0 +1,50 @@
+name: "Hexagonal Multi Module Granular"
+description: "Hexagonal architecture with granular modules - each adapter is a separate module"
+type: "hexagonal-multi-granular"
+multiModule: true
+moduleType: "multi-granular"
+
+# Carpetas organizadoras (NO son módulos de Gradle)
+folders:
+  - "domain"
+  - "application"
+  - "infrastructure"
+  - "infrastructure/driven-adapters"
+  - "infrastructure/entry-points"
+
+# Módulos iniciales (se crean al hacer initCleanArch)
+modules:
+  # Domain modules
+  - name: "model"
+    path: "domain/model"
+    description: "Domain entities and value objects"
+    packagePath: "domain.model"
+    dependencies: []
+    
+  - name: "ports"
+    path: "domain/ports"
+    description: "Input and output ports (interfaces)"
+    packagePath: "domain.port"
+    dependencies:
+      - "model"
+    
+  - name: "usecase"
+    path: "domain/usecase"
+    description: "Use case implementations"
+    packagePath: "domain.usecase"
+    dependencies:
+      - "model"
+      - "ports"
+  
+  # Application module
+  - name: "app-service"
+    path: "application/app-service"
+    description: "Main application that wires everything"
+    packagePath: "config"
+    dependencies:
+      - "model"
+      - "ports"
+      - "usecase"
+
+# Nota: Los adaptadores (entry-points y driven-adapters) se crean dinámicamente
+# cuando se ejecutan los comandos generateInputAdapter o generateOutputAdapter
