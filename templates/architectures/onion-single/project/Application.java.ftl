@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Main application class for ${projectName}.
- * Clean Architecture with Hexagonal pattern.
+ * Clean Architecture with Onion Architecture pattern.
  */
 @SpringBootApplication
 public class ${applicationClassName} {

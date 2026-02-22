@@ -9,14 +9,14 @@ import org.springframework.context.annotation.FilterType;
  * This class is responsible for scanning and registering all application components.
  * 
  * By centralizing Spring configuration here, we keep the domain and application layers
- * free from framework-specific annotations, following the Dependency Inversion Principle.
+ * free from framework-specific annotations, following the Dependency Inversion Principle
+ * of the Onion Architecture.
  */
 @Configuration
 @ComponentScan(
     basePackages = {
-        "${basePackage}.application.usecase",
-        "${basePackage}.infrastructure.drivenadapters",
-        "${basePackage}.infrastructure.entrypoints"
+        "${basePackage}.core.application",
+        "${basePackage}.infrastructure.adapter"
     },
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE)
 )
