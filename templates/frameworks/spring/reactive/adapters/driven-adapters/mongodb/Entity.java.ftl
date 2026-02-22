@@ -1,20 +1,20 @@
-package ${basePackage}.infrastructure.adapter.out.${adapterName?lower_case}.entity;
+package ${packageName}.entity;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Redis hash entity for ${entityName}
+ * MongoDB document entity for ${entityName}
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash("${entityName?lower_case}")
+@Document(collection = "${entityName?lower_case}s")
 public class ${entityName}Entity {
     
     @Id

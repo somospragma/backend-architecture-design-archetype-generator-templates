@@ -1,0 +1,50 @@
+architecture: "onion-single"
+description: "Onion Architecture with single module - Domain at the center, surrounded by application and infrastructure layers"
+
+# Adapter path resolution
+# Placeholders: {name}, {type}, {basePackage}
+adapterPaths:
+  driven: "infrastructure/adapter/out/{name}"
+  driving: "infrastructure/adapter/in/{name}"
+
+# Naming conventions for generated components
+namingConventions:
+  suffixes:
+    useCase: "UseCase"
+    port: "Port"
+    adapter: "Adapter"
+    entity: ""
+    valueObject: ""
+    service: "Service"
+  prefixes:
+    interface: "I"
+
+# Layer dependencies - defines which layers can depend on which other layers
+# Onion architecture enforces strict dependency rules:
+# - Domain depends on nothing (innermost layer)
+# - Application depends only on domain
+# - Infrastructure depends on both domain and application
+layerDependencies:
+  domain:
+    - []  # Domain has no dependencies
+  application:
+    - "domain"  # Application can depend on domain
+  infrastructure:
+    - "domain"
+    - "application"  # Infrastructure can depend on both
+
+# Directory structure
+directories:
+  - "src/main/java"
+  - "src/main/resources"
+  - "src/test/java"
+  - "src/test/resources"
+
+# Package structure for Onion architecture
+packages:
+  - "core/domain"
+  - "core/application/service"
+  - "core/application/port"
+  - "infrastructure/adapter/in"
+  - "infrastructure/adapter/out"
+  - "infrastructure/config"

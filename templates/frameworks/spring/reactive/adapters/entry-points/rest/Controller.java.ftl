@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
  * belong in the entry-points layer.
  */
 @RestController
-@RequestMapping("/api/${controllerName?lower_case}s")
+@RequestMapping("${basePath!'/api/' + controllerName?lower_case + 's'}")
 public class ${controllerName}Controller {
 
   // TODO: Inject use case port

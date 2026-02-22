@@ -1,84 +1,21 @@
 name: redis
-displayName: Redis Cache
-description: Adaptador de caché con Redis usando Spring Data Redis Reactive
-framework: spring
-paradigm: reactive
-type: driven-adapter
-version: 1.0.0
-author: Pragma Team
-maintainers:
-  - pragma@pragma.com.co
-
-parameters:
-  required:
-    - name: name
-      type: string
-      description: Nombre del adaptador
-      example: HoldCards
-    - name: entityName
-      type: string
-      description: Nombre de la entidad del dominio
-      example: Card
-  optional:
-    - name: cacheStrategy
-      type: string
-      description: Estrategia de caché
-      default: writeThrough
-      options:
-        - writeThrough
-        - writeBack
-        - readThrough
-      example: writeThrough
-    - name: ttl
-      type: integer
-      description: Tiempo de vida en segundos
-      default: 3600
-      min: 60
-      max: 86400
-      example: 3600
-    - name: keyPrefix
-      type: string
-      description: Prefijo para las claves de Redis
-      default: "entity:"
-      example: "card:"
+type: driven
+description: Redis cache adapter using Spring Data Redis Reactive
 
 dependencies:
-  gradle:
-    - groupId: org.springframework.boot
-      artifactId: spring-boot-starter-data-redis-reactive
-      version: 3.2.0
-    - groupId: io.lettuce
-      artifactId: lettuce-core
-      version: 6.3.0.RELEASE
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-data-redis-reactive
+    version: 3.2.0
 
-files:
-  - name: Adapter.java.ftl
-    output: "{adapterName}RedisAdapter.java"
-    description: Implementación del adaptador Redis
-  - name: Config.java.ftl
-    output: "config/{adapterName}RedisConfig.java"
-    description: Configuración de Redis
-  - name: Test.java.ftl
-    output: "{adapterName}RedisAdapterTest.java"
-    description: Tests unitarios
+testDependencies:
+  - group: it.ozimov
+    artifact: embedded-redis
+    version: 0.7.3
+    scope: test
 
-examples:
-  - name: Cache básico
-    description: Adaptador de caché simple con TTL de 1 hora
-    command: |
-      ./gradlew generateOutputAdapter \
-        --type=redis \
-        --name=HoldCards \
-        --cacheStrategy=writeThrough \
-        --ttl=3600
+applicationPropertiesTemplate: application-properties.yml.ftl
 
-compatibility:
-  plugin: ">=0.1.0"
-  spring: ">=3.0.0"
-  java: ">=17"
-
-tags:
-  - cache
-  - redis
-  - reactive
-  - nosql
+configurationClasses:
+  - name: RedisConfig
+    packagePath: config
+    templatePath: RedisConfig.java.ftl
