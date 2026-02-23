@@ -21,6 +21,7 @@ public class ${adapterName}Adapter {
   }
 
   /**
+   *
    * Saves an entity to MongoDB.
    */
   public Mono<Object> save(Object entity) {
