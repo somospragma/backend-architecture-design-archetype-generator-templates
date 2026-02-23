@@ -1,0 +1,19 @@
+name: "Hexagonal Single Module"
+description: "Single module hexagonal architecture (ports & adapters)"
+type: "hexagonal-single"
+multiModule: false
+
+directories:
+  - "src/main/java"
+  - "src/main/resources"
+  - "src/test/java"
+  - "src/test/resources"
+
+packages:
+  - "domain/model"
+  - "domain/port/in"
+  - "domain/port/out"
+  - "application/usecase"
+  - "infrastructure/entry-points/rest"
+  - "infrastructure/driven-adapters"
+  - "infrastructure/config"

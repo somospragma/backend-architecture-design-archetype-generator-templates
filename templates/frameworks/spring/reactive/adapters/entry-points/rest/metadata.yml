@@ -1,0 +1,14 @@
+name: rest
+type: driving
+description: REST API controller using Spring WebFlux
+
+dependencies:
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-webflux
+    version: 3.2.0
+
+testDependencies:
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-test
+    version: 3.2.0
+    scope: test

@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-31T00:00:00Z",
+  "adapters": [
+    {
+      "name": "rest",
+      "displayName": "REST API",
+      "description": "Controlador REST con Spring WebFlux para exponer endpoints HTTP reactivos",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
+    }
+  ]
+}

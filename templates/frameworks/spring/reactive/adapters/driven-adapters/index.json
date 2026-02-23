@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-22T00:00:00Z",
+  "adapters": [
+    {
+      "name": "redis",
+      "displayName": "Redis Cache",
+      "description": "Adaptador de caché con Redis usando Spring Data Redis Reactive",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "mongodb",
+      "displayName": "MongoDB Database",
+      "description": "Adaptador de base de datos MongoDB usando Spring Data MongoDB Reactive",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
+    }
+  ]
+}

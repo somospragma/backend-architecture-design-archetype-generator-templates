@@ -1,0 +1,45 @@
+name: "Hexagonal Multi Module"
+description: "Multi-module hexagonal architecture with 3 modules: domain, application, infrastructure"
+type: "hexagonal-multi"
+multiModule: true
+moduleType: "multi"
+
+modules:
+  - name: "domain"
+    path: "domain"
+    description: "Domain layer - Business logic and rules"
+    dependencies: []
+    packages:
+      - "model"
+      - "port/in"
+      - "port/out"
+    directories:
+      - "src/main/java"
+      - "src/test/java"
+  
+  - name: "application"
+    path: "application"
+    description: "Application layer - Use case orchestration"
+    dependencies:
+      - "domain"
+    packages:
+      - "usecase"
+    directories:
+      - "src/main/java"
+      - "src/test/java"
+  
+  - name: "infrastructure"
+    path: "infrastructure"
+    description: "Infrastructure layer - Adapters and technical details"
+    dependencies:
+      - "domain"
+      - "application"
+    packages:
+      - "entry-points/rest"
+      - "driven-adapters"
+      - "config"
+    directories:
+      - "src/main/java"
+      - "src/main/resources"
+      - "src/test/java"
+      - "src/test/resources"

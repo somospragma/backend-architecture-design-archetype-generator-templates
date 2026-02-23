@@ -1,0 +1,6 @@
+name: "Domain Entity"
+description: "Domain entity template for Spring Reactive"
+framework: "spring"
+paradigm: "reactive"
+type: "domain"
+version: "1.0.0"

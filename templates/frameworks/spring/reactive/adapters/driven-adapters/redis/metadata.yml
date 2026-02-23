@@ -1,0 +1,21 @@
+name: redis
+type: driven
+description: Redis cache adapter using Spring Data Redis Reactive
+
+dependencies:
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-data-redis-reactive
+    version: 3.2.0
+
+testDependencies:
+  - group: it.ozimov
+    artifact: embedded-redis
+    version: 0.7.3
+    scope: test
+
+applicationPropertiesTemplate: application-properties.yml.ftl
+
+configurationClasses:
+  - name: RedisConfig
+    packagePath: config
+    templatePath: RedisConfig.java.ftl
