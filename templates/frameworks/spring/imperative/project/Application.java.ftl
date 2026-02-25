@@ -1,1 +1,1 @@
-../reactive/project/Application.java.ftl
+../../reactive/project/Application.java.ftl

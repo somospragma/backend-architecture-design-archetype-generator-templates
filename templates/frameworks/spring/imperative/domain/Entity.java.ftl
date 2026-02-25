@@ -1,1 +1,1 @@
-../reactive/domain/Entity.java.ftl
+../../reactive/domain/Entity.java.ftl
