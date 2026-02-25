@@ -17,6 +17,38 @@
       "type": "driven-adapter",
       "status": "stable",
       "version": "1.0.0"
+    },
+    {
+      "name": "redis",
+      "displayName": "Redis Cache",
+      "description": "Adaptador de cache Redis usando Spring Data Redis",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "http-client",
+      "displayName": "HTTP Client",
+      "description": "Cliente HTTP usando RestTemplate",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "dynamodb",
+      "displayName": "DynamoDB",
+      "description": "Adaptador de DynamoDB usando AWS SDK v2 synchronous client",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "sqs-producer",
+      "displayName": "SQS Producer",
+      "description": "Productor de mensajes SQS usando AWS SDK v2 synchronous client",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
     }
   ]
 }

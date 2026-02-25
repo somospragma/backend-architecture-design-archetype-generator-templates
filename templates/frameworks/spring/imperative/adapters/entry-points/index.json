@@ -9,6 +9,30 @@
       "type": "entry-point",
       "status": "stable",
       "version": "1.0.0"
+    },
+    {
+      "name": "graphql",
+      "displayName": "GraphQL API",
+      "description": "API GraphQL usando Spring for GraphQL",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "grpc",
+      "displayName": "gRPC Service",
+      "description": "Servicio gRPC usando gRPC Spring Boot Starter",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "sqs-consumer",
+      "displayName": "SQS Consumer",
+      "description": "Consumidor de mensajes SQS usando Spring Cloud AWS",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
     }
   ]
 }
