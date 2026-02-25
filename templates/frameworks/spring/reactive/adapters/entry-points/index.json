@@ -1,11 +1,35 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-01-31T00:00:00Z",
+  "lastUpdated": "2026-02-25T00:00:00Z",
   "adapters": [
     {
       "name": "rest",
       "displayName": "REST API",
       "description": "Controlador REST con Spring WebFlux para exponer endpoints HTTP reactivos",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "graphql",
+      "displayName": "GraphQL API",
+      "description": "API GraphQL con Spring for GraphQL para queries, mutations y subscriptions reactivas",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "grpc",
+      "displayName": "gRPC Service",
+      "description": "Servicio gRPC con ReactorStub para comunicación de alto rendimiento",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "sqs-consumer",
+      "displayName": "SQS Consumer",
+      "description": "Consumidor de mensajes SQS con Spring Cloud AWS",
       "type": "entry-point",
       "status": "stable",
       "version": "1.0.0"
