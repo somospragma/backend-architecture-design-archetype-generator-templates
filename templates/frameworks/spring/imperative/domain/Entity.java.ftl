@@ -1,0 +1,1 @@
+../reactive/domain/Entity.java.ftl
