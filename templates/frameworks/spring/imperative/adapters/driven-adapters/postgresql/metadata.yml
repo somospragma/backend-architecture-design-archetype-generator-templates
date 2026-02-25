@@ -1,0 +1,27 @@
+name: postgresql
+type: driven
+description: PostgreSQL database adapter using Spring Data JPA
+
+dependencies:
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-data-jpa
+    version: 3.2.0
+  - group: org.postgresql
+    artifact: postgresql
+    version: 42.7.1
+  - group: com.zaxxer
+    artifact: HikariCP
+    version: 5.1.0
+
+testDependencies:
+  - group: com.h2database
+    artifact: h2
+    version: 2.2.224
+    scope: test
+
+applicationPropertiesTemplate: application-properties.yml.ftl
+
+configurationClasses:
+  - name: JpaConfig
+    packagePath: config
+    templatePath: JpaConfig.java.ftl

@@ -1,0 +1,25 @@
+paradigm: imperative
+framework: spring
+description: Spring Boot imperative (blocking) implementation
+version: 1.0.0
+
+dependencies:
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-web
+    scope: implementation
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-data-jpa
+    scope: implementation
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-validation
+    scope: implementation
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-test
+    scope: testImplementation
+
+features:
+  - REST APIs with Spring MVC
+  - Blocking I/O operations
+  - Traditional servlet-based architecture
+  - JPA for database access
+  - Synchronous method signatures

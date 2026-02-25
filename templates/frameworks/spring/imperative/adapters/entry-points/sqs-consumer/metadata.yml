@@ -1,0 +1,32 @@
+name: sqs-consumer
+type: entry-point
+description: SQS Consumer entry point using Spring Cloud AWS
+
+dependencies:
+  - group: io.awspring.cloud
+    artifact: spring-cloud-aws-starter-sqs
+    version: 3.1.0
+  - group: software.amazon.awssdk
+    artifact: sqs
+    version: 2.20.0
+
+testDependencies:
+  - group: org.testcontainers
+    artifact: localstack
+    version: 1.19.0
+    scope: test
+  - group: org.testcontainers
+    artifact: junit-jupiter
+    version: 1.19.0
+    scope: test
+  - group: org.awaitility
+    artifact: awaitility
+    version: 4.2.0
+    scope: test
+
+applicationPropertiesTemplate: application-properties.yml.ftl
+
+configurationClasses:
+  - name: SqsConsumerConfig
+    packagePath: config
+    templatePath: Config.java.ftl

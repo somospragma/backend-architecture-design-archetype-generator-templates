@@ -1,0 +1,63 @@
+name: usecase
+displayName: Use Case
+description: Caso de uso imperativo con Spring que implementa la lógica de negocio
+framework: spring
+paradigm: imperative
+type: usecase
+version: 1.0.0
+author: Pragma Team
+maintainers:
+  - pragma@pragma.com.co
+
+parameters:
+  required:
+    - name: name
+      type: string
+      description: Nombre del caso de uso
+      example: ProcessPayment
+    - name: entityName
+      type: string
+      description: Nombre de la entidad del dominio
+      example: Payment
+  optional:
+    - name: repositoryPort
+      type: string
+      description: Nombre del puerto del repositorio
+      default: "{entityName}RepositoryPort"
+      example: PaymentRepositoryPort
+
+dependencies:
+  gradle:
+    - groupId: org.springframework.boot
+      artifactId: spring-boot-starter
+      version: 3.2.0
+
+files:
+  - name: UseCase.java.ftl
+    output: "{useCaseName}UseCase.java"
+    description: Implementación del caso de uso
+  - name: InputPort.java.ftl
+    output: "{useCasePort}.java"
+    description: Puerto de entrada (interface)
+  - name: Test.java.ftl
+    output: "{useCaseName}UseCaseTest.java"
+    description: Tests unitarios
+
+examples:
+  - name: Caso de uso básico
+    description: Caso de uso con operaciones CRUD
+    command: |
+      ./gradlew generateUseCase \
+        --name=ProcessPayment \
+        --entityName=Payment
+
+compatibility:
+  plugin: ">=0.1.0"
+  spring: ">=3.0.0"
+  java: ">=17"
+
+tags:
+  - usecase
+  - business-logic
+  - imperative
+  - domain

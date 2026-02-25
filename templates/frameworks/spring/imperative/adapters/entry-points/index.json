@@ -5,7 +5,7 @@
     {
       "name": "rest",
       "displayName": "REST API",
-      "description": "Controlador REST con Spring WebFlux para exponer endpoints HTTP reactivos",
+      "description": "Controlador REST con Spring MVC para exponer endpoints HTTP",
       "type": "entry-point",
       "status": "stable",
       "version": "1.0.0"
@@ -13,7 +13,7 @@
     {
       "name": "graphql",
       "displayName": "GraphQL API",
-      "description": "API GraphQL con Spring for GraphQL para queries, mutations y subscriptions reactivas",
+      "description": "API GraphQL usando Spring for GraphQL",
       "type": "entry-point",
       "status": "stable",
       "version": "1.0.0"
@@ -21,7 +21,7 @@
     {
       "name": "grpc",
       "displayName": "gRPC Service",
-      "description": "Servicio gRPC con ReactorStub para comunicación de alto rendimiento",
+      "description": "Servicio gRPC usando gRPC Spring Boot Starter",
       "type": "entry-point",
       "status": "stable",
       "version": "1.0.0"
@@ -29,7 +29,7 @@
     {
       "name": "sqs-consumer",
       "displayName": "SQS Consumer",
-      "description": "Consumidor de mensajes SQS con Spring Cloud AWS",
+      "description": "Consumidor de mensajes SQS usando Spring Cloud AWS",
       "type": "entry-point",
       "status": "stable",
       "version": "1.0.0"

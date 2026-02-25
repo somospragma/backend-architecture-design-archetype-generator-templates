@@ -1,0 +1,24 @@
+name: redis
+type: driven
+description: Redis cache adapter using Spring Data Redis
+
+dependencies:
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-data-redis
+    version: 3.2.0
+  - group: io.lettuce
+    artifact: lettuce-core
+    version: 6.3.0.RELEASE
+
+testDependencies:
+  - group: it.ozimov
+    artifact: embedded-redis
+    version: 0.7.3
+    scope: test
+
+applicationPropertiesTemplate: application-properties.yml.ftl
+
+configurationClasses:
+  - name: RedisConfig
+    packagePath: config
+    templatePath: Config.java.ftl

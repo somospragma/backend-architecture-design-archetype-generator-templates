@@ -1,0 +1,27 @@
+name: grpc
+type: entry-point
+description: gRPC entry point using gRPC Spring Boot Starter
+
+dependencies:
+  - group: net.devh
+    artifact: grpc-server-spring-boot-starter
+    version: 2.15.0.RELEASE
+  - group: io.grpc
+    artifact: grpc-stub
+    version: 1.58.0
+  - group: io.grpc
+    artifact: grpc-protobuf
+    version: 1.58.0
+
+testDependencies:
+  - group: net.devh
+    artifact: grpc-client-spring-boot-starter
+    version: 2.15.0.RELEASE
+    scope: test
+
+applicationPropertiesTemplate: application-properties.yml.ftl
+
+additionalResources:
+  - name: service.proto
+    targetPath: proto
+    templatePath: service.proto.ftl

@@ -1,0 +1,25 @@
+name: dynamodb
+type: driven
+description: DynamoDB adapter using AWS SDK v2 synchronous client
+
+dependencies:
+  - group: software.amazon.awssdk
+    artifact: dynamodb
+    version: 2.20.0
+
+testDependencies:
+  - group: org.testcontainers
+    artifact: localstack
+    version: 1.19.0
+    scope: test
+  - group: org.testcontainers
+    artifact: junit-jupiter
+    version: 1.19.0
+    scope: test
+
+applicationPropertiesTemplate: application-properties.yml.ftl
+
+configurationClasses:
+  - name: DynamoDbConfig
+    packagePath: config
+    templatePath: Config.java.ftl
