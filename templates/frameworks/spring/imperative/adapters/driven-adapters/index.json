@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-25T00:00:00Z",
+  "adapters": [
+    {
+      "name": "mongodb",
+      "displayName": "MongoDB Database",
+      "description": "Adaptador de base de datos MongoDB usando Spring Data MongoDB",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
+    },
+    {
+      "name": "postgresql",
+      "displayName": "PostgreSQL Database",
+      "description": "Adaptador de base de datos PostgreSQL usando Spring Data JPA",
+      "type": "driven-adapter",
+      "status": "stable",
+      "version": "1.0.0"
+    }
+  ]
+}
