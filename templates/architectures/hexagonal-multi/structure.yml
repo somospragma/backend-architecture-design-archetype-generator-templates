@@ -1,6 +1,5 @@
-name: "Hexagonal Multi Module"
+architecture: "hexagonal-multi"
 description: "Multi-module hexagonal architecture with 3 modules: domain, application, infrastructure"
-type: "hexagonal-multi"
 multiModule: true
 moduleType: "multi"
 

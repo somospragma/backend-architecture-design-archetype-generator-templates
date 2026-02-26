@@ -1,6 +1,5 @@
-name: "Hexagonal Single Module"
+architecture: "hexagonal-single"
 description: "Single module hexagonal architecture (ports & adapters)"
-type: "hexagonal-single"
 multiModule: false
 
 # Adapter path resolution
