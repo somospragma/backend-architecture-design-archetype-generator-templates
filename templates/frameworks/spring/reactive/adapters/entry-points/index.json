@@ -33,6 +33,14 @@
       "type": "entry-point",
       "status": "stable",
       "version": "1.0.0"
+    },
+    {
+      "name": "scheduled",
+      "displayName": "Scheduled Task",
+      "description": "Tarea programada usando Spring Scheduling con soporte reactivo",
+      "type": "entry-point",
+      "status": "stable",
+      "version": "1.0.0"
     }
   ]
 }
