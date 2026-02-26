@@ -3,6 +3,12 @@ description: "Single module hexagonal architecture (ports & adapters)"
 type: "hexagonal-single"
 multiModule: false
 
+# Adapter path resolution
+# Placeholders: {name}, {type}, {basePackage}
+adapterPaths:
+  driven: "infrastructure/driven-adapters/{name}"
+  driving: "infrastructure/entry-points/{name}"
+
 directories:
   - "src/main/java"
   - "src/main/resources"

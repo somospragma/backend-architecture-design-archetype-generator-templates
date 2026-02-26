@@ -4,6 +4,12 @@ type: "hexagonal-multi"
 multiModule: true
 moduleType: "multi"
 
+# Adapter path resolution
+# Placeholders: {name}, {type}, {basePackage}
+adapterPaths:
+  driven: "infrastructure/driven-adapters/{name}"
+  driving: "infrastructure/entry-points/{name}"
+
 modules:
   - name: "domain"
     path: "domain"

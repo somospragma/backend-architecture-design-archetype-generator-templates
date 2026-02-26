@@ -4,6 +4,12 @@ type: "hexagonal-multi-granular"
 multiModule: true
 moduleType: "multi-granular"
 
+# Adapter path resolution
+# Placeholders: {name}, {type}, {basePackage}
+adapterPaths:
+  driven: "infrastructure/driven-adapters/{name}"
+  driving: "infrastructure/entry-points/{name}"
+
 # Carpetas organizadoras (NO son módulos de Gradle)
 folders:
   - "domain"
