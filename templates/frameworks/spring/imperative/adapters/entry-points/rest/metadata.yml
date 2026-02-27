@@ -1,6 +1,8 @@
 name: rest
 type: driving
 description: REST API controller using Spring MVC
+suffix: "Controller"
+applicationPropertiesTemplate: "application-rest.yml.ftl"
 
 dependencies:
   - group: org.springframework.boot
@@ -9,6 +11,9 @@ dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-validation
     version: 3.2.0
+  - group: io.springdoc
+    artifact: springdoc-openapi-starter-webmvc-ui
+    version: 2.2.0
 
 testDependencies:
   - group: org.springframework.boot

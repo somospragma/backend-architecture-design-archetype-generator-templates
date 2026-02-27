@@ -1,6 +1,8 @@
 name: postgresql
 type: driven
 description: PostgreSQL database adapter using Spring Data JPA
+suffix: "Repository"
+applicationPropertiesTemplate: "application-postgresql.yml.ftl"
 
 dependencies:
   - group: org.springframework.boot
@@ -18,8 +20,6 @@ testDependencies:
     artifact: h2
     version: 2.2.224
     scope: test
-
-applicationPropertiesTemplate: application-properties.yml.ftl
 
 configurationClasses:
   - name: JpaConfig

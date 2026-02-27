@@ -8,6 +8,19 @@ adapterPaths:
   driven: "infrastructure/driven-adapters/{name}"
   driving: "infrastructure/entry-points/{name}"
 
+# Package name transformations
+packageMappings:
+  rules:
+    removeHyphens: true
+    slashToDot: true
+  replacements:
+    entry-points: "entrypoints"
+    driven-adapters: "drivenadapters"
+
+# Module configuration for entity and use case generation
+entityModule: "domain"
+useCaseModule: "application"
+
 directories:
   - "src/main/java"
   - "src/main/resources"
@@ -22,3 +35,22 @@ packages:
   - "infrastructure/entry-points/rest"
   - "infrastructure/driven-adapters"
   - "infrastructure/config"
+
+# Module metadata for package type resolution
+moduleMetadata:
+  - name: "domain"
+    path: "."
+    packageTypes:
+      model: "domain/model"
+      portIn: "domain/port/in"
+      portOut: "domain/port/out"
+  - name: "application"
+    path: "."
+    packageTypes:
+      usecase: "application/usecase"
+  - name: "infrastructure"
+    path: "."
+    packageTypes:
+      entryPoints: "infrastructure/entry-points"
+      drivenAdapters: "infrastructure/driven-adapters"
+      config: "infrastructure/config"
