@@ -1,6 +1,7 @@
 spring:
   application:
     name: ${projectName}
+    title: ${projectNamePascalCase}
   
   # WebFlux Configuration
   webflux:

@@ -2,7 +2,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.3.0" apply false
     id("io.spring.dependency-management") version "1.1.6" apply false
-    id("com.pragma.archetype-generator") version "${pluginVersion}"
+    id("co.com.pragma.archetype-generator") version "${pluginVersion}"
 }
 
 allprojects {

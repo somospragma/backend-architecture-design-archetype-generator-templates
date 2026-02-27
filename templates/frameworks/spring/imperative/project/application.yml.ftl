@@ -1,6 +1,7 @@
 spring:
   application:
     name: ${projectName}
+    title: ${projectNamePascalCase}
   
   # Spring MVC Configuration
   mvc:
