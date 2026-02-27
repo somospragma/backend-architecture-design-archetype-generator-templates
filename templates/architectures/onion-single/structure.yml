@@ -1,11 +1,25 @@
 architecture: "onion-single"
 description: "Onion Architecture with single module - Domain at the center, surrounded by application and infrastructure layers"
+multiModule: false
 
 # Adapter path resolution
 # Placeholders: {name}, {type}, {basePackage}
 adapterPaths:
   driven: "infrastructure/adapter/out/{name}"
   driving: "infrastructure/adapter/in/{name}"
+
+# Package name transformations
+packageMappings:
+  rules:
+    removeHyphens: true
+    slashToDot: true
+  replacements:
+    adapter-in: "adapter.in"
+    adapter-out: "adapter.out"
+
+# Module configuration for entity and use case generation
+entityModule: "core"
+useCaseModule: "core"
 
 # Naming conventions for generated components
 namingConventions:
@@ -48,3 +62,20 @@ packages:
   - "infrastructure/adapter/in"
   - "infrastructure/adapter/out"
   - "infrastructure/config"
+
+# Module metadata for package type resolution
+moduleMetadata:
+  - name: "core"
+    path: "."
+    packageTypes:
+      model: "core/domain"
+      portIn: "core/application/port"
+      portOut: "core/application/port"
+      usecase: "core/application/service"
+  - name: "infrastructure"
+    path: "."
+    packageTypes:
+      entryPoints: "infrastructure/adapter/in"
+      drivenAdapters: "infrastructure/adapter/out"
+      config: "infrastructure/config"
+

@@ -16,7 +16,8 @@ import org.springframework.context.annotation.FilterType;
 @ComponentScan(
     basePackages = {
         "${basePackage}.core.application",
-        "${basePackage}.infrastructure.adapter"
+        "${drivenAdaptersPackage}",
+        "${drivingAdaptersPackage}"
     },
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE)
 )
