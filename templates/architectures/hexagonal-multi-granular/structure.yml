@@ -3,6 +3,30 @@ description: "Hexagonal architecture with granular modules - each adapter is a s
 multiModule: true
 moduleType: "multi-granular"
 
+# Static files to be copied from template to project
+staticFiles:
+  # Docker configuration
+  - source: "project/Dockerfile.ftl"
+    destination: "Dockerfile"
+    description: "Multi-stage Dockerfile with jlink optimization"
+  
+  - source: "project/.dockerignore.ftl"
+    destination: ".dockerignore"
+    description: "Docker ignore file"
+  
+  # Architecture tests (in app-service module)
+  - source: "tests/architecture/ArchitectureTest.java.ftl"
+    destination: "application/app-service/src/test/java/{basePackage}/architecture/ArchitectureTest.java"
+    description: "ArchUnit tests for architecture validation"
+    
+  - source: "tests/architecture/NamingConventionTest.java.ftl"
+    destination: "application/app-service/src/test/java/{basePackage}/architecture/NamingConventionTest.java"
+    description: "ArchUnit tests for naming conventions"
+    
+  - source: "tests/architecture/ImmutabilityTest.java.ftl"
+    destination: "application/app-service/src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
+    description: "ArchUnit tests for immutability rules"
+
 # Adapter path resolution
 # Placeholders: {name}, {type}, {basePackage}
 adapterPaths:

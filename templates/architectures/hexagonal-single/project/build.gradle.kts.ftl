@@ -7,6 +7,7 @@ plugins {
     id("io.quarkus") version "3.6.4"
 </#if>
     id("co.com.pragma.archetype-generator") version "${pluginVersion}"
+    id("info.solidsoft.pitest") version "1.15.0"
 }
 
 group = "${basePackage}"
@@ -40,14 +41,84 @@ dependencies {
     <#if paradigm == "reactive">
     testImplementation("io.projectreactor:reactor-test")
     </#if>
+    
+    // ArchUnit for architecture testing
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.2.1")
 <#elseif framework == "quarkus">
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.6.4"))
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-arc")
     testImplementation("io.quarkus:quarkus-junit5")
+    
+    // ArchUnit for architecture testing
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.2.1")
 </#if>
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+// Mutation Testing Configuration (PIT)
+configure<info.solidsoft.gradle.pitest.PitestPluginExtension> {
+    junit5PluginVersion.set("1.2.1")
+    targetClasses.set(listOf("${r"${basePackage}"}.*"))
+    targetTests.set(listOf("${r"${basePackage}"}.*"))
+    excludedClasses.set(listOf(
+        "${r"${basePackage}"}.infrastructure.adapter.**",
+        "${r"${basePackage}"}.infrastructure.config.**",
+        "${r"${basePackage}"}.**.*Application",
+        "${r"${basePackage}"}.**.*Config",
+        "${r"${basePackage}"}.**.*Configuration"
+    ))
+    mutators.set(listOf("DEFAULTS"))
+    outputFormats.set(listOf("HTML", "XML"))
+    timestampedReports.set(false)
+    mutationThreshold.set(50)
+    coverageThreshold.set(50)
+    threads.set(Runtime.getRuntime().availableProcessors())
+    verbose.set(false)
+}
+
+// Validate Structure Task - Run only ArchUnit tests
+tasks.register("validateStructure") {
+    group = "verification"
+    description = "Validates the project architecture using ArchUnit tests"
+    
+    dependsOn("test")
+    
+    doFirst {
+        println("Validating architecture structure...")
+    }
+    
+    doLast {
+        val testResults = file("build/test-results/test")
+        if (testResults.exists()) {
+            val archTests = testResults.listFiles()?.filter { 
+                it.name.contains("Architecture") || it.name.contains("architecture")
+            }
+            if (archTests.isNullOrEmpty()) {
+                throw GradleException("No architecture tests found!")
+            }
+            println("✓ Architecture validation completed successfully")
+        }
+    }
+}
+
+// Auto-copy ArchUnit tests before build to prevent users from skipping them
+tasks.named("build") {
+    doFirst {
+        val templateArchTests = file("${r"${projectDir}"}/.cleanarch/architecture-tests")
+        val targetArchTests = file("${r"${projectDir}"}/src/test/java/${basePackage?replace('.', '/')}/architecture")
+        
+        if (templateArchTests.exists()) {
+            println("Copying ArchUnit tests from template...")
+            copy {
+                from(templateArchTests)
+                into(targetArchTests)
+                include("**/*.java")
+            }
+            println("✓ ArchUnit tests synchronized")
+        }
+    }
 }

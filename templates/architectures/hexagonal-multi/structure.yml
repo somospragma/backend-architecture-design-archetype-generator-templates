@@ -3,6 +3,30 @@ description: "Multi-module hexagonal architecture with 3 modules: domain, applic
 multiModule: true
 moduleType: "multi"
 
+# Static files to be copied from template to project
+staticFiles:
+  # Docker configuration
+  - source: "project/Dockerfile.ftl"
+    destination: "Dockerfile"
+    description: "Multi-stage Dockerfile with jlink optimization"
+  
+  - source: "project/.dockerignore.ftl"
+    destination: ".dockerignore"
+    description: "Docker ignore file"
+  
+  # Architecture tests (in infrastructure module)
+  - source: "tests/architecture/ArchitectureTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/ArchitectureTest.java"
+    description: "ArchUnit tests for architecture validation"
+    
+  - source: "tests/architecture/NamingConventionTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/NamingConventionTest.java"
+    description: "ArchUnit tests for naming conventions"
+    
+  - source: "tests/architecture/ImmutabilityTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
+    description: "ArchUnit tests for immutability rules"
+
 # Package name transformations
 packageMappings:
   rules:
