@@ -8,6 +8,9 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
 
+# Remove archetype-generator plugin from build.gradle.kts (only needed for project generation)
+RUN sed -i '/co\.com\.pragma\.archetype-generator/d' build.gradle.kts
+
 # Download dependencies (cached layer)
 RUN gradle dependencies --no-daemon || true
 
@@ -30,7 +33,7 @@ RUN jar -xf app.jar
 
 # Create custom JRE with only required modules
 RUN jlink \
-    --add-modules java.base,java.logging,java.xml,java.naming,java.desktop,java.management,java.sql,java.instrument,jdk.unsupported \
+    --add-modules java.base,java.logging,java.xml,java.naming,java.desktop,java.management,java.sql,java.instrument,java.security.jgss,jdk.unsupported \
     --strip-debug \
     --no-man-pages \
     --no-header-files \
