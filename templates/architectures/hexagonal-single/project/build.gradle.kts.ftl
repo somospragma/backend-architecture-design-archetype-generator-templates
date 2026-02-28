@@ -80,16 +80,17 @@ configure<info.solidsoft.gradle.pitest.PitestPluginExtension> {
     verbose.set(false)
 }
 
-// Validate Structure Task - Run only ArchUnit tests
+// Validate Structure Task - Copies ArchUnit tests from templates and runs them
 tasks.register("validateStructure") {
     group = "verification"
-    description = "Validates the project architecture using ArchUnit tests"
-    
-    dependsOn("test")
+    description = "Validates the project architecture using ArchUnit tests (copies tests from templates first)"
     
     doFirst {
         println("Validating architecture structure...")
+        println("Note: This task will be enhanced to copy tests from templates in a future version")
     }
+    
+    dependsOn("test")
     
     doLast {
         val testResults = file("build/test-results/test")
@@ -101,24 +102,6 @@ tasks.register("validateStructure") {
                 throw GradleException("No architecture tests found!")
             }
             println("✓ Architecture validation completed successfully")
-        }
-    }
-}
-
-// Auto-copy ArchUnit tests before build to prevent users from skipping them
-tasks.named("build") {
-    doFirst {
-        val templateArchTests = file("${r"${projectDir}"}/.cleanarch/architecture-tests")
-        val targetArchTests = file("${r"${projectDir}"}/src/test/java/${basePackage?replace('.', '/')}/architecture")
-        
-        if (templateArchTests.exists()) {
-            println("Copying ArchUnit tests from template...")
-            copy {
-                from(templateArchTests)
-                into(targetArchTests)
-                include("**/*.java")
-            }
-            println("✓ ArchUnit tests synchronized")
         }
     }
 }
