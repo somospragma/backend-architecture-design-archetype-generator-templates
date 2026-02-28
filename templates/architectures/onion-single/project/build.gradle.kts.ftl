@@ -79,29 +79,3 @@ pitest {
     threads.set(Runtime.getRuntime().availableProcessors())
     verbose.set(false)
 }
-
-// Validate Structure Task - Copies ArchUnit tests from templates and runs them
-tasks.register("validateStructure") {
-    group = "verification"
-    description = "Validates the project architecture using ArchUnit tests (copies tests from templates first)"
-    
-    doFirst {
-        println("Validating architecture structure...")
-        println("Note: This task will be enhanced to copy tests from templates in a future version")
-    }
-    
-    dependsOn("test")
-    
-    doLast {
-        val testResults = file("build/test-results/test")
-        if (testResults.exists()) {
-            val archTests = testResults.listFiles()?.filter { 
-                it.name.contains("Architecture") || it.name.contains("architecture")
-            }
-            if (archTests.isNullOrEmpty()) {
-                throw GradleException("No architecture tests found!")
-            }
-            println("✓ Architecture validation completed successfully")
-        }
-    }
-}

@@ -65,19 +65,3 @@ configure(subprojects.filter { it.name == "infrastructure" }) {
         verbose.set(false)
     }
 }
-
-// Validate Structure Task
-tasks.register("validateStructure") {
-    group = "verification"
-    description = "Validates the project architecture using ArchUnit tests"
-    
-    dependsOn(subprojects.map { ":${r"${it.name}"}:test" })
-    
-    doFirst {
-        println("Validating architecture structure...")
-    }
-    
-    doLast {
-        println("✓ Architecture validation completed successfully")
-    }
-}
