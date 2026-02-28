@@ -1,6 +1,7 @@
 name: graphql
-type: entry-point
+type: input
 description: GraphQL entry point using Spring for GraphQL
+suffix: GraphQLController
 
 dependencies:
   - group: org.springframework.boot
