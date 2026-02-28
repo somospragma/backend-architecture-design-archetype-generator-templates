@@ -4,6 +4,26 @@ multiModule: false
 
 # Static files to be copied from template to project
 staticFiles:
+  # Gradle Wrapper (Gradle 8.5 for PIT compatibility)
+  - source: "project/gradlew"
+    destination: "gradlew"
+    description: "Gradle wrapper script for Unix"
+    processAsTemplate: false
+    
+  - source: "project/gradlew.bat"
+    destination: "gradlew.bat"
+    description: "Gradle wrapper script for Windows"
+    processAsTemplate: false
+    
+  - source: "project/gradle/wrapper/gradle-wrapper.properties"
+    destination: "gradle/wrapper/gradle-wrapper.properties"
+    description: "Gradle wrapper properties (version 8.5)"
+    
+  - source: "project/gradle/wrapper/gradle-wrapper.jar"
+    destination: "gradle/wrapper/gradle-wrapper.jar"
+    description: "Gradle wrapper JAR"
+    processAsTemplate: false
+  
   # Docker configuration
   - source: "project/Dockerfile.ftl"
     destination: "Dockerfile"

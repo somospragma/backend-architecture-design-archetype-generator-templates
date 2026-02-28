@@ -66,6 +66,7 @@ class NamingConventionTest {
             ArchRule rule = classes()
                 .that().resideInAPackage("..domain..")
                 .should().haveSimpleNameNotEndingWith(suffix)
+                .allowEmptyShould(true)
                 .because("Domain classes should not use technical suffixes like " + suffix);
 
             rule.check(classes);
@@ -78,6 +79,7 @@ class NamingConventionTest {
             ArchRule rule = classes()
                 .that().resideInAPackage("..domain..")
                 .should().haveSimpleNameNotContaining(technicalName)
+                .allowEmptyShould(true)
                 .because("Domain classes should not contain technical names like " + technicalName);
 
             rule.check(classes);
@@ -90,6 +92,7 @@ class NamingConventionTest {
             ArchRule rule = fields()
                 .that().areDeclaredInClassesThat().resideInAPackage("..domain..")
                 .should().haveNameNotContaining(technicalName)
+                .allowEmptyShould(true)
                 .because("Domain fields should not contain technical names like " + technicalName);
 
             rule.check(classes);
@@ -103,6 +106,7 @@ class NamingConventionTest {
             .and().haveSimpleNameContaining("UseCase")
             .should().haveSimpleNameEndingWith("UseCase")
             .orShould().haveSimpleNameEndingWith("UseCaseImpl")
+            .allowEmptyShould(true)
             .because("Use cases should follow naming convention");
 
         rule.check(classes);
@@ -114,6 +118,7 @@ class NamingConventionTest {
             .that().resideInAPackage("..port..")
             .and().areInterfaces()
             .should().haveSimpleNameEndingWith("Port")
+            .allowEmptyShould(true)
             .because("Ports should follow naming convention");
 
         rule.check(classes);

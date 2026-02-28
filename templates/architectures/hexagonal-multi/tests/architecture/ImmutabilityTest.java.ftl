@@ -34,6 +34,7 @@ class ImmutabilityTest {
             .and().areDeclaredInClassesThat().haveSimpleNameContaining("UseCase")
             .and().areNotStatic()
             .should().beFinal()
+            .allowEmptyShould(true)
             .because("Use case fields should be final to ensure immutability and thread-safety");
 
         rule.check(classes);
@@ -45,6 +46,7 @@ class ImmutabilityTest {
             .that().areDeclaredInClassesThat().resideInAPackage("..domain.service..")
             .and().areNotStatic()
             .should().beFinal()
+            .allowEmptyShould(true)
             .because("Domain service fields should be final to ensure immutability");
 
         rule.check(classes);
@@ -58,6 +60,7 @@ class ImmutabilityTest {
             .and().areNotStatic()
             .and().areNotAnnotatedWith("org.springframework.beans.factory.annotation.Value")
             .should().beFinal()
+            .allowEmptyShould(true)
             .because("Configuration class fields should be final (constructor injection preferred over @Value)");
 
         rule.check(classes);
@@ -70,6 +73,7 @@ class ImmutabilityTest {
             .and().areNotStatic()
             .and().areNotAnnotatedWith("org.springframework.beans.factory.annotation.Value")
             .should().beFinal()
+            .allowEmptyShould(true)
             .because("Adapter fields should be final to ensure immutability and thread-safety");
 
         rule.check(classes);

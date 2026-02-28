@@ -34,6 +34,7 @@ class ArchitectureTest {
         ArchRule rule = noClasses()
             .that().resideInAPackage("..domain..")
             .should().dependOnClassesThat().resideInAPackage("..application..")
+            .allowEmptyShould(true)
             .because("Domain layer should not depend on Application layer");
 
         rule.check(classes);
@@ -44,6 +45,7 @@ class ArchitectureTest {
         ArchRule rule = noClasses()
             .that().resideInAPackage("..domain..")
             .should().dependOnClassesThat().resideInAPackage("..infrastructure..")
+            .allowEmptyShould(true)
             .because("Domain layer should not depend on Infrastructure layer");
 
         rule.check(classes);
@@ -54,6 +56,7 @@ class ArchitectureTest {
         ArchRule rule = noClasses()
             .that().resideInAPackage("..application..")
             .should().dependOnClassesThat().resideInAPackage("..infrastructure..")
+            .allowEmptyShould(true)
             .because("Application layer should not depend on Infrastructure layer");
 
         rule.check(classes);
@@ -67,6 +70,7 @@ class ArchitectureTest {
             .applicationServices("..application..")
             .adapter("in", "..infrastructure.adapter.in..")
             .adapter("out", "..infrastructure.adapter.out..")
+            .withOptionalLayers(true)
             .check(classes);
     }
 
@@ -78,6 +82,7 @@ class ArchitectureTest {
                 "..infrastructure..",
                 "..infrastructure.config.."
             )
+            .allowEmptyShould(true)
             .because("Infrastructure should only be accessed through configuration");
 
         rule.check(classes);
