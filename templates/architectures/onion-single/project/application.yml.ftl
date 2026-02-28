@@ -10,3 +10,12 @@ logging:
     root: INFO
     ${basePackage}: DEBUG
 
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized

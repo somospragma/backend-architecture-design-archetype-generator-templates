@@ -1,5 +1,5 @@
 name: scheduled
-type: entry-point
+type: driving
 description: Scheduled task entry point using Spring Scheduling
 
 dependencies:

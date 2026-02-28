@@ -2,10 +2,6 @@ spring:
   application:
     name: ${projectName}
     title: ${projectNamePascalCase}
-  
-  # WebFlux Configuration
-  webflux:
-    base-path: /api
 
 server:
   port: 8080
@@ -22,6 +18,7 @@ logging:
 management:
   endpoints:
     web:
+      base-path: /actuator
       exposure:
         include: health,info,metrics
   endpoint:

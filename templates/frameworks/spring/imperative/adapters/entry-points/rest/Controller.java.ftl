@@ -16,7 +16,7 @@ import java.util.List;
  * belong in the entry-points layer.
  */
 @RestController
-@RequestMapping("${basePath!'/api/' + controllerName?lower_case + 's'}")
+@RequestMapping("/api${basePath!'/' + controllerName?lower_case + 's'}")
 @Validated
 public class ${controllerName}Controller {
 

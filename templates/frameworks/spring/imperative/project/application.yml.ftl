@@ -2,11 +2,6 @@ spring:
   application:
     name: ${projectName}
     title: ${projectNamePascalCase}
-  
-  # Spring MVC Configuration
-  mvc:
-    servlet:
-      path: /api
 
 server:
   port: 8080
@@ -28,6 +23,7 @@ logging:
 management:
   endpoints:
     web:
+      base-path: /actuator
       exposure:
         include: health,info,metrics
   endpoint:

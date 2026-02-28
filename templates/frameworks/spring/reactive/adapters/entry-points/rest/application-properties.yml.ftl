@@ -4,12 +4,19 @@ server:
   # Use environment variables or secret management in production
   
 spring:
-  webflux:
-    base-path: ${basePath!"/api"}
-  
   # Reactive web server configuration
   reactor:
     context-propagation: auto
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
     
 logging:
   level:

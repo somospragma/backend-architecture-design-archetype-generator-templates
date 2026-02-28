@@ -4,14 +4,20 @@ server:
   # Use environment variables or secret management in production
   
 spring:
-  mvc:
-    servlet:
-      path: ${basePath!"/api"}
-  
   # Spring MVC configuration
   web:
     resources:
       add-mappings: true
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
     
 logging:
   level:
