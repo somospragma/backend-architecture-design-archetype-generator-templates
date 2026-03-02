@@ -2,6 +2,7 @@ architecture: "hexagonal-multi-granular"
 description: "Hexagonal architecture with granular modules - each adapter is a separate module"
 multiModule: true
 moduleType: "multi-granular"
+resourcesPath: "applications/app-service/src/main/resources"
 
 # Static files to be copied from template to project
 staticFiles:

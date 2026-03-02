@@ -1,6 +1,7 @@
 architecture: "hexagonal-single"
 description: "Single module hexagonal architecture (ports & adapters)"
 multiModule: false
+resourcesPath: "src/main/resources"
 
 # Static files to be copied from template to project
 staticFiles:

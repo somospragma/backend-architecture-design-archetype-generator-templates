@@ -1,6 +1,7 @@
 name: sqs-consumer
-type: entry-point
+type: input
 description: SQS Consumer entry point using Spring Cloud AWS
+suffix: SqsConsumer
 
 dependencies:
   - group: io.awspring.cloud

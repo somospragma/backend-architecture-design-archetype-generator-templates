@@ -1,6 +1,7 @@
 name: grpc
-type: entry-point
+type: input
 description: gRPC entry point using gRPC Spring Boot Starter
+suffix: GrpcService
 
 dependencies:
   - group: net.devh
@@ -12,6 +13,9 @@ dependencies:
   - group: io.grpc
     artifact: grpc-protobuf
     version: 1.58.0
+  - group: javax.annotation
+    artifact: javax.annotation-api
+    version: 1.3.2
 
 testDependencies:
   - group: net.devh
@@ -25,3 +29,34 @@ additionalResources:
   - name: service.proto
     targetPath: proto
     templatePath: service.proto.ftl
+
+buildPlugins:
+  - id: com.google.protobuf
+    version: 0.9.4
+
+buildConfiguration: |
+  protobuf {
+      protoc {
+          artifact = "com.google.protobuf:protoc:3.24.0"
+      }
+      plugins {
+          create("grpc") {
+              artifact = "io.grpc:protoc-gen-grpc-java:1.58.0"
+          }
+      }
+      generateProtoTasks {
+          all().forEach { task ->
+              task.plugins {
+                  create("grpc")
+              }
+          }
+      }
+  }
+  
+  sourceSets {
+      main {
+          proto {
+              srcDir("${resourcesPath}/proto")
+          }
+      }
+  }

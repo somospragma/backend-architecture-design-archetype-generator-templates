@@ -1,6 +1,7 @@
 architecture: "onion-single"
 description: "Onion Architecture with single module - Domain at the center, surrounded by application and infrastructure layers"
 multiModule: false
+resourcesPath: "src/main/resources"
 
 # Static files to be copied from template to project
 # These files are processed as FreeMarker templates and copied to the specified destination

@@ -2,6 +2,7 @@ architecture: "hexagonal-multi"
 description: "Multi-module hexagonal architecture with 3 modules: domain, application, infrastructure"
 multiModule: true
 moduleType: "multi"
+resourcesPath: "infrastructure/src/main/resources"
 
 # Static files to be copied from template to project
 staticFiles:

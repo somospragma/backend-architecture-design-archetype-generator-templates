@@ -1,6 +1,7 @@
 name: scheduled
-type: driving
+type: input
 description: Scheduled task entry point using Spring Scheduling
+suffix: ScheduledTask
 
 dependencies:
   - group: org.springframework.boot
