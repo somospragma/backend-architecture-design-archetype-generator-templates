@@ -14,7 +14,7 @@ public class ${adapterName}ScheduledTask {
 
     private static final Logger logger = LoggerFactory.getLogger(${adapterName}ScheduledTask.class);
 
-<#if useCaseName??>
+<#if useCaseName?? && useCaseName?has_content>
     private final ${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
 
     public ${adapterName}ScheduledTask(${useCaseName}UseCase ${useCaseName?uncap_first}UseCase) {
@@ -32,7 +32,7 @@ public class ${adapterName}ScheduledTask {
         logger.info("Executing scheduled task: ${adapterName}");
         
         try {
-<#if useCaseName??>
+<#if useCaseName?? && useCaseName?has_content>
             // Execute use case
             ${useCaseName?uncap_first}UseCase.execute();
             logger.info("Scheduled task ${adapterName} completed successfully");
