@@ -1,5 +1,5 @@
 name: rest
-type: driving
+type: input
 description: REST API controller using Spring MVC
 suffix: "Controller"
 applicationPropertiesTemplate: "application-properties.yml.ftl"

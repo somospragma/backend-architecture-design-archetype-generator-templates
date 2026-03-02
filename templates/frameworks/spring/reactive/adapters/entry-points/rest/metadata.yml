@@ -1,6 +1,8 @@
 name: rest
-type: driving
+type: input
 description: REST API controller using Spring WebFlux
+suffix: "Controller"
+applicationPropertiesTemplate: "application-properties.yml.ftl"
 
 dependencies:
   - group: org.springframework.boot

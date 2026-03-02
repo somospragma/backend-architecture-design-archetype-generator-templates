@@ -1,6 +1,7 @@
 name: dynamodb
 type: driven
 description: DynamoDB adapter using AWS SDK v2 synchronous client
+suffix: "Adapter"
 
 dependencies:
   - group: software.amazon.awssdk

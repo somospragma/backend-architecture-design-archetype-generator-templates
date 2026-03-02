@@ -1,6 +1,7 @@
 name: sqs-producer
 type: driven
 description: SQS Producer adapter using AWS SDK v2 async client
+suffix: "Producer"
 
 dependencies:
   - group: software.amazon.awssdk
