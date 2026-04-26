@@ -1,12 +1,12 @@
 // ============================================================
 // Quality Tools Configuration
 // ============================================================
+// Plugins are applied in build.gradle.kts via version catalog.
+// This file only configures them.
 
 // ------------------------------------------------------------
 // JaCoCo — Code Coverage
 // ------------------------------------------------------------
-apply plugin: 'jacoco'
-
 jacoco {
     toolVersion = "0.8.12"
 }
@@ -31,21 +31,23 @@ jacocoTestCoverageVerification {
 }
 
 test.finalizedBy jacocoTestReport
-jacocoTestReport.finalizedBy jacocoTestCoverageVerification
+// Note: jacocoTestCoverageVerification is NOT finalized by jacocoTestReport
+// Run it explicitly: ./gradlew jacocoTestCoverageVerification
+// This prevents build failures on newly generated projects with no business code.
 
 // ------------------------------------------------------------
 // PIT — Mutation Testing
 // ------------------------------------------------------------
 pitest {
     junit5PluginVersion = '1.2.1'
-    targetClasses = ["${r"${basePackage}"}.*"]
-    targetTests = ["${r"${basePackage}"}.*"]
+    targetClasses = ["${basePackage}.*"]
+    targetTests = ["${basePackage}.*"]
     excludedClasses = [
-        "${r"${basePackage}"}.infrastructure.adapter.**",
-        "${r"${basePackage}"}.infrastructure.config.**",
-        "${r"${basePackage}"}.**.*Application",
-        "${r"${basePackage}"}.**.*Config",
-        "${r"${basePackage}"}.**.*Configuration"
+        "${basePackage}.infrastructure.adapter.**",
+        "${basePackage}.infrastructure.config.**",
+        "${basePackage}.**.*Application",
+        "${basePackage}.**.*Config",
+        "${basePackage}.**.*Configuration"
     ]
     mutators = ['DEFAULTS']
     outputFormats = ['HTML', 'XML']
@@ -59,8 +61,6 @@ pitest {
 // ------------------------------------------------------------
 // SonarQube — Static Analysis
 // ------------------------------------------------------------
-apply plugin: 'org.sonarqube'
-
 sonar {
     properties {
         property "sonar.projectKey", System.getenv("SONAR_PROJECT_KEY") ?: project.name
@@ -77,8 +77,6 @@ sonar {
 // ------------------------------------------------------------
 // OWASP Dependency Check — Vulnerability Scanning
 // ------------------------------------------------------------
-apply plugin: 'org.owasp.dependencycheck'
-
 dependencyCheck {
     failBuildOnCVSS = 7.0
     formats = ['HTML', 'JSON']

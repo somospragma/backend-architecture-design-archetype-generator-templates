@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    jacoco
 <#if framework == "spring">
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
@@ -8,6 +9,8 @@ plugins {
 </#if>
     id("co.com.pragma.archetype-generator") version "${pluginVersion}"
     alias(libs.plugins.pitest)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.owasp.dependencycheck)
 }
 
 group = "${basePackage}"
