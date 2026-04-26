@@ -1,7 +1,7 @@
 name: rest
 type: input
 description: REST API controller using Spring WebFlux
-suffix: "Controller"
+suffix: "Handler"
 applicationPropertiesTemplate: "application-properties.yml.ftl"
 
 dependencies:

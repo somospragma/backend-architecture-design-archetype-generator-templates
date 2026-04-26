@@ -54,6 +54,32 @@ staticFiles:
     destination: "infrastructure/src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
     description: "ArchUnit tests for immutability rules"
 
+  # Build system files
+  - source: "project/gradle.properties.ftl"
+    destination: "gradle.properties"
+    description: "Gradle properties with performance settings"
+
+  - source: "project/main.gradle.ftl"
+    destination: "main.gradle"
+    description: "Quality tools configuration (JaCoCo, PIT, SonarQube, OWASP, MapStruct)"
+
+  - source: "project/libs.versions.toml.ftl"
+    destination: "gradle/libs.versions.toml"
+    description: "Centralized dependency version catalog"
+
+  - source: "project/lombok.config.ftl"
+    destination: "lombok.config"
+    description: "Lombok configuration"
+
+  # Configuration classes (in infrastructure module)
+  - source: "project/UseCasesConfig.java.ftl"
+    destination: "infrastructure/src/main/java/{configPackagePath}/UseCasesConfig.java"
+    description: "Use case component scan configuration"
+
+  - source: "project/ErrorType.java.ftl"
+    destination: "infrastructure/src/main/java/{configPackagePath}/ErrorType.java"
+    description: "Standard error type enum"
+
 # Package name transformations
 packageMappings:
   rules:
@@ -65,7 +91,7 @@ packageMappings:
 
 # Module configuration
 entityModule: "domain"
-useCaseModule: "application"
+useCaseModule: "domain"
 
 # Adapter path resolution
 # Placeholders: {name}, {type}, {basePackage}
@@ -80,12 +106,12 @@ modules:
     dependencies: []
     packages:
       - "model"
-      - "port/in"
-      - "port/out"
+      - "ports"
+      - "usecases"
     packageTypes:
       model: "model"
-      portIn: "port/in"
-      portOut: "port/out"
+      ports: "ports"
+      usecases: "usecases"
     directories:
       - "src/main/java"
       - "src/test/java"
@@ -95,10 +121,8 @@ modules:
     description: "Application layer - Use case orchestration"
     dependencies:
       - "domain"
-    packages:
-      - "usecase"
-    packageTypes:
-      usecase: "usecase"
+    packages: []
+    packageTypes: {}
     directories:
       - "src/main/java"
       - "src/test/java"

@@ -1,6 +1,7 @@
 name: postgresql
 type: driven
 description: PostgreSQL database adapter using Spring Data R2DBC
+suffix: "Adapter"
 
 dependencies:
   - group: org.springframework.boot

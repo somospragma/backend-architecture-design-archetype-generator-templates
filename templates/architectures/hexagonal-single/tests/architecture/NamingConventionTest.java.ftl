@@ -11,8 +11,9 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 
 /**
- * Naming convention tests to ensure domain purity.
- * Validates that domain classes don't use technical names or suffixes.
+ * Naming convention tests to ensure domain purity and KB compliance.
+ * Validates that domain classes don't use technical names or suffixes,
+ * and that ports, gateways, use cases, and adapters follow KB naming conventions.
  * 
  * DO NOT MODIFY OR DELETE THIS FILE.
  * This file is automatically synchronized during build to ensure naming rules are enforced.
@@ -100,26 +101,56 @@ class NamingConventionTest {
     }
 
     @Test
-    void useCasesShouldEndWithUseCaseSuffix() {
+    void portInterfacesShouldHaveIPrefix() {
         ArchRule rule = classes()
-            .that().resideInAPackage("..application..")
-            .and().haveSimpleNameContaining("UseCase")
-            .should().haveSimpleNameEndingWith("UseCase")
-            .orShould().haveSimpleNameEndingWith("UseCaseImpl")
+            .that().resideInAPackage("..ports..")
+            .and().areInterfaces()
+            .should().haveSimpleNameStartingWith("I")
             .allowEmptyShould(true)
-            .because("Use cases should follow naming convention");
+            .because("Port interfaces must have the I prefix per KB Limit 006");
 
         rule.check(classes);
     }
 
     @Test
-    void portsShouldEndWithPortSuffix() {
+    void outputPortsShouldHaveGatewaySuffix() {
         ArchRule rule = classes()
-            .that().resideInAPackage("..port..")
+            .that().resideInAPackage("..ports..")
             .and().areInterfaces()
-            .should().haveSimpleNameEndingWith("Port")
+            .and().haveSimpleNameNotContaining("UseCase")
+            .should().haveSimpleNameEndingWith("Gateway")
             .allowEmptyShould(true)
-            .because("Ports should follow naming convention");
+            .because("Output port interfaces must have the Gateway suffix per KB naming conventions");
+
+        rule.check(classes);
+    }
+
+    @Test
+    void useCasesShouldEndWithUseCaseSuffix() {
+        ArchRule rule = classes()
+            .that().resideInAPackage("..domain.usecases..")
+            .and().areNotInterfaces()
+            .should().haveSimpleNameEndingWith("UseCase")
+            .allowEmptyShould(true)
+            .because("Use case classes must end with UseCase suffix per KB naming conventions");
+
+        rule.check(classes);
+    }
+
+    @Test
+    void adapterClassesShouldEndWithAdapterSuffix() {
+        ArchRule rule = classes()
+            .that().resideInAnyPackage("..drivenadapters..", "..entrypoints..")
+            .and().areNotInterfaces()
+            .and().haveSimpleNameNotContaining("Config")
+            .and().haveSimpleNameNotContaining("Router")
+            .and().haveSimpleNameNotContaining("Handler")
+            .and().haveSimpleNameNotContaining("Controller")
+            .and().haveSimpleNameNotContaining("Mapper")
+            .and().haveSimpleNameNotContaining("Properties")
+            .should().haveSimpleNameEndingWith("Adapter")
+            .allowEmptyShould(true)
+            .because("Adapter classes must end with Adapter suffix per KB naming conventions");
 
         rule.check(classes);
     }

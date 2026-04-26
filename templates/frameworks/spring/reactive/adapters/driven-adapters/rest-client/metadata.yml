@@ -1,6 +1,7 @@
 name: http-client
 type: driven
 description: HTTP Client adapter using WebClient
+suffix: "Adapter"
 
 dependencies:
   - group: org.springframework.boot

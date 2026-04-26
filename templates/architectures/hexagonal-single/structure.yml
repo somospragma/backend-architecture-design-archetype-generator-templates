@@ -53,6 +53,32 @@ staticFiles:
     destination: "src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
     description: "ArchUnit tests for immutability rules"
 
+  # Build system files
+  - source: "project/gradle.properties.ftl"
+    destination: "gradle.properties"
+    description: "Gradle properties with performance settings"
+
+  - source: "project/main.gradle.ftl"
+    destination: "main.gradle"
+    description: "Quality tools configuration (JaCoCo, PIT, SonarQube, OWASP, MapStruct)"
+
+  - source: "project/libs.versions.toml.ftl"
+    destination: "gradle/libs.versions.toml"
+    description: "Centralized dependency version catalog"
+
+  - source: "project/lombok.config.ftl"
+    destination: "lombok.config"
+    description: "Lombok configuration"
+
+  # Configuration classes
+  - source: "project/UseCasesConfig.java.ftl"
+    destination: "{configPackagePath}/UseCasesConfig.java"
+    description: "Use case component scan configuration"
+
+  - source: "project/ErrorType.java.ftl"
+    destination: "{configPackagePath}/ErrorType.java"
+    description: "Standard error type enum"
+
 # Adapter path resolution
 # Placeholders: {name}, {type}, {basePackage}
 adapterPaths:
@@ -70,7 +96,7 @@ packageMappings:
 
 # Module configuration for entity and use case generation
 entityModule: "domain"
-useCaseModule: "application"
+useCaseModule: "domain"
 
 directories:
   - "src/main/java"
@@ -80,9 +106,8 @@ directories:
 
 packages:
   - "domain/model"
-  - "domain/port/in"
-  - "domain/port/out"
-  - "application/usecase"
+  - "domain/ports"
+  - "domain/usecases"
   - "infrastructure/entry-points/rest"
   - "infrastructure/driven-adapters"
   - "infrastructure/config"
@@ -93,12 +118,8 @@ moduleMetadata:
     path: "."
     packageTypes:
       model: "domain/model"
-      portIn: "domain/port/in"
-      portOut: "domain/port/out"
-  - name: "application"
-    path: "."
-    packageTypes:
-      usecase: "application/usecase"
+      ports: "domain/ports"
+      usecases: "domain/usecases"
   - name: "infrastructure"
     path: "."
     packageTypes:

@@ -54,6 +54,32 @@ staticFiles:
     destination: "application/app-service/src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
     description: "ArchUnit tests for immutability rules"
 
+  # Build system files
+  - source: "project/gradle.properties.ftl"
+    destination: "gradle.properties"
+    description: "Gradle properties with performance settings"
+
+  - source: "project/main.gradle.ftl"
+    destination: "main.gradle"
+    description: "Quality tools configuration (JaCoCo, PIT, SonarQube, OWASP, MapStruct)"
+
+  - source: "project/libs.versions.toml.ftl"
+    destination: "gradle/libs.versions.toml"
+    description: "Centralized dependency version catalog"
+
+  - source: "project/lombok.config.ftl"
+    destination: "lombok.config"
+    description: "Lombok configuration"
+
+  # Configuration classes (in app-service module)
+  - source: "project/UseCasesConfig.java.ftl"
+    destination: "application/app-service/src/main/java/{configPackagePath}/UseCasesConfig.java"
+    description: "Use case component scan configuration"
+
+  - source: "project/ErrorType.java.ftl"
+    destination: "application/app-service/src/main/java/{configPackagePath}/ErrorType.java"
+    description: "Standard error type enum"
+
 # Adapter path resolution
 # Placeholders: {name}, {type}, {basePackage}
 adapterPaths:
@@ -80,18 +106,27 @@ modules:
   - name: "ports"
     path: "domain/ports"
     description: "Input and output ports (interfaces)"
-    packagePath: "domain.port"
+    packagePath: "domain.ports"
     dependencies:
       - "model"
     
-  - name: "usecase"
-    path: "domain/usecase"
+  - name: "usecases"
+    path: "domain/usecases"
     description: "Use case implementations"
-    packagePath: "domain.usecase"
+    packagePath: "domain.usecases"
     dependencies:
       - "model"
       - "ports"
   
+  # Infrastructure helpers module
+  - name: "helpers"
+    path: "infrastructure/helpers"
+    description: "Shared cross-cutting utilities"
+    packagePath: "infrastructure.helpers"
+    dependencies:
+      - "model"
+      - "ports"
+
   # Application module
   - name: "app-service"
     path: "application/app-service"
@@ -100,7 +135,7 @@ modules:
     dependencies:
       - "model"
       - "ports"
-      - "usecase"
+      - "usecases"
 
 # Nota: Los adaptadores (entry-points y driven-adapters) se crean dinámicamente
 # cuando se ejecutan los comandos generateInputAdapter o generateOutputAdapter

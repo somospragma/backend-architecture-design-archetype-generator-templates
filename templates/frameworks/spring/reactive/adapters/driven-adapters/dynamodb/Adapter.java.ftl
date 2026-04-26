@@ -1,5 +1,8 @@
-package ${packageName};
+package ${r"${packageName}"};
 
+import ${r"${basePackage}"}.domain.ports.I${r"${entityName}"}Gateway;
+import ${r"${packageName}"}.mapper.${r"${entityName}"}EntityMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -9,19 +12,16 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 import java.util.Map;
 
 /**
- * DynamoDB adapter for ${adapterName}.
+ * DynamoDB adapter for ${r"${adapterName}"}.
  * Implements DynamoDB operations using DynamoDbAsyncClient.
  */
 @Component
-public class ${adapterName}DynamoDbAdapter {
+@RequiredArgsConstructor
+public class ${r"${adapterName}"}DynamoDbAdapter implements I${r"${entityName}"}Gateway {
 
     private final DynamoDbAsyncClient dynamoDbAsyncClient;
-    private final String tableName;
-
-    public ${adapterName}DynamoDbAdapter(DynamoDbAsyncClient dynamoDbAsyncClient) {
-        this.dynamoDbAsyncClient = dynamoDbAsyncClient;
-        this.tableName = "${adapterName?lower_case}_table";
-    }
+    private final ${r"${entityName}"}EntityMapper mapper;
+    private final String tableName = "${r"${adapterName?lower_case}"}_table";
 
     /**
      * Puts an item into DynamoDB table.

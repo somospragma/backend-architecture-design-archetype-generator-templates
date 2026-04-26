@@ -7,7 +7,7 @@ import java.util.Optional;
  * Input port for ${useCaseName}.
  * Defines the contract for this use case.
  */
-public interface ${useCaseName}UseCase {
+public interface I${useCaseName}UseCase {
 
   /**
    * Executes the main use case logic.

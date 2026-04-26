@@ -1,44 +1,59 @@
-package ${packageName};
+package ${r"${packageName}"};
 
+import ${r"${basePackage}"}.domain.ports.I${r"${entityName}"}Gateway;
+import ${r"${packageName}"}.mapper.${r"${entityName}"}EntityMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * HTTP Client adapter for ${adapterName}.
- * Implements HTTP operations using RestTemplate.
+ * HTTP Client adapter for ${r"${adapterName}"}.
+ * Implements HTTP operations using RestClient (Spring 6.1+).
  */
 @Component
-public class ${adapterName}HttpClientAdapter {
+public class ${r"${adapterName}"}HttpClientAdapter implements I${r"${entityName}"}Gateway {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final ${r"${entityName}"}EntityMapper mapper;
 
-    public ${adapterName}HttpClientAdapter(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public ${r"${adapterName}"}HttpClientAdapter(RestClient.Builder restClientBuilder, ${r"${entityName}"}EntityMapper mapper) {
+        this.restClient = restClientBuilder.build();
+        this.mapper = mapper;
     }
 
     /**
      * Performs a GET request.
      */
     public <T> T get(String uri, Class<T> responseType) {
-        return restTemplate.getForObject(uri, responseType);
+        return restClient.get()
+                .uri(uri)
+                .retrieve()
+                .body(responseType);
     }
 
     /**
      * Performs a GET request returning ResponseEntity.
      */
     public <T> ResponseEntity<T> getEntity(String uri, Class<T> responseType) {
-        return restTemplate.getForEntity(uri, responseType);
+        return restClient.get()
+                .uri(uri)
+                .retrieve()
+                .toEntity(responseType);
     }
 
     /**
      * Performs a GET request returning a list.
      */
     public <T> List<T> getList(String uri, Class<T[]> responseType) {
-        T[] response = restTemplate.getForObject(uri, responseType);
+        T[] response = restClient.get()
+                .uri(uri)
+                .retrieve()
+                .body(responseType);
         return response != null ? Arrays.asList(response) : List.of();
     }
 
@@ -46,34 +61,57 @@ public class ${adapterName}HttpClientAdapter {
      * Performs a POST request.
      */
     public <T, R> R post(String uri, T body, Class<R> responseType) {
-        return restTemplate.postForObject(uri, body, responseType);
+        return restClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .body(responseType);
     }
 
     /**
      * Performs a POST request returning ResponseEntity.
      */
     public <T, R> ResponseEntity<R> postEntity(String uri, T body, Class<R> responseType) {
-        return restTemplate.postForEntity(uri, body, responseType);
+        return restClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .toEntity(responseType);
     }
 
     /**
      * Performs a PUT request.
      */
     public <T> void put(String uri, T body) {
-        restTemplate.put(uri, body);
+        restClient.put()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
     }
 
     /**
      * Performs a PATCH request.
      */
     public <T, R> R patch(String uri, T body, Class<R> responseType) {
-        return restTemplate.patchForObject(uri, body, responseType);
+        return restClient.patch()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .body(responseType);
     }
 
     /**
      * Performs a DELETE request.
      */
     public void delete(String uri) {
-        restTemplate.delete(uri);
+        restClient.delete()
+                .uri(uri)
+                .retrieve()
+                .toBodilessEntity();
     }
 }

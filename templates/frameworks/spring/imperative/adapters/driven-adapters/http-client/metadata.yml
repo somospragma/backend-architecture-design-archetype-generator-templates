@@ -1,7 +1,7 @@
 name: http-client
 type: driven
-description: HTTP Client adapter using RestTemplate
-suffix: HttpClientAdapter
+description: HTTP Client adapter using RestClient (Spring 6.1+)
+suffix: "Adapter"
 
 dependencies:
   - group: org.springframework.boot

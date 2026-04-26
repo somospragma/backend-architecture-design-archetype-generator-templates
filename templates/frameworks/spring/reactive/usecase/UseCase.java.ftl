@@ -1,32 +1,30 @@
 package ${implPackage};
 
+import ${packageName}.I${useCaseName}UseCase;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Use case implementation for ${useCaseName}.
  * Contains the business logic for this use case.
- * 
+ *
  * Note: This class is automatically registered as a Spring bean
- * through component scanning configured in BeanConfiguration.
+ * through component scanning configured in UseCasesConfig.
  */
-public class ${useCaseName}UseCaseImpl {
+@RequiredArgsConstructor
+public class ${useCaseName}UseCase implements I${useCaseName}UseCase {
 
-  // TODO: Inject required ports (repositories, services, etc.)
+  // TODO: Inject required ports (gateways, services, etc.)
   // Example:
-  // private final SomeRepositoryPort repositoryPort;
-  //
-  // public ${useCaseName}UseCase(SomeRepositoryPort repositoryPort) {
-  //   this.repositoryPort = repositoryPort;
-  // }
-
-  public ${useCaseName}UseCaseImpl() {
-    // TODO: Initialize with dependencies
-  }
+  // private final I${r"${entityName}"}Gateway gateway;
 
   /**
    * Executes the main use case logic.
    */
+  @Override
   public Mono<Object> execute(Object input) {
     // TODO: Implement business logic
     return Mono.just(input);
@@ -35,6 +33,7 @@ public class ${useCaseName}UseCaseImpl {
   /**
    * Finds an entity by ID.
    */
+  @Override
   public Mono<Object> findById(String id) {
     // TODO: Implement find by id logic
     return Mono.empty();
@@ -43,6 +42,7 @@ public class ${useCaseName}UseCaseImpl {
   /**
    * Finds all entities.
    */
+  @Override
   public Flux<Object> findAll() {
     // TODO: Implement find all logic
     return Flux.empty();
@@ -51,6 +51,7 @@ public class ${useCaseName}UseCaseImpl {
   /**
    * Updates an entity.
    */
+  @Override
   public Mono<Object> update(String id, Object input) {
     // TODO: Implement update logic
     return Mono.just(input);
@@ -59,6 +60,7 @@ public class ${useCaseName}UseCaseImpl {
   /**
    * Deletes an entity by ID.
    */
+  @Override
   public Mono<Void> delete(String id) {
     // TODO: Implement delete logic
     return Mono.empty();

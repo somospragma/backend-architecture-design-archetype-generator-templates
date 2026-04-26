@@ -13,7 +13,8 @@ import static com.tngtech.archunit.library.Architectures.onionArchitecture;
 
 /**
  * Architecture tests to validate clean architecture principles.
- * These tests ensure that the project follows the onion architecture pattern.
+ * These tests ensure that the project follows the hexagonal/onion architecture pattern
+ * with entry-points and driven-adapters (KB-aligned package naming).
  * 
  * DO NOT MODIFY OR DELETE THIS FILE.
  * This file is automatically synchronized during build to ensure architecture rules are enforced.
@@ -52,6 +53,21 @@ class ArchitectureTest {
     }
 
     @Test
+    void domainLayerShouldBeIsolated() {
+        ArchRule rule = noClasses()
+            .that().resideInAPackage("..domain..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "..infrastructure..",
+                "..application..",
+                "..config.."
+            )
+            .allowEmptyShould(true)
+            .because("Domain layer must be completely isolated - it should not depend on any external layer");
+
+        rule.check(classes);
+    }
+
+    @Test
     void applicationLayerShouldNotDependOnInfrastructureLayer() {
         ArchRule rule = noClasses()
             .that().resideInAPackage("..application..")
@@ -63,13 +79,28 @@ class ArchitectureTest {
     }
 
     @Test
+    void applicationLayerShouldOnlyDependOnDomain() {
+        ArchRule rule = noClasses()
+            .that().resideInAPackage("..application..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "..infrastructure..",
+                "..entrypoints..",
+                "..drivenadapters.."
+            )
+            .allowEmptyShould(true)
+            .because("Application layer should only depend on domain layer");
+
+        rule.check(classes);
+    }
+
+    @Test
     void onionArchitectureShouldBeRespected() {
         onionArchitecture()
             .domainModels("..domain.model..")
-            .domainServices("..domain.service..")
+            .domainServices("..domain.service..", "..domain.usecases..", "..domain.ports..")
             .applicationServices("..application..")
-            .adapter("in", "..infrastructure.adapter.in..")
-            .adapter("out", "..infrastructure.adapter.out..")
+            .adapter("entrypoints", "..infrastructure.entrypoints..")
+            .adapter("drivenadapters", "..infrastructure.drivenadapters..")
             .withOptionalLayers(true)
             .check(classes);
     }
