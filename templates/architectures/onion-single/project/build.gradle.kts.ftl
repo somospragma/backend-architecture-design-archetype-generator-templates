@@ -1,13 +1,16 @@
 plugins {
     id("java")
+    jacoco
 <#if framework == "spring">
-    id("org.springframework.boot") version "3.2.1"
-    id("io.spring.dependency-management") version "1.1.6"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 <#elseif framework == "quarkus">
     id("io.quarkus") version "3.6.4"
 </#if>
     id("co.com.pragma.archetype-generator") version "${pluginVersion}"
-    id("info.solidsoft.pitest") version "1.15.0"
+    alias(libs.plugins.pitest)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.owasp.dependencycheck)
 }
 
 group = "${basePackage}"
@@ -23,59 +26,48 @@ repositories {
     mavenCentral()
 }
 
+// Apply quality tools configuration
+apply(from = "main.gradle")
+
 dependencies {
 <#if framework == "spring">
     // Spring Boot Actuator
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    
+    implementation(libs.spring.boot.starter.actuator)
+
     // MapStruct
-    implementation("org.mapstruct:mapstruct:1.5.5.Final")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
-    
+    implementation(libs.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
+
     // Lombok
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    
-    // Testing
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+
+    // SpringDoc OpenAPI
     <#if paradigm == "reactive">
-    testImplementation("io.projectreactor:reactor-test")
+    implementation(libs.springdoc.openapi.starter.webflux)
+    <#else>
+    implementation(libs.springdoc.openapi.starter.webmvc)
     </#if>
-    
+
+    // Testing
+    testImplementation(libs.spring.boot.starter.test)
+    <#if paradigm == "reactive">
+    testImplementation(libs.reactor.test)
+    </#if>
+
     // ArchUnit for architecture testing
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.2.1")
+    testImplementation(libs.archunit.junit5)
 <#elseif framework == "quarkus">
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.6.4"))
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-arc")
     testImplementation("io.quarkus:quarkus-junit5")
-    
+
     // ArchUnit for architecture testing
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.2.1")
+    testImplementation(libs.archunit.junit5)
 </#if>
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-// Mutation Testing Configuration (PIT)
-pitest {
-    junit5PluginVersion.set("1.2.1")
-    targetClasses.set(listOf("${basePackage}.*"))
-    targetTests.set(listOf("${basePackage}.*"))
-    excludedClasses.set(listOf(
-        "${basePackage}.infrastructure.adapter.**",
-        "${basePackage}.infrastructure.config.**",
-        "${basePackage}.**.*Application",
-        "${basePackage}.**.*Config",
-        "${basePackage}.**.*Configuration"
-    ))
-    mutators.set(listOf("DEFAULTS"))
-    outputFormats.set(listOf("HTML", "XML"))
-    timestampedReports.set(false)
-    mutationThreshold.set(50)
-    coverageThreshold.set(50)
-    threads.set(Runtime.getRuntime().availableProcessors())
-    verbose.set(false)
 }
