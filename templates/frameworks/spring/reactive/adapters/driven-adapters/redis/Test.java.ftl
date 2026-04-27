@@ -1,6 +1,6 @@
-package ${packageName}.infrastructure.driven-adapters.redis;
+package ${packageName};
 
-import ${packageName}.domain.model.${entityName};
+import ${modelPackage}.${entityName};
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

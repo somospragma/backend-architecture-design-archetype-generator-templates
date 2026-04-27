@@ -45,26 +45,37 @@ subprojects {
 }
 
 // Domain modules — no Spring dependencies
-configure(subprojects.filter { it.name in listOf("model", "ports", "usecase") }) {
+configure(subprojects.filter { it.name in listOf("model", "ports", "usecases") }) {
     val catalog = rootProject.the<VersionCatalogsExtension>().named("libs")
     dependencies {
         implementation(catalog.findLibrary("mapstruct").get())
         annotationProcessor(catalog.findLibrary("mapstruct-processor").get())
+<#if paradigm == "reactive">
+        implementation(catalog.findLibrary("reactor-core").get())
+</#if>
     }
 }
 
 // Ports depends on model
 configure(subprojects.filter { it.name == "ports" }) {
     dependencies {
-        implementation(project(":domain:model"))
+        implementation(project(":model"))
     }
 }
 
-// Usecase depends on model and ports
-configure(subprojects.filter { it.name == "usecase" }) {
+// Usecases depends on model and ports
+configure(subprojects.filter { it.name == "usecases" }) {
     dependencies {
-        implementation(project(":domain:model"))
-        implementation(project(":domain:ports"))
+        implementation(project(":model"))
+        implementation(project(":ports"))
+    }
+}
+
+// Helpers module — shared cross-cutting utilities
+configure(subprojects.filter { it.name == "helpers" }) {
+    dependencies {
+        implementation(project(":model"))
+        implementation(project(":ports"))
     }
 }
 
@@ -76,9 +87,9 @@ configure(subprojects.filter { it.name == "app-service" }) {
 
     val catalog = rootProject.the<VersionCatalogsExtension>().named("libs")
     dependencies {
-        implementation(project(":domain:model"))
-        implementation(project(":domain:ports"))
-        implementation(project(":domain:usecase"))
+        implementation(project(":model"))
+        implementation(project(":ports"))
+        implementation(project(":usecases"))
 
         // Spring Boot Actuator
         implementation(catalog.findLibrary("spring-boot-starter-actuator").get())

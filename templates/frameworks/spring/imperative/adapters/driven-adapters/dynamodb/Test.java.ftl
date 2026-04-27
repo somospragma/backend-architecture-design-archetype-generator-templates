@@ -24,7 +24,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  * Test for ${adapterName}DynamoDbAdapter using LocalStack
  */
 @Testcontainers
-class ${adapterName}DynamoDbAdapterTest {
+class ${adapterName}Test {
 
     @Container
     static LocalStackContainer localstack = new LocalStackContainer(

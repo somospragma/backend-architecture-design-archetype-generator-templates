@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
  * Provides CRUD operations using Spring Data MongoDB.
  */
 @Repository
-public interface ${adapterName}MongoRepository extends MongoRepository<Object, String> {
+public interface ${adapterName}Repository extends MongoRepository<Object, String> {
   
   // Custom query methods can be added here
   // Example:

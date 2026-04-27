@@ -21,7 +21,7 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories(basePackages = "${basePackage}.infrastructure.adapter.out")
 @EnableTransactionManagement
-public class JpaConfig {
+public class ${adapterName}JpaConfig {
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.hikari")

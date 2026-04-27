@@ -16,7 +16,7 @@ import java.util.Map;
  * Maps domain exceptions to appropriate HTTP status codes.
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class ${controllerName}ExceptionHandler {
 
   private static final String TIMESTAMP_KEY = "timestamp";
   private static final String STATUS_KEY = "status";

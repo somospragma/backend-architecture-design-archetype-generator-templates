@@ -1,4 +1,4 @@
-package ${packageName}.entity;
+package ${packageName};
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;

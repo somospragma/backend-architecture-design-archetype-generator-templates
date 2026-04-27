@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
  * Mapper between DTOs and domain entities for ${controllerName}.
  */
 @Component
-public class ${controllerName}DtoMapper {
+public class ${controllerName}DTOMapper {
 
   // TODO: Implement mapping methods between request/response DTOs and domain entities
   // Example:

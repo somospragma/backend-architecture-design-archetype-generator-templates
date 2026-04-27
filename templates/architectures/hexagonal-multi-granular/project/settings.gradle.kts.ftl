@@ -8,10 +8,20 @@ pluginManagement {
     }
 }
 
-// Domain modules (inside domain/ folder)
-include("domain:model")
-include("domain:ports")
-include("domain:usecase")
+// Domain modules
+include("model")
+project(":model").projectDir = file("domain/model")
 
-// Main application (inside application/ folder)
-include("application:app-service")
+include("ports")
+project(":ports").projectDir = file("domain/ports")
+
+include("usecases")
+project(":usecases").projectDir = file("domain/usecases")
+
+// Infrastructure helpers
+include("helpers")
+project(":helpers").projectDir = file("infrastructure/helpers")
+
+// Main application
+include("app-service")
+project(":app-service").projectDir = file("application/app-service")

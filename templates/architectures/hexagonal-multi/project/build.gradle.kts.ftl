@@ -50,6 +50,10 @@ configure(subprojects.filter { it.name == "domain" }) {
     dependencies {
         implementation(catalog.findLibrary("mapstruct").get())
         annotationProcessor(catalog.findLibrary("mapstruct-processor").get())
+<#if paradigm == "reactive">
+        // Reactor core for reactive ports (Mono, Flux)
+        implementation(catalog.findLibrary("reactor-core").get())
+</#if>
     }
 }
 

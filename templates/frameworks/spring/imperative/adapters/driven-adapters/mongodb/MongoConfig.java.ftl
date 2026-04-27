@@ -1,4 +1,4 @@
-package ${packageName}.infrastructure.driven-adapters.mongodb.config;
+package ${packageName};
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * Configures MongoDB client and template.
  */
 @Configuration
-@EnableMongoRepositories(basePackages = "${packageName}.infrastructure.driven-adapters.mongodb")
+@EnableMongoRepositories(basePackages = "${packageName}")
 public class ${adapterName}MongoConfig extends AbstractMongoClientConfiguration {
 
   @Value("${r"${spring.data.mongodb.uri}"}")

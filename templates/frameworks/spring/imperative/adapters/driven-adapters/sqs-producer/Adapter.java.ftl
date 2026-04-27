@@ -1,6 +1,6 @@
 package ${packageName};
 
-import ${basePackage}.domain.ports.I${entityName}Gateway;
+import ${portsPackage}.I${entityName}Gateway;
 import ${packageName}.mapper.${entityName}EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

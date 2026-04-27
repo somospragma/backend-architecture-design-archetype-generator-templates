@@ -2,6 +2,7 @@ name: postgresql
 type: driven
 description: PostgreSQL database adapter using Spring Data JPA
 suffix: "Adapter"
+needsMapper: true
 applicationPropertiesTemplate: "application-properties.yml.ftl"
 
 dependencies:

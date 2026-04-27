@@ -1,6 +1,8 @@
 package ${packageName};
 
-import ${basePackage}.domain.ports.I${controllerName}UseCase;
+<#if useCaseName?? && useCaseName?has_content>
+import ${portsPackage}.I${useCaseName}UseCase;
+</#if>
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,7 +27,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ${controllerName}Controller {
 
-    private final I${controllerName}UseCase ${controllerName?uncap_first}UseCase;
+<#if useCaseName?? && useCaseName?has_content>
+    private final I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
+</#if>
 
     @Operation(summary = "Create ${controllerName}")
     @ApiResponses(value = {

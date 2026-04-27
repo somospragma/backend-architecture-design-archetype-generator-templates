@@ -1,4 +1,4 @@
-package ${packageName}.infrastructure.driven-adapters.mongodb.config;
+package ${packageName};
 
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
  * Configures reactive MongoDB client and template.
  */
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = "${packageName}.infrastructure.driven-adapters.mongodb")
+@EnableReactiveMongoRepositories(basePackages = "${packageName}")
 public class ${adapterName}MongoConfig extends AbstractReactiveMongoConfiguration {
 
   @Value("${'$'}{spring.data.mongodb.uri}")

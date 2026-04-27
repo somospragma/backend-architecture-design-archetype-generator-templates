@@ -2,6 +2,7 @@ name: redis
 type: driven
 description: Redis cache adapter using Spring Data Redis
 suffix: "Adapter"
+needsMapper: true
 
 dependencies:
   - group: org.springframework.boot

@@ -86,6 +86,10 @@ adapterPaths:
   driven: "infrastructure/driven-adapters/{name}"
   driving: "infrastructure/entry-points/{name}"
 
+# Module configuration for entity and use case generation
+entityModule: "model"
+useCaseModule: "usecases"
+
 # Carpetas organizadoras (NO son módulos de Gradle)
 folders:
   - "domain"
@@ -102,6 +106,8 @@ modules:
     description: "Domain entities and value objects"
     packagePath: "domain.model"
     dependencies: []
+    packageTypes:
+      model: ""
     
   - name: "ports"
     path: "domain/ports"
@@ -109,6 +115,8 @@ modules:
     packagePath: "domain.ports"
     dependencies:
       - "model"
+    packageTypes:
+      ports: ""
     
   - name: "usecases"
     path: "domain/usecases"
@@ -117,6 +125,8 @@ modules:
     dependencies:
       - "model"
       - "ports"
+    packageTypes:
+      usecases: ""
   
   # Infrastructure helpers module
   - name: "helpers"

@@ -2,6 +2,7 @@ name: http-client
 type: driven
 description: HTTP Client adapter using RestClient (Spring 6.1+)
 suffix: "Adapter"
+needsMapper: true
 
 dependencies:
   - group: org.springframework.boot

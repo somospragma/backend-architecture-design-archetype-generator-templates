@@ -14,7 +14,7 @@ import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
  */
 @Configuration
 @EnableR2dbcRepositories(basePackages = "${basePackage}.infrastructure.adapter.out")
-public class R2dbcConfig extends AbstractR2dbcConfiguration {
+public class ${adapterName}R2dbcConfig extends AbstractR2dbcConfiguration {
 
     @Override
     public ConnectionFactory connectionFactory() {
