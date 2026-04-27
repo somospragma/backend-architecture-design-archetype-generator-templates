@@ -1,26 +1,26 @@
-package ${r"${packageName}"};
+package ${packageName};
 
-import ${r"${basePackage}"}.domain.model.${r"${entityName}"};
-import ${r"${basePackage}"}.domain.ports.I${r"${entityName}"}Gateway;
-import ${r"${packageName}"}.entity.${r"${entityName}"}Entity;
-import ${r"${packageName}"}.mapper.${r"${entityName}"}EntityMapper;
+import ${basePackage}.domain.model.${entityName};
+import ${basePackage}.domain.ports.I${entityName}Gateway;
+import ${packageName}.entity.${entityName}Entity;
+import ${packageName}.mapper.${entityName}EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * PostgreSQL adapter for ${r"${entityName}"} using R2DBC
+ * PostgreSQL adapter for ${entityName} using R2DBC
  */
 @Repository
 @RequiredArgsConstructor
-public class ${r"${adapterName}"}Adapter implements I${r"${entityName}"}Gateway {
+public class ${adapterName}Adapter implements I${entityName}Gateway {
 
-    private final ${r"${entityName}"}R2dbcRepository r2dbcRepository;
-    private final ${r"${entityName}"}EntityMapper mapper;
+    private final ${entityName}R2dbcRepository r2dbcRepository;
+    private final ${entityName}EntityMapper mapper;
 
     @Override
-    public Mono<${r"${entityName}"}> save(${r"${entityName}"} entity) {
+    public Mono<${entityName}> save(${entityName} entity) {
         return Mono.just(entity)
                 .map(mapper::toEntity)
                 .flatMap(r2dbcRepository::save)
@@ -28,13 +28,13 @@ public class ${r"${adapterName}"}Adapter implements I${r"${entityName}"}Gateway 
     }
 
     @Override
-    public Mono<${r"${entityName}"}> findById(Long id) {
+    public Mono<${entityName}> findById(Long id) {
         return r2dbcRepository.findById(id)
                 .map(mapper::toDomain);
     }
 
     @Override
-    public Flux<${r"${entityName}"}> findAll() {
+    public Flux<${entityName}> findAll() {
         return r2dbcRepository.findAll()
                 .map(mapper::toDomain);
     }

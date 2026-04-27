@@ -134,7 +134,7 @@ modules:
       - "domain"
       - "application"
     packages:
-      - "entry-points/rest"
+      - "entry-points"
       - "driven-adapters"
       - "config"
     packageTypes:

@@ -1,7 +1,7 @@
-package ${r"${packageName}"};
+package ${packageName};
 
-import ${r"${basePackage}"}.domain.ports.I${r"${entityName}"}Gateway;
-import ${r"${packageName}"}.mapper.${r"${entityName}"}EntityMapper;
+import ${basePackage}.domain.ports.I${entityName}Gateway;
+import ${packageName}.mapper.${entityName}EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -11,16 +11,16 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 /**
- * Redis adapter for ${r"${entityName}"}.
+ * Redis adapter for ${entityName}.
  * Implements caching using Redis.
  */
 @Component
 @RequiredArgsConstructor
-public class ${r"${adapterName}"}Adapter implements I${r"${entityName}"}Gateway {
+public class ${adapterName}Adapter implements I${entityName}Gateway {
 
     private final ReactiveRedisTemplate<String, Object> redisTemplate;
-    private final ${r"${entityName}"}EntityMapper mapper;
-    private static final String KEY_PREFIX = "${r"${entityName?lower_case}"}:";
+    private final ${entityName}EntityMapper mapper;
+    private static final String KEY_PREFIX = "${entityName?lower_case}:";
     private static final long TTL_SECONDS = 3600; // 1 hour
 
     /**

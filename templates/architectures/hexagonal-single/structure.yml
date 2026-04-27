@@ -108,7 +108,7 @@ packages:
   - "domain/model"
   - "domain/ports"
   - "domain/usecases"
-  - "infrastructure/entry-points/rest"
+  - "infrastructure/entry-points"
   - "infrastructure/driven-adapters"
   - "infrastructure/config"
 

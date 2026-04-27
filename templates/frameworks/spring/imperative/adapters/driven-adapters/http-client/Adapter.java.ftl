@@ -1,7 +1,7 @@
-package ${r"${packageName}"};
+package ${packageName};
 
-import ${r"${basePackage}"}.domain.ports.I${r"${entityName}"}Gateway;
-import ${r"${packageName}"}.mapper.${r"${entityName}"}EntityMapper;
+import ${basePackage}.domain.ports.I${entityName}Gateway;
+import ${packageName}.mapper.${entityName}EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +12,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * HTTP Client adapter for ${r"${adapterName}"}.
+ * HTTP Client adapter for ${adapterName}.
  * Implements HTTP operations using RestClient (Spring 6.1+).
  */
 @Component
-public class ${r"${adapterName}"}HttpClientAdapter implements I${r"${entityName}"}Gateway {
+public class ${adapterName}HttpClientAdapter implements I${entityName}Gateway {
 
     private final RestClient restClient;
-    private final ${r"${entityName}"}EntityMapper mapper;
+    private final ${entityName}EntityMapper mapper;
 
-    public ${r"${adapterName}"}HttpClientAdapter(RestClient.Builder restClientBuilder, ${r"${entityName}"}EntityMapper mapper) {
+    public ${adapterName}HttpClientAdapter(RestClient.Builder restClientBuilder, ${entityName}EntityMapper mapper) {
         this.restClient = restClientBuilder.build();
         this.mapper = mapper;
     }

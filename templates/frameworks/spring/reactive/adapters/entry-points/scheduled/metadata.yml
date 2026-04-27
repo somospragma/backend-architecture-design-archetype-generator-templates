@@ -1,5 +1,5 @@
 name: scheduled
-type: entry-point
+type: input
 description: Scheduled task entry point using Spring Scheduling with Reactive support
 
 dependencies:

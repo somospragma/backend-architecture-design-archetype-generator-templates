@@ -1,7 +1,7 @@
-package ${r"${packageName}"};
+package ${packageName};
 
-import ${r"${basePackage}"}.domain.ports.I${r"${entityName}"}Gateway;
-import ${r"${packageName}"}.mapper.${r"${entityName}"}EntityMapper;
+import ${basePackage}.domain.ports.I${entityName}Gateway;
+import ${packageName}.mapper.${entityName}EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,15 +12,15 @@ import software.amazon.awssdk.services.sqs.model.*;
 import java.util.Map;
 
 /**
- * SQS Producer adapter for ${r"${adapterName}"}.
+ * SQS Producer adapter for ${adapterName}.
  * Implements SQS message sending operations using SqsAsyncClient.
  */
 @Component
 @RequiredArgsConstructor
-public class ${r"${adapterName}"}SqsProducerAdapter implements I${r"${entityName}"}Gateway {
+public class ${adapterName}SqsProducerAdapter implements I${entityName}Gateway {
 
     private final SqsAsyncClient sqsAsyncClient;
-    private final ${r"${entityName}"}EntityMapper mapper;
+    private final ${entityName}EntityMapper mapper;
 
     @Value("${r"${"}aws.sqs.queue-url}")
     private String queueUrl;
