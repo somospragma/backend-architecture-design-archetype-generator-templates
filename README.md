@@ -354,38 +354,42 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para más detalles.
 #### Entry Points (Adaptadores de Entrada)
 | Adaptador | Estado | Descripción |
 |-----------|--------|-------------|
-| **REST API** | ✅ Disponible | Controladores REST con WebFlux, Mono/Flux |
-| **GraphQL** | 🔜 Planeado | Resolvers GraphQL con Spring GraphQL |
-| **gRPC** | 🔜 Planeado | Servicios gRPC con Protocol Buffers |
-| **WebSocket** | 🔜 Planeado | Handlers WebSocket reactivos |
+| **REST API** | ✅ Disponible | Controladores REST con WebFlux (Handler + Router funcional) |
+| **GraphQL** | ✅ Disponible | API GraphQL con Spring for GraphQL (queries, mutations, subscriptions) |
+| **gRPC** | ✅ Disponible | Servicios gRPC con ReactorStub para alto rendimiento |
+| **SQS Consumer** | ✅ Disponible | Consumidor de mensajes SQS con Spring Cloud AWS |
+| **Scheduled** | ✅ Disponible | Tareas programadas con Spring Scheduling |
 
 #### Driven Adapters (Adaptadores de Salida)
 | Adaptador | Estado | Descripción |
 |-----------|--------|-------------|
-| **Redis** | ✅ Disponible | Cache con Spring Data Redis Reactive + Lettuce |
 | **MongoDB** | ✅ Disponible | Base de datos NoSQL con Spring Data MongoDB Reactive |
 | **PostgreSQL** | ✅ Disponible | Base de datos relacional con R2DBC |
-| **REST Client** | 🚧 En desarrollo | Cliente HTTP con WebClient |
-| **Kafka** | 🚧 En desarrollo | Productor/Consumidor con Reactor Kafka |
-| **DynamoDB** | 🔜 Planeado | Base de datos NoSQL de AWS |
-| **MySQL** | 🔜 Planeado | Base de datos relacional con R2DBC MySQL |
-| **RabbitMQ** | 🔜 Planeado | Mensajería con Spring AMQP Reactive |
+| **Redis** | ✅ Disponible | Cache con Spring Data Redis Reactive + Lettuce |
+| **HTTP Client** | ✅ Disponible | Cliente HTTP con WebClient |
+| **DynamoDB** | ✅ Disponible | Base de datos NoSQL de AWS con DynamoDbAsyncClient |
+| **SQS Producer** | ✅ Disponible | Productor de mensajes SQS con SqsAsyncClient |
 
 ### Spring Imperative (MVC)
 
 #### Entry Points (Adaptadores de Entrada)
 | Adaptador | Estado | Descripción |
 |-----------|--------|-------------|
-| **REST API** | 🚧 En desarrollo | Controladores REST con Spring MVC |
-| **GraphQL** | 🔜 Planeado | Resolvers GraphQL síncronos |
+| **REST API** | ✅ Disponible | Controladores REST con Spring MVC (@RestController) |
+| **GraphQL** | ✅ Disponible | API GraphQL con Spring for GraphQL (síncrono) |
+| **gRPC** | ✅ Disponible | Servicios gRPC con BlockingStub |
+| **SQS Consumer** | ✅ Disponible | Consumidor de mensajes SQS síncrono |
+| **Scheduled** | ✅ Disponible | Tareas programadas con Spring Scheduling |
 
 #### Driven Adapters (Adaptadores de Salida)
 | Adaptador | Estado | Descripción |
 |-----------|--------|-------------|
-| **Redis** | 🚧 En desarrollo | Cache con Spring Data Redis |
-| **MongoDB** | 🚧 En desarrollo | Base de datos NoSQL con Spring Data MongoDB |
-| **PostgreSQL** | 🚧 En desarrollo | Base de datos relacional con JPA/Hibernate |
-| **MySQL** | 🔜 Planeado | Base de datos relacional con JPA/Hibernate |
+| **MongoDB** | ✅ Disponible | Base de datos NoSQL con Spring Data MongoDB |
+| **PostgreSQL** | ✅ Disponible | Base de datos relacional con JPA/Hibernate |
+| **Redis** | ✅ Disponible | Cache con Spring Data Redis + RedisTemplate |
+| **HTTP Client** | ✅ Disponible | Cliente HTTP con RestClient (Spring 6.1+) |
+| **DynamoDB** | ✅ Disponible | Base de datos NoSQL de AWS con DynamoDbClient |
+| **SQS Producer** | ✅ Disponible | Productor de mensajes SQS con SqsClient |
 
 ### Quarkus Reactive (Mutiny)
 
@@ -406,27 +410,36 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para más detalles.
 
 ### Roadmap
 
-**Q1 2026** (Actual)
+**Q1-Q2 2026** (Completado)
 - ✅ REST API (Spring Reactive)
 - ✅ Redis (Spring Reactive)
 - ✅ MongoDB (Spring Reactive)
 - ✅ PostgreSQL (Spring Reactive)
-
-**Q2 2026**
-- 🚧 REST Client (Spring Reactive)
-- 🚧 Kafka (Spring Reactive)
-- 🚧 REST API (Spring Imperative)
-- 🚧 Redis (Spring Imperative)
+- ✅ HTTP Client (Spring Reactive)
+- ✅ DynamoDB (Spring Reactive)
+- ✅ SQS Producer/Consumer (Spring Reactive)
+- ✅ GraphQL (Spring Reactive)
+- ✅ gRPC (Spring Reactive)
+- ✅ Scheduled (Spring Reactive)
+- ✅ REST API (Spring Imperative)
+- ✅ Redis (Spring Imperative)
+- ✅ MongoDB (Spring Imperative)
+- ✅ PostgreSQL (Spring Imperative)
+- ✅ HTTP Client (Spring Imperative)
+- ✅ DynamoDB (Spring Imperative)
+- ✅ SQS Producer/Consumer (Spring Imperative)
+- ✅ GraphQL (Spring Imperative)
+- ✅ gRPC (Spring Imperative)
+- ✅ Scheduled (Spring Imperative)
 
 **Q3 2026**
-- 🔜 GraphQL (Spring Reactive)
-- 🔜 gRPC (Spring Reactive)
-- 🔜 DynamoDB (Spring Reactive)
+- 🔜 Kafka Producer/Consumer (Spring Reactive + Imperative)
+- 🔜 WebSocket (Spring Reactive + Imperative)
 - 🔜 Quarkus Reactive (todos los adaptadores)
 
 **Q4 2026**
-- 🔜 WebSocket (Spring Reactive)
-- 🔜 RabbitMQ (Spring Reactive)
+- 🔜 RabbitMQ (Spring Reactive + Imperative)
+- 🔜 MySQL (Spring Reactive + Imperative)
 - 🔜 Quarkus Imperative (todos los adaptadores)
 
 
