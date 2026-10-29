@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
 <#elseif framework == "quarkus">
-    id("io.quarkus") version "3.6.4"
+    id("io.quarkus") version "${versions.libraries["quarkus"]}"
 </#if>
     id("co.com.pragma.archetype-generator") version "${pluginVersion}"
     alias(libs.plugins.pitest)
@@ -18,7 +18,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(${versions.java}))
     }
 }
 
@@ -58,7 +58,7 @@ dependencies {
     // ArchUnit for architecture testing
     testImplementation(libs.archunit.junit5)
 <#elseif framework == "quarkus">
-    implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.6.4"))
+    implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:${versions.libraries["quarkus"]}"))
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-arc")
     testImplementation("io.quarkus:quarkus-junit5")

@@ -5,10 +5,7 @@ framework: spring
 paradigm: reactive
 version: 1.0.0
 
-dependencies:
-  springBoot: 3.2.0
-  java: 21
-  mapstruct: 1.5.5.Final
+# Versions live in templates/versions.yml
 
 libraries:
   - name: spring-boot-starter-webflux

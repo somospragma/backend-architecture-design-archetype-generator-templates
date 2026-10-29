@@ -7,16 +7,14 @@ needsMapper: true
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-webflux
-    version: 3.2.0
 
 testDependencies:
   - group: com.squareup.okhttp3
     artifact: mockwebserver
-    version: 4.12.0
+    versionRef: okhttp
     scope: test
   - group: io.projectreactor
     artifact: reactor-test
-    version: 3.6.0
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

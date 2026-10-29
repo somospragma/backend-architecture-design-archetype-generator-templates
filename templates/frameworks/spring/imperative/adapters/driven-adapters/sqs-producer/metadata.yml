@@ -7,16 +7,16 @@ needsMapper: true
 dependencies:
   - group: software.amazon.awssdk
     artifact: sqs
-    version: 2.20.0
+    versionRef: aws-sdk
 
 testDependencies:
   - group: org.testcontainers
     artifact: localstack
-    version: 1.19.0
+    versionRef: testcontainers
     scope: test
   - group: org.testcontainers
     artifact: junit-jupiter
-    version: 1.19.0
+    versionRef: testcontainers
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

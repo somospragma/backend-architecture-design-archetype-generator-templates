@@ -7,16 +7,13 @@ applicationPropertiesTemplate: "application-properties.yml.ftl"
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-web
-    version: 3.2.0
   - group: org.springframework.boot
     artifact: spring-boot-starter-validation
-    version: 3.2.0
   - group: org.springdoc
     artifact: springdoc-openapi-starter-webmvc-ui
-    version: 2.2.0
+    versionRef: springdoc-openapi
 
 testDependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-test
-    version: 3.2.0
     scope: test

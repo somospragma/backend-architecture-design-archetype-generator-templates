@@ -1,0 +1,52 @@
+# Single source of truth for every version used by generated projects.
+# The plugin reads this file at generation time, so bumping a version here
+# reaches every user without a new plugin release.
+#
+# - Templates read it as ${versions.java}, ${versions.gradle},
+#   ${versions.libraries["alias"]} and ${versions.quality["key"]}.
+# - Adapter metadata.yml files reference a library with `versionRef: <alias>`.
+# - Anything managed by the Spring Boot BOM (org.springframework.*,
+#   io.projectreactor, JDBC/R2DBC drivers, Lettuce, HikariCP, Awaitility...)
+#   is declared WITHOUT a version and is not listed here.
+schemaVersion: 1
+
+java: "21"
+gradle: "8.14.1"
+
+libraries:
+  # Platform and build plugins (generated gradle/libs.versions.toml)
+  spring-boot: "4.0.3"
+  spring-dependency-management: "1.1.7"
+  sonarqube: "6.0.1.5171"
+  owasp-dependencycheck: "12.1.0"
+  pitest: "1.19.0-rc.2"
+  pitest-junit5: "1.2.1"
+
+  # Libraries outside the Spring Boot BOM
+  mapstruct: "1.6.3"
+  lombok: "1.18.36"
+  archunit: "1.3.0"
+  springdoc-openapi: "2.8.6"
+  # Modules without the Spring Boot BOM (e.g. the pure domain module) need it explicitly
+  reactor: "3.7.6"
+  jacoco: "0.8.12"
+  quarkus: "3.6.4"
+
+  # Adapters
+  grpc: "1.58.0"
+  grpc-spring-boot: "2.15.0.RELEASE"
+  reactor-grpc: "1.2.4"
+  protobuf-plugin: "0.9.4"
+  protoc: "3.24.0"
+  javax-annotation-api: "1.3.2"
+  aws-sdk: "2.20.0"
+  spring-cloud-aws: "3.1.0"
+  testcontainers: "1.19.0"
+  flapdoodle-mongo: "4.11.0"
+  embedded-redis: "0.7.3"
+  okhttp: "4.12.0"
+
+quality:
+  jacoco-min-coverage: "0.85"
+  pit-mutation-threshold: "20"
+  owasp-fail-on-cvss: "7.0"

@@ -30,7 +30,6 @@ dependencies:
   gradle:
     - groupId: org.springframework.boot
       artifactId: spring-boot-starter
-      version: 3.2.0
 
 files:
   - name: UseCase.java.ftl

@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile with jlink optimization
 # Stage 1: Build application
-FROM gradle:8.5-jdk21 AS builder
+FROM gradle:${versions.gradle}-jdk${versions.java} AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ COPY src ./src
 RUN gradle bootJar --no-daemon
 
 # Stage 2: Create custom JRE with jlink
-FROM eclipse-temurin:21-jdk AS jlink
+FROM eclipse-temurin:${versions.java}-jdk AS jlink
 
 WORKDIR /jlink
 

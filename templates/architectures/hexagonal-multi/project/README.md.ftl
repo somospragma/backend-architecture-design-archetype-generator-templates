@@ -69,7 +69,7 @@ infrastructure → application → domain
 ## Technology Stack
 
 - Java 21
-- Spring Boot 3.2.1
+- Spring Boot ${versions.libraries["spring-boot"]}
 - Spring WebFlux (Reactive)
 - Project Reactor
 - Gradle (Multi-module)

@@ -32,7 +32,7 @@ src/main/java/${basePackage?replace('.', '/')}/
 - Java 21
 - Gradle 8.5+
 <#if framework == "spring">
-- Spring Boot 3.2+
+- Spring Boot ${versions.libraries["spring-boot"]}
 </#if>
 
 ### Build

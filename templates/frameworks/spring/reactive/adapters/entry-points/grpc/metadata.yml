@@ -5,28 +5,27 @@ description: gRPC entry point using gRPC Spring Boot Starter with reactive suppo
 dependencies:
   - group: net.devh
     artifact: grpc-server-spring-boot-starter
-    version: 2.15.0.RELEASE
+    versionRef: grpc-spring-boot
   - group: io.grpc
     artifact: grpc-stub
-    version: 1.58.0
+    versionRef: grpc
   - group: io.grpc
     artifact: grpc-protobuf
-    version: 1.58.0
+    versionRef: grpc
   - group: javax.annotation
     artifact: javax.annotation-api
-    version: 1.3.2
+    versionRef: javax-annotation-api
   - group: com.salesforce.servicelibs
     artifact: reactor-grpc-stub
-    version: 1.2.4
+    versionRef: reactor-grpc
 
 testDependencies:
   - group: net.devh
     artifact: grpc-client-spring-boot-starter
-    version: 2.15.0.RELEASE
+    versionRef: grpc-spring-boot
     scope: test
   - group: io.projectreactor
     artifact: reactor-test
-    version: 3.6.0
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl
@@ -38,16 +37,16 @@ additionalResources:
 
 buildPlugins:
   - id: com.google.protobuf
-    version: 0.9.4
+    versionRef: protobuf-plugin
 
 buildConfiguration: |
   protobuf {
       protoc {
-          artifact = "com.google.protobuf:protoc:3.24.0"
+          artifact = "com.google.protobuf:protoc:${versions.libraries["protoc"]}"
       }
       plugins {
           create("grpc") {
-              artifact = "io.grpc:protoc-gen-grpc-java:1.58.0"
+              artifact = "io.grpc:protoc-gen-grpc-java:${versions.libraries["grpc"]}"
           }
       }
       generateProtoTasks {

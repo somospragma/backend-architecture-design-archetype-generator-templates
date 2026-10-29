@@ -6,15 +6,12 @@ suffix: GraphQLController
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-graphql
-    version: 3.2.0
   - group: org.springframework.boot
     artifact: spring-boot-starter-web
-    version: 3.2.0
 
 testDependencies:
   - group: org.springframework.graphql
     artifact: spring-graphql-test
-    version: 1.2.0
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

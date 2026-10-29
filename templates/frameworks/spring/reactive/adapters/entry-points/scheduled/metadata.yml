@@ -5,23 +5,18 @@ description: Scheduled task entry point using Spring Scheduling with Reactive su
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter
-    version: 3.2.0
   - group: io.projectreactor
     artifact: reactor-core
-    version: 3.6.0
 
 testDependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-test
-    version: 3.2.0
     scope: test
   - group: io.projectreactor
     artifact: reactor-test
-    version: 3.6.0
     scope: test
   - group: org.awaitility
     artifact: awaitility
-    version: 4.2.0
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

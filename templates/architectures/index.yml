@@ -1,0 +1,14 @@
+# Architectures this template repository provides. The plugin offers exactly
+# these, so adding one is: create architectures/<name>/ (structure.yml +
+# templates) and list it here. No plugin release needed.
+schemaVersion: 1
+
+architectures:
+  - name: hexagonal-single
+    description: Single module hexagonal architecture (ports and adapters)
+  - name: hexagonal-multi
+    description: Multi-module hexagonal architecture with domain, application and infrastructure modules
+  - name: hexagonal-multi-granular
+    description: Hexagonal architecture with granular modules, each adapter is a separate module
+  - name: onion-single
+    description: Single module onion architecture, domain at the center

@@ -11,7 +11,7 @@ subprojects {
     apply plugin: 'jacoco'
 
     jacoco {
-        toolVersion = "0.8.12"
+        toolVersion = "${versions.libraries["jacoco"]}"
     }
 
     jacocoTestReport {
@@ -27,7 +27,7 @@ subprojects {
             rule {
                 limit {
                     counter = 'LINE'
-                    minimum = 0.85
+                    minimum = ${versions.quality["jacoco-min-coverage"]}
                 }
             }
         }
@@ -64,7 +64,7 @@ sonar {
 // OWASP Dependency Check — Vulnerability Scanning
 // ------------------------------------------------------------
 dependencyCheck {
-    failBuildOnCVSS = 7.0
+    failBuildOnCVSS = ${versions.quality["owasp-fail-on-cvss"]}
     formats = ['HTML', 'JSON']
     suppressionFile = "owasp-suppressions.xml"
     analyzers {

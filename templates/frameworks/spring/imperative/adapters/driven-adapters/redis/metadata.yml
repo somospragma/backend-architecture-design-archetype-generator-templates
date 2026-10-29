@@ -7,15 +7,13 @@ needsMapper: true
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-data-redis
-    version: 3.2.0
   - group: io.lettuce
     artifact: lettuce-core
-    version: 6.3.0.RELEASE
 
 testDependencies:
   - group: it.ozimov
     artifact: embedded-redis
-    version: 0.7.3
+    versionRef: embedded-redis
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

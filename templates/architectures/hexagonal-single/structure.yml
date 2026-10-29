@@ -5,7 +5,7 @@ resourcesPath: "src/main/resources"
 
 # Static files to be copied from template to project
 staticFiles:
-  # Gradle Wrapper (Gradle 8.5 for PIT compatibility)
+  # Gradle Wrapper (version from versions.yml)
   - source: "project/gradlew"
     destination: "gradlew"
     description: "Gradle wrapper script for Unix"
@@ -22,7 +22,7 @@ staticFiles:
     
   - source: "project/gradle/wrapper/gradle-wrapper.properties"
     destination: "gradle/wrapper/gradle-wrapper.properties"
-    description: "Gradle wrapper properties (version 8.5)"
+    description: "Gradle wrapper properties (version from versions.yml)"
     
   - source: "project/gradle/wrapper/gradle-wrapper.jar"
     destination: "gradle/wrapper/gradle-wrapper.jar"

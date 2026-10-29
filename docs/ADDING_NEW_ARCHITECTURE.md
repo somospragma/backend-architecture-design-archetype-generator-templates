@@ -178,17 +178,24 @@ Los templates (`.ftl`) tienen acceso a estas variables:
 - `${isImperative}` - Boolean: true si es imperativo
 
 ### Variables de Versiones
-- `${javaVersion}` - Versión de Java (ej: "21")
-- `${springBootVersion}` - Versión de Spring Boot (ej: "3.3.0")
-- `${mapstructVersion}` - Versión de MapStruct (ej: "1.5.5.Final")
+
+Todas las versiones salen de `templates/versions.yml`, la única fuente de verdad. Subir una versión ahí llega a todos los usuarios sin publicar el plugin.
+
+- `${versions.java}` - Versión de Java (ej: "21")
+- `${versions.gradle}` - Versión del wrapper de Gradle (ej: "8.14.1")
+- `${versions.libraries["spring-boot"]}` - Versión de una librería o plugin por su alias
+- `${versions.quality["jacoco-min-coverage"]}` - Umbrales de calidad
+- `${javaVersion}` - Alias de `${versions.java}`, se mantiene por compatibilidad
+
+En el `metadata.yml` de un adapter, una dependencia referencia su versión con `versionRef: <alias>`. Las dependencias que gestiona el BOM de Spring Boot se declaran sin versión.
 
 ## 📚 Pasos para Agregar una Nueva Arquitectura
 
 1. **Crear la carpeta** en `templates/architectures/`
 2. **Crear `structure.yml`** con la definición
 3. **Crear carpeta `project/`** con los templates raíz
-4. **Si es multi-módulo**, crear carpeta `modules/` con templates de cada módulo
-5. **Agregar el enum** en `ArchitectureType.java` (en el core)
+4. **Si es multi-módulo**, declarar `modules` (y opcionalmente `folders` y `adaptersAsModules`) en `structure.yml` y crear `modules/{nombre}/build.gradle.kts.ftl` para cada módulo
+5. **Registrarla** en `templates/architectures/index.yml`. No hay que tocar el core ni publicar el plugin.
 6. **Probar** generando un proyecto con la nueva arquitectura
 
 ## 🚀 Comando para Probar

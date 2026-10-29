@@ -8,7 +8,7 @@
 // JaCoCo — Code Coverage
 // ------------------------------------------------------------
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "${versions.libraries["jacoco"]}"
 }
 
 jacocoTestReport {
@@ -24,7 +24,7 @@ jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = 'LINE'
-                minimum = 0.85
+                minimum = ${versions.quality["jacoco-min-coverage"]}
             }
         }
     }
@@ -39,7 +39,7 @@ test.finalizedBy jacocoTestReport
 // PIT — Mutation Testing
 // ------------------------------------------------------------
 pitest {
-    junit5PluginVersion = '1.2.1'
+    junit5PluginVersion = '${versions.libraries["pitest-junit5"]}'
     targetClasses = ["${basePackage}.*"]
     targetTests = ["${basePackage}.*"]
     excludedClasses = [
@@ -52,7 +52,7 @@ pitest {
     mutators = ['DEFAULTS']
     outputFormats = ['HTML', 'XML']
     timestampedReports = false
-    mutationThreshold = 20
+    mutationThreshold = ${versions.quality["pit-mutation-threshold"]}
     coverageThreshold = 20
     threads = Runtime.runtime.availableProcessors()
     verbose = false
@@ -78,7 +78,7 @@ sonar {
 // OWASP Dependency Check — Vulnerability Scanning
 // ------------------------------------------------------------
 dependencyCheck {
-    failBuildOnCVSS = 7.0
+    failBuildOnCVSS = ${versions.quality["owasp-fail-on-cvss"]}
     formats = ['HTML', 'JSON']
     suppressionFile = "owasp-suppressions.xml"
     analyzers {
