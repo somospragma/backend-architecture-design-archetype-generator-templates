@@ -29,7 +29,7 @@ dependencies {
 // Configure bootJar task
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
-    mainClass.set("${basePackage}.config.${projectNamePascalCase}Application")
+    mainClass.set("${basePackage}.${projectNamePascalCase}Application")
 }
 
 // Disable plain jar

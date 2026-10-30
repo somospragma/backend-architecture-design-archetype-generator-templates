@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
@@ -28,8 +28,8 @@ public class ${adapterName}RedisConfig {
     template.setConnectionFactory(connectionFactory);
     
     StringRedisSerializer keySerializer = new StringRedisSerializer();
-    Jackson2JsonRedisSerializer<Object> valueSerializer = 
-        new Jackson2JsonRedisSerializer<>(Object.class);
+    JacksonJsonRedisSerializer<Object> valueSerializer = 
+        new JacksonJsonRedisSerializer<>(Object.class);
 
     template.setKeySerializer(keySerializer);
     template.setValueSerializer(valueSerializer);

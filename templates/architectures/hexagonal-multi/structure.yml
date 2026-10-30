@@ -73,11 +73,11 @@ staticFiles:
 
   # Configuration classes (in infrastructure module)
   - source: "project/UseCasesConfig.java.ftl"
-    destination: "infrastructure/src/main/java/{configPackagePath}/UseCasesConfig.java"
+    destination: "infrastructure/{configPackagePath}/UseCasesConfig.java"
     description: "Use case component scan configuration"
 
   - source: "project/ErrorType.java.ftl"
-    destination: "infrastructure/src/main/java/{configPackagePath}/ErrorType.java"
+    destination: "infrastructure/{configPackagePath}/ErrorType.java"
     description: "Standard error type enum"
 
 # Package name transformations

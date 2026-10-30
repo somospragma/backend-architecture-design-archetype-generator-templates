@@ -4,7 +4,7 @@ multiModule: true
 moduleType: "multi-granular"
 # Each generated adapter becomes its own Gradle module
 adaptersAsModules: true
-resourcesPath: "applications/app-service/src/main/resources"
+resourcesPath: "application/app-service/src/main/resources"
 
 # Static files to be copied from template to project
 staticFiles:
@@ -75,11 +75,11 @@ staticFiles:
 
   # Configuration classes (in app-service module)
   - source: "project/UseCasesConfig.java.ftl"
-    destination: "application/app-service/src/main/java/{configPackagePath}/UseCasesConfig.java"
+    destination: "application/app-service/{configPackagePath}/UseCasesConfig.java"
     description: "Use case component scan configuration"
 
   - source: "project/ErrorType.java.ftl"
-    destination: "application/app-service/src/main/java/{configPackagePath}/ErrorType.java"
+    destination: "application/app-service/{configPackagePath}/ErrorType.java"
     description: "Standard error type enum"
 
 # Adapter path resolution
@@ -109,7 +109,7 @@ modules:
     packagePath: "domain.model"
     dependencies: []
     packageTypes:
-      model: ""
+      model: "domain/model"
     
   - name: "ports"
     path: "domain/ports"
@@ -118,7 +118,7 @@ modules:
     dependencies:
       - "model"
     packageTypes:
-      ports: ""
+      ports: "domain/ports"
     
   - name: "usecases"
     path: "domain/usecases"
@@ -128,7 +128,7 @@ modules:
       - "model"
       - "ports"
     packageTypes:
-      usecases: ""
+      usecases: "domain/usecases"
   
   # Infrastructure helpers module
   - name: "helpers"

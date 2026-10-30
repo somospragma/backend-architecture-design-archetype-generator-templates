@@ -7,6 +7,9 @@ needsMapper: true
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-data-redis
+  # Jackson 3 for the JSON value serializer (Boot 4 no longer ships Jackson 2)
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-jackson
   - group: io.lettuce
     artifact: lettuce-core
 

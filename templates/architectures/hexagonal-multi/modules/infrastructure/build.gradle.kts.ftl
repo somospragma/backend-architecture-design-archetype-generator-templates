@@ -12,8 +12,11 @@ dependencies {
     implementation(project(":application"))
     
     // Spring Boot
+<#if paradigm == "reactive">
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+<#else>
+    implementation("org.springframework.boot:spring-boot-starter-web")
+</#if>
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     
     // MapStruct for mapping
@@ -25,13 +28,15 @@ dependencies {
     
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+<#if paradigm == "reactive">
     testImplementation("io.projectreactor:reactor-test")
+</#if>
 }
 
 // Configure bootJar task
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
-    mainClass.set("${basePackage}.infrastructure.config.${projectNamePascalCase}Application")
+    mainClass.set("${basePackage}.${projectNamePascalCase}Application")
 }
 
 // Disable plain jar
