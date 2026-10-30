@@ -17,7 +17,7 @@ import java.time.Duration;
  * SQS Consumer configuration for ${adapterName}.
  */
 @Configuration
-public class SqsConsumerConfig {
+public class ${adapterName}SqsConsumerConfig {
 
     @Value("${'$'}{aws.sqs.consumer.endpoint:}")
     private String endpoint;

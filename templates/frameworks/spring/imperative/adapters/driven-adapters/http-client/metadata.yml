@@ -7,6 +7,9 @@ needsMapper: true
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-web
+  # Spring Boot 4 ships RestTemplateBuilder in its own module
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-restclient
 
 testDependencies:
   - group: org.springframework.boot

@@ -19,7 +19,7 @@ import java.util.Properties;
  * JPA configuration for PostgreSQL with HikariCP
  */
 @Configuration
-@EnableJpaRepositories(basePackages = "${basePackage}.infrastructure.adapter.out")
+@EnableJpaRepositories(basePackages = "${basePackage}")
 @EnableTransactionManagement
 public class ${adapterName}JpaConfig {
 
@@ -38,7 +38,7 @@ public class ${adapterName}JpaConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("${basePackage}.infrastructure.adapter.out");
+        em.setPackagesToScan("${basePackage}");
         
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

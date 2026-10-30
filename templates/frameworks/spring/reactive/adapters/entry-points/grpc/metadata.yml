@@ -48,11 +48,16 @@ buildConfiguration: |
           create("grpc") {
               artifact = "io.grpc:protoc-gen-grpc-java:${versions.libraries["grpc"]}"
           }
+          // Generates the Reactor${r"{Service}"}Grpc stubs the reactive service extends
+          create("reactor") {
+              artifact = "com.salesforce.servicelibs:reactor-grpc:${versions.libraries["reactor-grpc"]}"
+          }
       }
       generateProtoTasks {
           all().forEach { task ->
               task.plugins {
                   create("grpc")
+                  create("reactor")
               }
           }
       }

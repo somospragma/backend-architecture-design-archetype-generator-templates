@@ -1,7 +1,7 @@
 package ${packageName}.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -26,8 +26,8 @@ public class ${adapterName}RestTemplateConfig {
     public RestTemplate ${adapterName?uncap_first}RestTemplate(RestTemplateBuilder builder) {
         return builder
                 .rootUri(baseUrl)
-                .setConnectTimeout(Duration.ofMillis(timeout))
-                .setReadTimeout(Duration.ofMillis(timeout))
+                .connectTimeout(Duration.ofMillis(timeout))
+                .readTimeout(Duration.ofMillis(timeout))
                 .interceptors(loggingInterceptor())
                 .build();
     }

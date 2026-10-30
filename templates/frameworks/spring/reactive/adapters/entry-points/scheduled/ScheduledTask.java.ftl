@@ -1,5 +1,8 @@
 package ${packageName};
 
+<#if useCaseName?? && useCaseName?has_content>
+import ${portsPackage}.I${useCaseName}UseCase;
+</#if>
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,9 +20,9 @@ public class ${adapterName}ScheduledTask {
     private static final Logger logger = LoggerFactory.getLogger(${adapterName}ScheduledTask.class);
 
 <#if useCaseName??>
-    private final ${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
+    private final I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
 
-    public ${adapterName}ScheduledTask(${useCaseName}UseCase ${useCaseName?uncap_first}UseCase) {
+    public ${adapterName}ScheduledTask(I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase) {
         this.${useCaseName?uncap_first}UseCase = ${useCaseName?uncap_first}UseCase;
     }
 </#if>
@@ -44,13 +47,9 @@ public class ${adapterName}ScheduledTask {
      * Override this method to implement your scheduled task logic
      */
     private Mono<Void> executeReactive() {
-<#if useCaseName??>
-        return ${useCaseName?uncap_first}UseCase.execute()
-            .then()
-            .onErrorResume(error -> {
-                logger.error("Error in scheduled task execution", error);
-                return Mono.empty();
-            });
+<#if useCaseName?? && useCaseName?has_content>
+        // TODO: call the use case, e.g. return ${useCaseName?uncap_first}UseCase.<method>(...).then();
+        return Mono.empty();
 <#else>
         return Mono.fromRunnable(() -> {
             // TODO: Implement scheduled task logic

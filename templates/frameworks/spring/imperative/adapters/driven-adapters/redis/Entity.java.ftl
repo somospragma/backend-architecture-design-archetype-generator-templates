@@ -1,4 +1,4 @@
-package ${packageName}.entity;
+package ${packageName};
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -139,18 +139,20 @@ class NamingConventionTest {
 
     @Test
     void adapterClassesShouldEndWithAdapterSuffix() {
+        // Adapters contain more than the adapter class itself (entities, DTOs,
+        // gRPC services, scheduled tasks, consumers...). Each top-level class must
+        // end with the suffix of its role; nested classes (builders, records) and
+        // protobuf-generated code are out of scope.
         ArchRule rule = classes()
             .that().resideInAnyPackage("..drivenadapters..", "..entrypoints..")
+            .and().resideOutsideOfPackage("..proto..")
+            .and().areTopLevelClasses()
             .and().areNotInterfaces()
-            .and().haveSimpleNameNotContaining("Config")
-            .and().haveSimpleNameNotContaining("Router")
-            .and().haveSimpleNameNotContaining("Handler")
-            .and().haveSimpleNameNotContaining("Controller")
-            .and().haveSimpleNameNotContaining("Mapper")
-            .and().haveSimpleNameNotContaining("Properties")
-            .should().haveSimpleNameEndingWith("Adapter")
+            .should().haveNameMatching(".*(Adapter|Controller|Router|Handler|Config|Mapper|MapperImpl|Properties"
+                + "|Entity|Repository|DTO|Dto|Request|Response|GrpcService|ScheduledTask"
+                + "|Consumer|Producer|Listener)")
             .allowEmptyShould(true)
-            .because("Adapter classes must end with Adapter suffix per KB naming conventions");
+            .because("Adapter classes must end with the suffix of their role per KB naming conventions");
 
         rule.check(classes);
     }

@@ -21,7 +21,7 @@ public class ${adapterName}SqsConsumer {
      * Processes messages from the SQS queue.
      * The @SqsListener annotation handles message polling and acknowledgment.
      */
-    @SqsListener("${'${aws.sqs.consumer.queue-name}")
+    @SqsListener("${'$'}{aws.sqs.consumer.queue-name}")
     public void receiveMessage(Message<String> message) {
         processMessage(message)
                 .subscribeOn(Schedulers.boundedElastic())
@@ -49,7 +49,7 @@ public class ${adapterName}SqsConsumer {
      * Processes messages with custom acknowledgment.
      * Use this when you need manual control over message acknowledgment.
      */
-    @SqsListener(value = "${'${aws.sqs.consumer.queue-name}", acknowledgementMode = "MANUAL")
+    @SqsListener(value = "${'$'}{aws.sqs.consumer.queue-name}", acknowledgementMode = "MANUAL")
     public void receiveMessageWithManualAck(Message<String> message, 
                                             io.awspring.cloud.sqs.listener.acknowledgement.Acknowledgement acknowledgement) {
         processMessage(message)

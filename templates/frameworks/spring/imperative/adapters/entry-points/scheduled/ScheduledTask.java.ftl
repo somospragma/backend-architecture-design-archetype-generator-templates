@@ -1,5 +1,8 @@
 package ${packageName};
 
+<#if useCaseName?? && useCaseName?has_content>
+import ${portsPackage}.I${useCaseName}UseCase;
+</#if>
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,9 +18,9 @@ public class ${adapterName}ScheduledTask {
     private static final Logger logger = LoggerFactory.getLogger(${adapterName}ScheduledTask.class);
 
 <#if useCaseName?? && useCaseName?has_content>
-    private final ${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
+    private final I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
 
-    public ${adapterName}ScheduledTask(${useCaseName}UseCase ${useCaseName?uncap_first}UseCase) {
+    public ${adapterName}ScheduledTask(I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase) {
         this.${useCaseName?uncap_first}UseCase = ${useCaseName?uncap_first}UseCase;
     }
 </#if>
@@ -33,8 +36,7 @@ public class ${adapterName}ScheduledTask {
         
         try {
 <#if useCaseName?? && useCaseName?has_content>
-            // Execute use case
-            ${useCaseName?uncap_first}UseCase.execute();
+            // TODO: call the use case, e.g. ${useCaseName?uncap_first}UseCase.<method>(...)
             logger.info("Scheduled task ${adapterName} completed successfully");
 <#else>
             // TODO: Implement scheduled task logic
