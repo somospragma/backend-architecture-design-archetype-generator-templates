@@ -10,13 +10,16 @@ import org.junit.jupiter.api.Test;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 
 /**
- * Immutability tests to ensure thread-safety and prevent concurrency issues.
- * Validates that use cases and beans have final fields (constructor injection).
- * 
+ * Immutability rules: dependencies arrive through the constructor and never
+ * change, so use cases and beans are safe to share between threads.
+ *
  * DO NOT MODIFY OR DELETE THIS FILE.
- * This file is automatically synchronized during build to ensure immutability rules are enforced.
+ * validateStructure regenerates it from the templates.
  */
 class ImmutabilityTest {
+
+    private static final String SPRING_COMPONENT = "org.springframework.stereotype.Component";
+    private static final String SPRING_VALUE = "org.springframework.beans.factory.annotation.Value";
 
     private static JavaClasses classes;
 
@@ -28,53 +31,29 @@ class ImmutabilityTest {
     }
 
     @Test
-    void useCasesShouldHaveFinalFields() {
+    void useCaseFieldsShouldBeFinal() {
         ArchRule rule = fields()
-            .that().areDeclaredInClassesThat().resideInAPackage("..application..")
-            .and().areDeclaredInClassesThat().haveSimpleNameContaining("UseCase")
+            .that().areDeclaredInClassesThat().resideInAPackage("..application.usecase..")
             .and().areNotStatic()
             .should().beFinal()
             .allowEmptyShould(true)
-            .because("Use case fields should be final to ensure immutability and thread-safety");
+            .because("Use cases receive their gateways through the constructor and must not change them");
 
         rule.check(classes);
     }
 
     @Test
-    void domainServicesShouldHaveFinalFields() {
+    void adapterBeanFieldsShouldBeFinal() {
+        // Only Spring beans: persistence entities and DTOs inside adapters are
+        // data holders that frameworks need to mutate.
         ArchRule rule = fields()
-            .that().areDeclaredInClassesThat().resideInAPackage("..domain.service..")
+            .that().areDeclaredInClassesThat().resideInAPackage("..infrastructure..")
+            .and().areDeclaredInClassesThat().areMetaAnnotatedWith(SPRING_COMPONENT)
             .and().areNotStatic()
+            .and().areNotAnnotatedWith(SPRING_VALUE)
             .should().beFinal()
             .allowEmptyShould(true)
-            .because("Domain service fields should be final to ensure immutability");
-
-        rule.check(classes);
-    }
-
-    @Test
-    void configurationClassesShouldHaveFinalFields() {
-        ArchRule rule = fields()
-            .that().areDeclaredInClassesThat().resideInAPackage("..infrastructure.config..")
-            .and().areDeclaredInClassesThat().areAnnotatedWith("org.springframework.context.annotation.Configuration")
-            .and().areNotStatic()
-            .and().areNotAnnotatedWith("org.springframework.beans.factory.annotation.Value")
-            .should().beFinal()
-            .allowEmptyShould(true)
-            .because("Configuration class fields should be final (constructor injection preferred over @Value)");
-
-        rule.check(classes);
-    }
-
-    @Test
-    void adaptersShouldHaveFinalFields() {
-        ArchRule rule = fields()
-            .that().areDeclaredInClassesThat().resideInAPackage("..infrastructure.adapter..")
-            .and().areNotStatic()
-            .and().areNotAnnotatedWith("org.springframework.beans.factory.annotation.Value")
-            .should().beFinal()
-            .allowEmptyShould(true)
-            .because("Adapter fields should be final to ensure immutability and thread-safety");
+            .because("Adapters are singletons shared between threads; inject dependencies through the constructor");
 
         rule.check(classes);
     }

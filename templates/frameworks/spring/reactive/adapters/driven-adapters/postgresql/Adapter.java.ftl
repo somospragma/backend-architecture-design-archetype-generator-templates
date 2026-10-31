@@ -1,5 +1,6 @@
 package ${packageName};
 
+import ${portsPackage}.I${entityName}Gateway;
 import ${modelPackage}.${entityName};
 import ${packageName}.entity.${entityName}Entity;
 import ${packageName}.mapper.${entityName}EntityMapper;
@@ -10,13 +11,11 @@ import reactor.core.publisher.Mono;
 
 /**
  * PostgreSQL adapter for ${entityName} using R2DBC
- *
- * TODO: Create an output port interface (e.g., I${entityName}Gateway) in the domain layer
- * and have this adapter implement it to follow the hexagonal architecture pattern.
+ * Implements the I${entityName}Gateway port from the domain layer.
  */
 @Repository
 @RequiredArgsConstructor
-public class ${adapterName}Adapter {
+public class ${adapterName}Adapter implements I${entityName}Gateway {
 
     private final ${adapterName}Repository r2dbcRepository;
     private final ${entityName}EntityMapper mapper;

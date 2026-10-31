@@ -1,6 +1,8 @@
 package ${implPackage};
 
+<#if inputPort!true>
 import ${packageName}.I${useCaseName}UseCase;
+</#if>
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,7 +17,7 @@ import lombok.RequiredArgsConstructor;
  * through component scanning configured in UseCasesConfig.
  */
 @RequiredArgsConstructor
-public class ${useCaseName}UseCase implements I${useCaseName}UseCase {
+public class ${useCaseName}UseCase<#if inputPort!true> implements I${useCaseName}UseCase</#if> {
 
   // TODO: Inject required ports (gateways, services, etc.)
   // Example:
@@ -24,7 +26,9 @@ public class ${useCaseName}UseCase implements I${useCaseName}UseCase {
   /**
    * Executes the main use case logic.
    */
+<#if inputPort!true>
   @Override
+</#if>
   public Mono<Object> execute(Object input) {
     // TODO: Implement business logic
     return Mono.just(input);
@@ -33,7 +37,9 @@ public class ${useCaseName}UseCase implements I${useCaseName}UseCase {
   /**
    * Finds an entity by ID.
    */
+<#if inputPort!true>
   @Override
+</#if>
   public Mono<Object> findById(String id) {
     // TODO: Implement find by id logic
     return Mono.empty();
@@ -42,7 +48,9 @@ public class ${useCaseName}UseCase implements I${useCaseName}UseCase {
   /**
    * Finds all entities.
    */
+<#if inputPort!true>
   @Override
+</#if>
   public Flux<Object> findAll() {
     // TODO: Implement find all logic
     return Flux.empty();
@@ -51,7 +59,9 @@ public class ${useCaseName}UseCase implements I${useCaseName}UseCase {
   /**
    * Updates an entity.
    */
+<#if inputPort!true>
   @Override
+</#if>
   public Mono<Object> update(String id, Object input) {
     // TODO: Implement update logic
     return Mono.just(input);
@@ -60,7 +70,9 @@ public class ${useCaseName}UseCase implements I${useCaseName}UseCase {
   /**
    * Deletes an entity by ID.
    */
+<#if inputPort!true>
   @Override
+</#if>
   public Mono<Void> delete(String id) {
     // TODO: Implement delete logic
     return Mono.empty();

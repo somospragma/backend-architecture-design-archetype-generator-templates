@@ -1,7 +1,21 @@
 architecture: "onion-single"
-description: "Onion Architecture with single module - Domain at the center, surrounded by application and infrastructure layers"
+description: "Onion architecture in a single module, for small projects that will not grow into several modules"
 multiModule: false
 resourcesPath: "src/main/resources"
+
+# Onion keeps the dependency rule of clean architecture with fewer pieces than
+# hexagonal, which suits small services:
+#
+#   domain.model          entities and value objects (the core, depends on nothing)
+#   domain.gateway        interfaces for what the domain needs from outside
+#                         (persistence, messaging, external APIs); depends on model
+#   application.usecase   use cases, plain classes that orchestrate the domain
+#   infrastructure.*      outer ring: entry points call use cases directly,
+#                         driven adapters implement the domain gateways
+#
+# Unlike hexagonal there are no input ports: entry points depend on the use
+# case class. ArchUnit tests in tests/architecture enforce these rules.
+useCaseInputPorts: false
 
 # Static files to be copied from template to project
 # These files are processed as FreeMarker templates and copied to the specified destination
@@ -99,62 +113,37 @@ packageMappings:
 
 # Module configuration for entity and use case generation
 entityModule: "domain"
-useCaseModule: "domain"
+useCaseModule: "application"
 
-# Naming conventions for generated components
-namingConventions:
-  suffixes:
-    useCase: "UseCase"
-    port: "Port"
-    adapter: "Adapter"
-    entity: ""
-    valueObject: ""
-    service: "Service"
-  prefixes:
-    interface: "I"
-
-# Layer dependencies - defines which layers can depend on which other layers
-# Onion architecture enforces strict dependency rules:
-# - Domain depends on nothing (innermost layer)
-# - Application depends only on domain
-# - Infrastructure depends on both domain and application
-layerDependencies:
-  domain:
-    - []  # Domain has no dependencies
-  application:
-    - "domain"  # Application can depend on domain
-  infrastructure:
-    - "domain"
-    - "application"  # Infrastructure can depend on both
-
-# Directory structure
 directories:
   - "src/main/java"
   - "src/main/resources"
   - "src/test/java"
   - "src/test/resources"
 
-# Package structure for Onion architecture
 packages:
   - "domain/model"
-  - "domain/ports"
-  - "domain/usecases"
+  - "domain/gateway"
+  - "application/usecase"
   - "infrastructure/entry-points"
   - "infrastructure/driven-adapters"
   - "infrastructure/config"
 
-# Module metadata for package type resolution
+# Rings of the onion, from the core outwards. "ports" is where generated
+# gateways go; onion calls them domain gateways.
 moduleMetadata:
   - name: "domain"
     path: "."
     packageTypes:
       model: "domain/model"
-      ports: "domain/ports"
-      usecases: "domain/usecases"
+      ports: "domain/gateway"
+  - name: "application"
+    path: "."
+    packageTypes:
+      usecases: "application/usecase"
   - name: "infrastructure"
     path: "."
     packageTypes:
       entryPoints: "infrastructure/entry-points"
       drivenAdapters: "infrastructure/driven-adapters"
       config: "infrastructure/config"
-

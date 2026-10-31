@@ -1,7 +1,7 @@
 package ${packageName};
 
 <#if useCaseName?? && useCaseName?has_content>
-import ${portsPackage}.I${useCaseName}UseCase;
+import ${useCaseImport};
 </#if>
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,7 +28,7 @@ import java.util.List;
 public class ${controllerName}Controller {
 
 <#if useCaseName?? && useCaseName?has_content>
-    private final I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
+    private final ${useCaseType} ${useCaseName?uncap_first}UseCase;
 </#if>
 
     @Operation(summary = "Create ${controllerName}")

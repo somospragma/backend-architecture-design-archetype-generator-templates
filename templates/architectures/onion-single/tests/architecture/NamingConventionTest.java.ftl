@@ -13,10 +13,10 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 /**
  * Naming convention tests to ensure domain purity and KB compliance.
  * Validates that domain classes don't use technical names or suffixes,
- * and that ports, gateways, use cases, and adapters follow KB naming conventions.
+ * and that gateways, use cases and adapters follow KB naming conventions.
  * 
  * DO NOT MODIFY OR DELETE THIS FILE.
- * This file is automatically synchronized during build to ensure naming rules are enforced.
+ * validateStructure regenerates it from the templates.
  */
 class NamingConventionTest {
 
@@ -101,26 +101,25 @@ class NamingConventionTest {
     }
 
     @Test
-    void portInterfacesShouldHaveIPrefix() {
+    void domainGatewaysShouldHaveIPrefix() {
         ArchRule rule = classes()
-            .that().resideInAPackage("..ports..")
+            .that().resideInAPackage("..domain.gateway..")
             .and().areInterfaces()
             .should().haveSimpleNameStartingWith("I")
             .allowEmptyShould(true)
-            .because("Port interfaces must have the I prefix per KB Limit 006");
+            .because("Gateway interfaces must have the I prefix per KB Limit 006");
 
         rule.check(classes);
     }
 
     @Test
-    void outputPortsShouldHaveGatewaySuffix() {
+    void domainGatewaysShouldHaveGatewaySuffix() {
         ArchRule rule = classes()
-            .that().resideInAPackage("..ports..")
+            .that().resideInAPackage("..domain.gateway..")
             .and().areInterfaces()
-            .and().haveSimpleNameNotContaining("UseCase")
             .should().haveSimpleNameEndingWith("Gateway")
             .allowEmptyShould(true)
-            .because("Output port interfaces must have the Gateway suffix per KB naming conventions");
+            .because("Gateway interfaces must have the Gateway suffix per KB naming conventions");
 
         rule.check(classes);
     }
@@ -128,8 +127,8 @@ class NamingConventionTest {
     @Test
     void useCasesShouldEndWithUseCaseSuffix() {
         ArchRule rule = classes()
-            .that().resideInAPackage("..domain.usecases..")
-            .and().areNotInterfaces()
+            .that().resideInAPackage("..application.usecase..")
+            .and().areTopLevelClasses()
             .should().haveSimpleNameEndingWith("UseCase")
             .allowEmptyShould(true)
             .because("Use case classes must end with UseCase suffix per KB naming conventions");

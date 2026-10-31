@@ -1,5 +1,6 @@
 package ${packageName};
 
+import ${portsPackage}.I${entityName}Gateway;
 import ${modelPackage}.${entityName};
 import ${packageName}.mapper.${entityName}EntityMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,13 +12,11 @@ import java.util.Optional;
 /**
  * MongoDB adapter for ${entityName}.
  * Implements persistence operations using MongoDB.
- *
- * TODO: Create an output port interface (e.g., I${entityName}Gateway) in the domain layer
- * and have this adapter implement it to follow the hexagonal architecture pattern.
+ * Implements the I${entityName}Gateway port from the domain layer.
  */
 @Component
 @RequiredArgsConstructor
-public class ${adapterName}Adapter {
+public class ${adapterName}Adapter implements I${entityName}Gateway {
 
     private final ${adapterName}Repository repository;
     private final ${entityName}EntityMapper mapper;

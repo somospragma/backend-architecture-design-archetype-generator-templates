@@ -1,7 +1,7 @@
 package ${packageName};
 
 <#if useCaseName?? && useCaseName?has_content>
-import ${portsPackage}.I${useCaseName}UseCase;
+import ${useCaseImport};
 </#if>
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,9 @@ public class ${adapterName}ScheduledTask {
     private static final Logger logger = LoggerFactory.getLogger(${adapterName}ScheduledTask.class);
 
 <#if useCaseName??>
-    private final I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase;
+    private final ${useCaseType} ${useCaseName?uncap_first}UseCase;
 
-    public ${adapterName}ScheduledTask(I${useCaseName}UseCase ${useCaseName?uncap_first}UseCase) {
+    public ${adapterName}ScheduledTask(${useCaseType} ${useCaseName?uncap_first}UseCase) {
         this.${useCaseName?uncap_first}UseCase = ${useCaseName?uncap_first}UseCase;
     }
 </#if>
