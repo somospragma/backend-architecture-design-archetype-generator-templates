@@ -1,23 +1,34 @@
 package ${basePackage}.architecture;
 
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-import static com.tngtech.archunit.library.Architectures.onionArchitecture;
+import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
 /**
- * Architecture tests to validate clean architecture principles.
- * These tests ensure that the project follows the hexagonal/onion architecture pattern
- * with entry-points and driven-adapters (KB-aligned package naming).
- * 
+ * Hexagonal architecture (ports and adapters) rules:
+ *
+ *   domain.model          entities and value objects
+ *   domain.ports          input ports (I...UseCase) and output ports (I...Gateway)
+ *   domain.usecases       use cases, implement input ports and use output ports
+ *   infrastructure        entry points call input ports; driven adapters
+ *                         implement output ports; config wires everything
+ *
+ * Rules shared with other architectures live in DomainPurityTest,
+ * AdapterRulesTest, NamingConventionTest, ImmutabilityTest and CodingRulesTest.
+ *
  * DO NOT MODIFY OR DELETE THIS FILE.
- * This file is automatically synchronized during build to ensure architecture rules are enforced.
+ * validateStructure regenerates it from the templates.
  */
 class ArchitectureTest {
 
@@ -31,91 +42,70 @@ class ArchitectureTest {
     }
 
     @Test
-    void domainLayerShouldNotDependOnApplicationLayer() {
-        ArchRule rule = noClasses()
-            .that().resideInAPackage("..domain..")
-            .should().dependOnClassesThat().resideInAPackage("..application..")
-            .allowEmptyShould(true)
-            .because("Domain layer should not depend on Application layer");
-
-        rule.check(classes);
-    }
-
-    @Test
-    void domainLayerShouldNotDependOnInfrastructureLayer() {
-        ArchRule rule = noClasses()
-            .that().resideInAPackage("..domain..")
-            .should().dependOnClassesThat().resideInAPackage("..infrastructure..")
-            .allowEmptyShould(true)
-            .because("Domain layer should not depend on Infrastructure layer");
-
-        rule.check(classes);
-    }
-
-    @Test
-    void domainLayerShouldBeIsolated() {
-        ArchRule rule = noClasses()
-            .that().resideInAPackage("..domain..")
-            .should().dependOnClassesThat().resideInAnyPackage(
-                "..infrastructure..",
-                "..application..",
-                "..config.."
-            )
-            .allowEmptyShould(true)
-            .because("Domain layer must be completely isolated - it should not depend on any external layer");
-
-        rule.check(classes);
-    }
-
-    @Test
-    void applicationLayerShouldNotDependOnInfrastructureLayer() {
-        ArchRule rule = noClasses()
-            .that().resideInAPackage("..application..")
-            .should().dependOnClassesThat().resideInAPackage("..infrastructure..")
-            .allowEmptyShould(true)
-            .because("Application layer should not depend on Infrastructure layer");
-
-        rule.check(classes);
-    }
-
-    @Test
-    void applicationLayerShouldOnlyDependOnDomain() {
-        ArchRule rule = noClasses()
-            .that().resideInAPackage("..application..")
-            .should().dependOnClassesThat().resideInAnyPackage(
-                "..infrastructure..",
-                "..entrypoints..",
-                "..drivenadapters.."
-            )
-            .allowEmptyShould(true)
-            .because("Application layer should only depend on domain layer");
-
-        rule.check(classes);
-    }
-
-    @Test
-    void onionArchitectureShouldBeRespected() {
-        onionArchitecture()
-            .domainModels("..domain.model..")
-            .domainServices("..domain.service..", "..domain.usecases..", "..domain.ports..")
-            .applicationServices("..application..")
-            .adapter("entrypoints", "..infrastructure.entrypoints..")
-            .adapter("drivenadapters", "..infrastructure.drivenadapters..")
+    void layersOnlyAccessWhatTheyAreAllowedTo() {
+        layeredArchitecture()
+            .consideringOnlyDependenciesInLayers()
             .withOptionalLayers(true)
+            .layer("Model").definedBy("..domain.model..")
+            .layer("Ports").definedBy("..domain.ports..")
+            .layer("UseCases").definedBy("..domain.usecases..")
+            .layer("EntryPoints").definedBy("..infrastructure.entrypoints..")
+            .layer("DrivenAdapters").definedBy("..infrastructure.drivenadapters..")
+            .layer("Config").definedBy("..infrastructure.config..")
+            .whereLayer("Ports").mayOnlyBeAccessedByLayers("UseCases", "EntryPoints", "DrivenAdapters", "Config")
+            .whereLayer("UseCases").mayOnlyBeAccessedByLayers("Config")
+            .whereLayer("EntryPoints").mayNotBeAccessedByAnyLayer()
+            .whereLayer("DrivenAdapters").mayNotBeAccessedByAnyLayer()
+            .because("Adapters meet only at the ports; nothing depends on an adapter")
             .check(classes);
     }
 
     @Test
-    void infrastructureLayerShouldOnlyBeAccessedByConfiguration() {
-        ArchRule rule = classes()
-            .that().resideInAPackage("..infrastructure..")
-            .should().onlyBeAccessed().byAnyPackage(
-                "..infrastructure..",
-                "..infrastructure.config.."
-            )
+    void modelDoesNotDependOnPortsOrUseCases() {
+        ArchRule rule = noClasses()
+            .that().resideInAPackage("..domain.model..")
+            .should().dependOnClassesThat().resideInAnyPackage("..domain.ports..", "..domain.usecases..")
             .allowEmptyShould(true)
-            .because("Infrastructure should only be accessed through configuration");
+            .because("The model is the innermost part of the domain");
 
         rule.check(classes);
     }
+
+    @Test
+    void portsDoNotDependOnUseCases() {
+        ArchRule rule = noClasses()
+            .that().resideInAPackage("..domain.ports..")
+            .should().dependOnClassesThat().resideInAPackage("..domain.usecases..")
+            .allowEmptyShould(true)
+            .because("Ports are contracts; use cases implement them");
+
+        rule.check(classes);
+    }
+
+    @Test
+    void useCasesImplementAnInputPort() {
+        ArchRule rule = classes()
+            .that().resideInAPackage("..domain.usecases..")
+            .and().haveSimpleNameEndingWith("UseCase")
+            .and().areNotInterfaces()
+            .should(IMPLEMENT_AN_INPUT_PORT)
+            .allowEmptyShould(true)
+            .because("Entry points depend on the input port, so the use case can change without touching them");
+
+        rule.check(classes);
+    }
+
+    private static final ArchCondition<JavaClass> IMPLEMENT_AN_INPUT_PORT =
+        new ArchCondition<>("implement an input port of domain.ports") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                boolean implementsPort = item.getAllRawInterfaces().stream()
+                    .anyMatch(type -> type.getPackageName().endsWith(".domain.ports")
+                        && type.getSimpleName().endsWith("UseCase"));
+                if (!implementsPort) {
+                    events.add(SimpleConditionEvent.violated(item,
+                        item.getName() + " does not implement an I...UseCase port of domain.ports"));
+                }
+            }
+        };
 }

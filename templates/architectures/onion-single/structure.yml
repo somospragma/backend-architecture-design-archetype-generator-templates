@@ -57,18 +57,39 @@ staticFiles:
     destination: ".dockerignore"
     description: "Docker ignore file"
   
-  # Architecture tests
+  # Architecture tests (ArchUnit). Sources starting with "/" are shared by
+  # several architectures and resolved from the templates root.
   - source: "tests/architecture/ArchitectureTest.java.ftl"
     destination: "src/test/java/{basePackage}/architecture/ArchitectureTest.java"
-    description: "ArchUnit tests for architecture validation"
-    
-  - source: "tests/architecture/NamingConventionTest.java.ftl"
+    description: "Rules of this architecture"
+
+  - source: "/common/tests/architecture/DomainPurityTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/DomainPurityTest.java"
+    description: "Framework-free domain and use cases (all architectures)"
+
+  - source: "/common/tests/architecture/AdapterRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/AdapterRulesTest.java"
+    description: "Adapter isolation and domain interfaces (all architectures)"
+
+  - source: "/common/tests/architecture/NamingConventionTest.java.ftl"
     destination: "src/test/java/{basePackage}/architecture/NamingConventionTest.java"
-    description: "ArchUnit tests for naming conventions"
-    
-  - source: "tests/architecture/ImmutabilityTest.java.ftl"
+    description: "Naming conventions (all architectures)"
+
+  - source: "/common/tests/architecture/ImmutabilityTest.java.ftl"
     destination: "src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
-    description: "ArchUnit tests for immutability rules"
+    description: "Constructor injection and final fields (all architectures)"
+
+  - source: "/common/tests/architecture/CodingRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/CodingRulesTest.java"
+    description: "General coding rules and no package cycles (all architectures)"
+
+  - source: "/frameworks/{framework}/tests/architecture/FrameworkRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/FrameworkRulesTest.java"
+    description: "Rules of the framework (Spring today)"
+
+  - source: "/frameworks/{framework}/{paradigm}/tests/architecture/ParadigmRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/ParadigmRulesTest.java"
+    description: "Rules of the paradigm (reactive or imperative)"
 
   # Build system files
   - source: "project/gradle.properties.ftl"

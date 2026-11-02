@@ -11,7 +11,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 
 /**
  * Immutability rules: dependencies arrive through the constructor and never
- * change, so use cases and beans are safe to share between threads.
+ * change, so use cases and beans are safe to share between threads. Shared by
+ * every architecture.
  *
  * DO NOT MODIFY OR DELETE THIS FILE.
  * validateStructure regenerates it from the templates.
@@ -33,7 +34,7 @@ class ImmutabilityTest {
     @Test
     void useCaseFieldsShouldBeFinal() {
         ArchRule rule = fields()
-            .that().areDeclaredInClassesThat().resideInAPackage("..application.usecase..")
+            .that().areDeclaredInClassesThat().resideInAnyPackage("..domain.usecases..", "..application.usecase..")
             .and().areNotStatic()
             .should().beFinal()
             .allowEmptyShould(true)

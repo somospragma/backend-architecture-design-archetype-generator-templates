@@ -1,4 +1,4 @@
-package ${packageName};
+package ${configClassPackage};
 
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;

@@ -1,4 +1,4 @@
-package ${packageName}.config;
+package ${configClassPackage};
 
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
 import io.awspring.cloud.sqs.operations.SqsTemplate;

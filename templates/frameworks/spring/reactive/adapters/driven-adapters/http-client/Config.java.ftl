@@ -1,4 +1,4 @@
-package ${packageName};
+package ${configClassPackage};
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

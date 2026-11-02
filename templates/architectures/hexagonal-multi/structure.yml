@@ -41,18 +41,39 @@ staticFiles:
     destination: ".dockerignore"
     description: "Docker ignore file"
   
-  # Architecture tests (in infrastructure module)
+  # Architecture tests (ArchUnit). Sources starting with "/" are shared by
+  # several architectures and resolved from the templates root.
   - source: "tests/architecture/ArchitectureTest.java.ftl"
     destination: "infrastructure/src/test/java/{basePackage}/architecture/ArchitectureTest.java"
-    description: "ArchUnit tests for architecture validation"
-    
-  - source: "tests/architecture/NamingConventionTest.java.ftl"
+    description: "Rules of this architecture"
+
+  - source: "/common/tests/architecture/DomainPurityTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/DomainPurityTest.java"
+    description: "Framework-free domain and use cases (all architectures)"
+
+  - source: "/common/tests/architecture/AdapterRulesTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/AdapterRulesTest.java"
+    description: "Adapter isolation and domain interfaces (all architectures)"
+
+  - source: "/common/tests/architecture/NamingConventionTest.java.ftl"
     destination: "infrastructure/src/test/java/{basePackage}/architecture/NamingConventionTest.java"
-    description: "ArchUnit tests for naming conventions"
-    
-  - source: "tests/architecture/ImmutabilityTest.java.ftl"
+    description: "Naming conventions (all architectures)"
+
+  - source: "/common/tests/architecture/ImmutabilityTest.java.ftl"
     destination: "infrastructure/src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
-    description: "ArchUnit tests for immutability rules"
+    description: "Constructor injection and final fields (all architectures)"
+
+  - source: "/common/tests/architecture/CodingRulesTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/CodingRulesTest.java"
+    description: "General coding rules and no package cycles (all architectures)"
+
+  - source: "/frameworks/{framework}/tests/architecture/FrameworkRulesTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/FrameworkRulesTest.java"
+    description: "Rules of the framework (Spring today)"
+
+  - source: "/frameworks/{framework}/{paradigm}/tests/architecture/ParadigmRulesTest.java.ftl"
+    destination: "infrastructure/src/test/java/{basePackage}/architecture/ParadigmRulesTest.java"
+    description: "Rules of the paradigm (reactive or imperative)"
 
   # Build system files
   - source: "project/gradle.properties.ftl"
@@ -104,14 +125,16 @@ modules:
     path: "domain"
     description: "Domain layer - Business logic and rules"
     dependencies: []
+    # Packages keep the layer prefix (domain.*, infrastructure.*) so every
+    # architecture uses the same package names and shares the ArchUnit rules
     packages:
-      - "model"
-      - "ports"
-      - "usecases"
+      - "domain/model"
+      - "domain/ports"
+      - "domain/usecases"
     packageTypes:
-      model: "model"
-      ports: "ports"
-      usecases: "usecases"
+      model: "domain/model"
+      ports: "domain/ports"
+      usecases: "domain/usecases"
     directories:
       - "src/main/java"
       - "src/test/java"
@@ -134,13 +157,13 @@ modules:
       - "domain"
       - "application"
     packages:
-      - "entry-points"
-      - "driven-adapters"
-      - "config"
+      - "infrastructure/entry-points"
+      - "infrastructure/driven-adapters"
+      - "infrastructure/config"
     packageTypes:
-      entryPoints: "entry-points"
-      drivenAdapters: "driven-adapters"
-      config: "config"
+      entryPoints: "infrastructure/entry-points"
+      drivenAdapters: "infrastructure/driven-adapters"
+      config: "infrastructure/config"
     directories:
       - "src/main/java"
       - "src/main/resources"

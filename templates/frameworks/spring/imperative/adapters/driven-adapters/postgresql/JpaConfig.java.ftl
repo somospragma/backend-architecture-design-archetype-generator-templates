@@ -1,4 +1,4 @@
-package ${basePackage}.config;
+package ${configClassPackage};
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
