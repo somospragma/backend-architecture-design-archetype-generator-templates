@@ -1,14 +1,15 @@
-# main is the integration branch; v1, v2... are what each plugin major reads.
-# A PR to main is tested against core main. A promotion PR (main → v1) is also
-# tested against the latest released plugin 1.x, which is what users run.
+# develop is the integration branch; v1, v2... are what each plugin major reads.
+# main is frozen: plugins 1.0.x read it. A PR to develop is tested against core
+# main. A promotion PR (develop → v1) is also tested against the latest
+# released plugin 1.x, which is what users run.
 # Every push to v1 that passes gets the next v1.x.y tag.
 name: CI
 
 on:
   pull_request:
-    branches: [main, 'v[0-9]*']
+    branches: [develop, 'v[0-9]*']
   push:
-    branches: [main, 'v[0-9]*']
+    branches: [develop, 'v[0-9]*']
   workflow_dispatch:
 
 permissions: {}
@@ -24,7 +25,7 @@ jobs:
       contents: read
 
   promotion-source:
-    # v1, v2... only receive promotions from main
+    # v1, v2... only receive promotions from develop
     if: github.event_name == 'pull_request' && startsWith(github.base_ref, 'v')
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -34,8 +35,8 @@ jobs:
           HEAD: ${{ github.head_ref }}
           SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
-          [[ $HEAD == main && $SAME_REPO == true ]] \
-            || { echo "::error::Only main can be promoted to a major branch (got $HEAD)"; exit 1; }
+          [[ $HEAD == develop && $SAME_REPO == true ]] \
+            || { echo "::error::Only develop can be promoted to a major branch (got $HEAD)"; exit 1; }
 
   contract:
     runs-on: ubuntu-latest

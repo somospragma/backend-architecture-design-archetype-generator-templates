@@ -4,16 +4,17 @@ Cada cambio en templates se prueba generando proyectos reales con el plugin y co
 
 ## Ramas
 
-- `main` es la rama de integración: los PR desde `feat/*` o `fix/*` entran aquí.
+- `develop` es la rama de integración: los PR desde `feat/*` o `fix/*` entran aquí. Es la rama por defecto del repositorio.
+- `main` está congelada: la leen los plugins 1.0.x ya publicados, que no entienden las plantillas nuevas. Solo recibe arreglos puntuales para esos usuarios, y se retira cuando ya nadie use 1.0.x.
 - `v1`, `v2`, … son las ramas que lee cada mayor del plugin: el plugin 1.x lee `v1`. Es lo que reciben los usuarios.
-- Promover es abrir un PR de `main` a `v1`. Al mergearlo, el CI crea el tag siguiente `v1.x.y` (sube el patch; el minor se sube a mano).
+- Promover es abrir un PR de `develop` a `v1`. Al mergearlo, el CI crea el tag siguiente `v1.x.y` (sube el patch; el minor se sube a mano).
 - Un cambio incompatible sube el `schemaVersion` de `architectures/index.yml`. Va a la rama `v2` junto con el plugin 2.0, nunca a `v1`.
 
 ## Workflows
 
 | Workflow | Cuándo corre | Qué hace |
 |---|---|---|
-| `ci.yml` | PR y push a `main` y a `v*` | gitleaks y lint de workflows, chequeo del contrato, la matriz completa contra core `main` y, en PR a `v*`, la misma matriz contra el último plugin publicado de ese mayor |
+| `ci.yml` | PR y push a `develop` y a `v*` | gitleaks y lint de workflows, chequeo del contrato, la matriz completa contra core `main` y, en PR a `v*`, la misma matriz contra el último plugin publicado de ese mayor |
 | `nightly.yml` | cada día a las 06:00 UTC | cada adapter solo en su propio proyecto, y violaciones metidas a propósito que el build debe rechazar |
 | `generation.yml` | lo llaman los dos anteriores | la matriz de generación |
 | `security.yml` | lo llama `ci.yml` | gitleaks, actionlint y zizmor |
@@ -42,14 +43,18 @@ El CI del core también usa `generate-and-build.sh` para su prueba de humo.
 
 ## Configuración en GitHub (una sola vez)
 
-**Ruleset de `main` y de `v*`**
+**Ruleset de `develop` y de `v*`**
 - PR obligatorio con 1 aprobación (en `v*` mejor 2), descartar aprobaciones viejas al haber nuevos commits y resolver conversaciones.
 - Check obligatorio: `ci-ok`.
-- Sin force push ni borrado. En `v*` el CI rechaza cualquier PR que no venga de `main` (job `promotion-source`).
+- Sin force push ni borrado. En `v*` el CI rechaza cualquier PR que no venga de `develop` (job `promotion-source`).
+
+**Rama por defecto y `main`**
+- Crear `develop` desde el `main` actual y ponerla como rama por defecto.
+- Ruleset de `main`: sin push directo, sin force push ni borrado. Un arreglo para 1.0.x entra por PR con aprobación.
 
 **Variables del repositorio**
 - `TEST_RELEASED_PLUGIN=true` cuando ya esté publicado el primer plugin que lee `v1`. Antes de eso, el plugin publicado (1.0.5) no entiende `schemaVersion` y esa matriz fallaría.
-- `PLUGIN_MAJOR`: mayor del plugin que se integra en `main` (por defecto `1`).
+- `PLUGIN_MAJOR`: mayor del plugin que se integra en `develop` (por defecto `1`).
 
 **Seguridad del repositorio**
 - Secret scanning con push protection y Dependabot alerts.

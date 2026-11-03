@@ -84,7 +84,7 @@ jobs:
             ./gradlew publishToMavenLocal -x test -x javadoc --console=plain
             version=$(./gradlew properties -q --console=plain | sed -n 's/^version: //p')
           else
-            # v1 → 1; main is the integration branch of the current major
+            # v1 → 1; develop is the integration branch of the current major
             major=${BRANCH#v}; [[ $major =~ ^[0-9]+$ ]] || major=$DEFAULT_MAJOR
             version=$(curl -fsSL "$PLUGIN_METADATA" | grep -o "<version>$major\.[^<]*</version>" \
               | sed 's/<[^>]*>//g' | sort -V | tail -n 1)
