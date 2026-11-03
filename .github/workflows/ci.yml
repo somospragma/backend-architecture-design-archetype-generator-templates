@@ -1,0 +1,116 @@
+# main is the integration branch; v1, v2... are what each plugin major reads.
+# A PR to main is tested against core main. A promotion PR (main → v1) is also
+# tested against the latest released plugin 1.x, which is what users run.
+# Every push to v1 that passes gets the next v1.x.y tag.
+name: CI
+
+on:
+  pull_request:
+    branches: [main, 'v[0-9]*']
+  push:
+    branches: [main, 'v[0-9]*']
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  secrets:
+    uses: ./.github/workflows/security.yml
+    permissions:
+      contents: read
+
+  promotion-source:
+    # v1, v2... only receive promotions from main
+    if: github.event_name == 'pull_request' && startsWith(github.base_ref, 'v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - env:
+          HEAD: ${{ github.head_ref }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          [[ $HEAD == main && $SAME_REPO == true ]] \
+            || { echo "::error::Only main can be promoted to a major branch (got $HEAD)"; exit 1; }
+
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 scripts/ci/check-contract.py templates
+
+  generation:
+    needs: contract
+    uses: ./.github/workflows/generation.yml
+    permissions:
+      contents: read
+    with:
+      mode: full
+      plugin: core-main
+
+  released-plugin:
+    # Off until the first plugin release that reads v1 (repository variable
+    # TEST_RELEASED_PLUGIN=true): older plugins do not understand schemaVersion.
+    if: vars.TEST_RELEASED_PLUGIN == 'true' && startsWith(github.base_ref || github.ref_name, 'v')
+    needs: contract
+    uses: ./.github/workflows/generation.yml
+    permissions:
+      contents: read
+    with:
+      mode: full
+      plugin: released
+
+  ci-ok:
+    # Single required check for rulesets
+    if: always()
+    needs: [secrets, promotion-source, contract, generation, released-plugin]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for r in $RESULTS; do [[ $r == success || $r == skipped ]] || exit 1; done
+
+  tag:
+    # Promotion merged into v1: tag it v1.x.y (next patch; bump minor by hand)
+    if: github.event_name == 'push' && startsWith(github.ref_name, 'v')
+    needs: ci-ok
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - env:
+          BRANCH: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          major=${BRANCH#v}
+          [[ $major =~ ^[0-9]+$ ]] || { echo "::error::$BRANCH is not a major branch"; exit 1; }
+          if git describe --tags --exact-match HEAD 2>/dev/null | grep -q "^v$major\."; then
+            echo "HEAD is already tagged"; exit 0
+          fi
+          last=$(git tag --list "v$major.*.*" | sort -V | tail -n 1)
+          if [[ -z $last ]]; then
+            next="v$major.0.0"
+          else
+            IFS=. read -r _ minor patch <<< "${last#v}"
+            next="v$major.$minor.$((patch + 1))"
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$next" -f sha="$GITHUB_SHA"
+          echo "Tagged $next" >> "$GITHUB_STEP_SUMMARY"
