@@ -40,6 +40,21 @@ buildPlugins:
     versionRef: protobuf-plugin
 
 buildConfiguration: |
+  // grpc-spring-boot-starter brings an older gRPC, protobuf and Guava with known
+  // vulnerabilities: align them in every module that ends up with them
+  rootProject.allprojects {
+      configurations.configureEach {
+          resolutionStrategy.eachDependency {
+              when {
+                  requested.group == "io.grpc" -> useVersion("${versions.libraries["grpc"]}")
+                  requested.group == "com.google.protobuf" && requested.name.startsWith("protobuf-java") ->
+                      useVersion("${versions.libraries["protoc"]}")
+                  requested.group == "com.google.guava" && requested.name == "guava" ->
+                      useVersion("${versions.libraries["guava"]}")
+              }
+          }
+      }
+  }
   protobuf {
       protoc {
           artifact = "com.google.protobuf:protoc:${versions.libraries["protoc"]}"

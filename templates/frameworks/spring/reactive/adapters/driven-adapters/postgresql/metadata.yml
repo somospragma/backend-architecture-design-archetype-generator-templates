@@ -21,3 +21,13 @@ configurationClasses:
   - name: R2dbcConfig
     packagePath: config
     templatePath: R2dbcConfig.java.ftl
+
+buildConfiguration: |
+  // r2dbc-postgresql brings an older SCRAM client with a known vulnerability
+  rootProject.allprojects {
+      configurations.configureEach {
+          resolutionStrategy.eachDependency {
+              if (requested.group == "com.ongres.scram") useVersion("${versions.libraries["scram"]}")
+          }
+      }
+  }

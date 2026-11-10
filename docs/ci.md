@@ -39,7 +39,7 @@ Lo que reciben los usuarios son los proyectos generados, así que se escanean co
 
 Como el código generado no está en este repositorio, los hallazgos de CodeQL no van a la pestaña Security: quedan en el resumen del run y como SARIF en sus artefactos. Si el escaneo semanal corre sin `TEST_RELEASED_PLUGIN`, revisa `develop` con el plugin de core `main`; con la variable activa, revisa `v<mayor>` con el plugin publicado, que es lo que usa la gente.
 
-Para corregir una dependencia vulnerable basta subir su versión en `versions.yml`: llega a los usuarios sin publicar plugin.
+Para corregir una dependencia vulnerable basta subir su versión en `versions.yml`: llega a los usuarios sin publicar plugin. Si la versión vulnerable llega como transitiva de otra librería, se fuerza desde el `buildConfiguration` del adapter que la trae, con `resolutionStrategy` (como en grpc, redis y postgresql reactivo). Nunca con un bloque `dependencies { }`: el plugin metería ahí las dependencias del siguiente adapter.
 
 ## Scripts
 

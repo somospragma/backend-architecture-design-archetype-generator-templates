@@ -15,7 +15,7 @@ gradle: "8.14.1"
 
 libraries:
   # Platform and build plugins (generated gradle/libs.versions.toml)
-  spring-boot: "4.0.3"
+  spring-boot: "4.0.9"
   spring-dependency-management: "1.1.7"
   sonarqube: "6.0.1.5171"
   owasp-dependencycheck: "12.1.0"
@@ -33,11 +33,11 @@ libraries:
   quarkus: "3.6.4"
 
   # Adapters
-  grpc: "1.58.0"
+  grpc: "1.85.1"
   grpc-spring-boot: "2.15.0.RELEASE"
   reactor-grpc: "1.2.4"
   protobuf-plugin: "0.9.4"
-  protoc: "3.24.0"
+  protoc: "3.25.9"
   javax-annotation-api: "1.3.2"
   aws-sdk: "2.20.0"
   spring-cloud-aws: "3.1.0"
@@ -45,6 +45,10 @@ libraries:
   flapdoodle-mongo: "4.11.0"
   embedded-redis: "0.7.3"
   okhttp: "4.12.0"
+  # Transitive versions forced by adapter constraints (vulnerable defaults)
+  guava: "33.7.2-jre"
+  scram: "3.4"
+  commons-io: "2.22.0"
 
 quality:
   jacoco-min-coverage: "0.85"

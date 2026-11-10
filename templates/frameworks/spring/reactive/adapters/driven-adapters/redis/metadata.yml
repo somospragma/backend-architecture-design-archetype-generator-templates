@@ -23,3 +23,18 @@ configurationClasses:
   - name: RedisConfig
     packagePath: config
     templatePath: Config.java.ftl
+
+buildConfiguration: |
+  // embedded-redis (tests) brings old Guava and commons-io with known vulnerabilities
+  rootProject.allprojects {
+      configurations.configureEach {
+          resolutionStrategy.eachDependency {
+              when {
+                  requested.group == "com.google.guava" && requested.name == "guava" ->
+                      useVersion("${versions.libraries["guava"]}")
+                  requested.group == "commons-io" && requested.name == "commons-io" ->
+                      useVersion("${versions.libraries["commons-io"]}")
+              }
+          }
+      }
+  }
