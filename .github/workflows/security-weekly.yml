@@ -7,9 +7,9 @@
 #                 and secrets (gitleaks) on each generated project
 # Report          one issue with the results
 #
-# Before the first plugin that reads v1 is released it scans develop with the
-# plugin from core main; with TEST_RELEASED_PLUGIN=true it scans v<major> with
-# the released plugin, which is what users get.
+# Before the first plugin that reads templates tags is released it scans develop
+# with the plugin from core main; with TEST_RELEASED_PLUGIN=true it scans the
+# latest tag v<major>.x.y with the released plugin, which is what users get.
 name: Security weekly
 
 on:
@@ -24,37 +24,62 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  TEMPLATES_REF: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && format('v{0}', vars.PLUGIN_MAJOR || '1') || '' }}
   PLUGIN: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && 'released' || 'core-main' }}
   SAST_FAIL_ON_SEVERITY: '7.0'
 
 jobs:
+  target:
+    name: Build · templates to scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      ref: ${{ steps.ref.outputs.ref }}
+    steps:
+      - id: ref
+        env:
+          RELEASED: ${{ vars.TEST_RELEASED_PLUGIN == 'true' }}
+          MAJOR: ${{ vars.PLUGIN_MAJOR || '1' }}
+        run: |
+          if [[ $RELEASED != true ]]; then
+            ref=develop
+          else
+            ref=$(git ls-remote --tags --refs "https://github.com/$GITHUB_REPOSITORY" "refs/tags/v$MAJOR.*" \
+              | sed 's#.*refs/tags/##' | grep -E "^v$MAJOR\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1)
+            [[ -n $ref ]] || { echo "::error::No templates release v$MAJOR.x.y"; exit 1; }
+          fi
+          echo "Scanning templates $ref" >> "$GITHUB_STEP_SUMMARY"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
   generate:
     name: Build · generate archetypes
+    needs: target
     uses: ./.github/workflows/generation.yml
     permissions:
       contents: read
     with:
       mode: full
       plugin: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && 'released' || 'core-main' }}
-      ref: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && format('v{0}', vars.PLUGIN_MAJOR || '1') || '' }}
+      ref: ${{ needs.target.outputs.ref }}
       keep-projects: true
 
   dependencies:
     name: Security · Dependencies · ${{ matrix.architecture }} ${{ matrix.paradigm }}
-    needs: generate
+    needs: [target, generate]
     if: ${{ !cancelled() && needs.generate.outputs.matrix != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
+      security-events: write # OSV results in the Security tab
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.generate.outputs.matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ env.TEMPLATES_REF }}
+          ref: ${{ needs.target.outputs.ref }}
           persist-credentials: false
       - uses: ./.github/actions/generated-project
         with:
@@ -63,18 +88,26 @@ jobs:
       - run: scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" osv-scanner
       - env:
           NAME: ${{ matrix.architecture }}-${{ matrix.paradigm }}
-        run: scripts/ci/scan-dependencies.sh --project "generated/$NAME" --out "$RUNNER_TEMP/scan/$NAME"
+        run: scripts/ci/scan-dependencies.sh --project "generated/$NAME" --out "scan-results/$NAME"
+      # The lockfiles live in the generated project, not in this repository:
+      # alerts show the package and the advisory without a source line
+      - name: Publish to the Security tab
+        if: always() && hashFiles('scan-results/*/osv.sarif') != ''
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          sarif_file: scan-results/${{ matrix.architecture }}-${{ matrix.paradigm }}/osv.sarif
+          category: osv/${{ matrix.architecture }}-${{ matrix.paradigm }}
       - if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dependencies-${{ matrix.architecture }}-${{ matrix.paradigm }}
-          path: ${{ runner.temp }}/scan
+          path: scan-results
           if-no-files-found: ignore
           retention-days: 30
 
   code:
     name: Security · Code (CodeQL) · ${{ matrix.architecture }} ${{ matrix.paradigm }}
-    needs: generate
+    needs: [target, generate]
     if: ${{ !cancelled() && needs.generate.outputs.matrix != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -87,7 +120,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ env.TEMPLATES_REF }}
+          ref: ${{ needs.target.outputs.ref }}
           persist-credentials: false
       - uses: ./.github/actions/generated-project
         with:
@@ -123,7 +156,7 @@ jobs:
 
   secrets:
     name: Security · Secrets · ${{ matrix.architecture }} ${{ matrix.paradigm }}
-    needs: generate
+    needs: [target, generate]
     if: ${{ !cancelled() && needs.generate.outputs.matrix != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -135,7 +168,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ env.TEMPLATES_REF }}
+          ref: ${{ needs.target.outputs.ref }}
           persist-credentials: false
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -151,7 +184,7 @@ jobs:
 
   report:
     name: Report
-    needs: [generate, dependencies, code, secrets]
+    needs: [target, generate, dependencies, code, secrets]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5

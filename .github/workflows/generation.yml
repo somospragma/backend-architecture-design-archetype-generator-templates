@@ -105,8 +105,12 @@ jobs:
             ./gradlew publishToMavenLocal -x test -x javadoc --console=plain
             version=$(./gradlew properties -q --console=plain | sed -n 's/^version: //p')
           else
-            # v1 → 1; develop is the integration branch of the current major
-            major=${BRANCH#v}; [[ $major =~ ^[0-9]+$ ]] || major=$DEFAULT_MAJOR
+            # A tag v1.2.3 or release/1.x → 1; develop and main are the current major
+            if [[ $BRANCH =~ ^v([0-9]+)\. || $BRANCH =~ ^release/([0-9]+)\.x$ ]]; then
+              major=${BASH_REMATCH[1]}
+            else
+              major=$DEFAULT_MAJOR
+            fi
             version=$(curl -fsSL "$PLUGIN_METADATA" | grep -o "<version>$major\.[^<]*</version>" \
               | sed 's/<[^>]*>//g' | sort -V | tail -n 1)
             [[ -n $version ]] || { echo "::error::No released plugin $major.x on the Plugin Portal"; exit 1; }

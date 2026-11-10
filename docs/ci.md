@@ -4,18 +4,17 @@ Cada cambio en templates se prueba generando proyectos reales con el plugin, com
 
 ## Ramas
 
-- `develop` es la rama de integración: los PR desde `feat/*` o `fix/*` entran aquí. Es la rama por defecto del repositorio.
-- `main` está congelada: la leen los plugins 1.0.x ya publicados, que no entienden las plantillas nuevas. Solo recibe arreglos puntuales para esos usuarios, y se retira cuando ya nadie use 1.0.x.
-- `v1`, `v2`, … son las ramas que lee cada mayor del plugin: el plugin 1.x lee `v1`. Es lo que reciben los usuarios.
-- Promover es abrir un PR de `develop` a `v1`. Necesita la aprobación del environment `promote`; al mergearlo, el CI crea el tag siguiente `v1.x.y` (sube el patch; el minor se sube a mano).
-- Un cambio incompatible sube el `schemaVersion` de `architectures/index.yml`. Va a la rama `v2` junto con el plugin 2.0, nunca a `v1`.
+- `develop` es la rama de integración y la rama por defecto: los PR desde `feat/*` o `fix/*` entran aquí.
+- `main` es lo publicado: solo recibe PR desde `develop`, con la aprobación del environment `promote`.
+- Cada merge a `main` crea el tag siguiente `v<mayor>.x.y`. El plugin de cada mayor lee el último tag de su mayor.
+- El detalle de cómo se publica, cómo se sube el minor, cómo se saca un mayor nuevo y el corte con el plugin 1.0.x está en [publicacion-y-despliegue.md](publicacion-y-despliegue.md).
 
 ## Workflows
 
 | Workflow | Cuándo corre | Etapas |
 |---|---|---|
-| `ci.yml` | PR y push a `develop` y a `v*` | Quality: contrato y, en PR a `v*`, que venga de `develop`. Security: gitleaks, actionlint y zizmor. Build: cada arquitectura × paradigma generada, compilada, probada y con sus dependencias escaneadas; en PR a `v*` también con el último plugin publicado. Approval: en PR a `v*`, aprobación del environment `promote`. Deploy: el merge a `v*` crea el tag `v1.x.y` |
-| `security-weekly.yml` | cada lunes a las 07:00 UTC | Build: genera un proyecto por arquitectura × paradigma con todos los adapters. Security, sobre cada uno: dependencias (OSV), código (CodeQL `security-extended`) y secretos (gitleaks). Report: abre o actualiza un issue `security-weekly`; una corrida limpia lo cierra |
+| `ci.yml` | PR y push a `develop`, `main` y `release/**` | Quality: contrato y, en PR a `main`, que venga de `develop`. Security: gitleaks, actionlint y zizmor. Build: cada arquitectura × paradigma generada, compilada, probada y con sus dependencias escaneadas; en PR a `main` también con el último plugin publicado. Approval: en PR a `main` o `release/**`, aprobación del environment `promote`. Deploy: el merge crea el tag `v<mayor>.x.y` |
+| `security-weekly.yml` | cada lunes a las 07:00 UTC | Build: genera un proyecto por arquitectura × paradigma con todos los adapters. Security, sobre cada uno: dependencias (OSV), código (CodeQL `security-extended`) y secretos (gitleaks). OSV publica en la pestaña Security. Report: abre o actualiza un issue `security-weekly`; una corrida limpia lo cierra |
 | `nightly.yml` | cada día a las 06:00 UTC | cada adapter solo en su propio proyecto, y violaciones metidas a propósito que el build debe rechazar |
 | `generation.yml` | lo llaman los anteriores | la matriz de generación |
 
@@ -37,7 +36,9 @@ Lo que reciben los usuarios son los proyectos generados, así que se escanean co
 | Código | CodeQL `security-extended` | security-severity ≥ 7.0 | cada lunes |
 | Secretos | gitleaks sobre el proyecto | cualquier hallazgo | cada lunes |
 
-Como el código generado no está en este repositorio, los hallazgos de CodeQL no van a la pestaña Security: quedan en el resumen del run y como SARIF en sus artefactos. Si el escaneo semanal corre sin `TEST_RELEASED_PLUGIN`, revisa `develop` con el plugin de core `main`; con la variable activa, revisa `v<mayor>` con el plugin publicado, que es lo que usa la gente.
+Los hallazgos de OSV se publican en la pestaña Security (code scanning, una categoría `osv/<arquitectura>-<paradigma>` por proyecto). Como los lockfiles viven en el proyecto generado y no en este repositorio, cada alerta muestra el paquete y el aviso, pero no una línea de código. Los de CodeQL quedan en el resumen del run y como SARIF en sus artefactos, porque apuntan a código que no existe en el repositorio.
+
+Si el escaneo semanal corre sin `TEST_RELEASED_PLUGIN`, revisa `develop` con el plugin de core `main`. Con la variable activa, revisa el último tag `v<mayor>.x.y` con el plugin publicado, que es lo que usa la gente.
 
 Para corregir una dependencia vulnerable basta subir su versión en `versions.yml`: llega a los usuarios sin publicar plugin. Si la versión vulnerable llega como transitiva de otra librería, se fuerza desde el `buildConfiguration` del adapter que la trae, con `resolutionStrategy` (como en grpc, redis y postgresql reactivo). Nunca con un bloque `dependencies { }`: el plugin metería ahí las dependencias del siguiente adapter.
 
@@ -59,14 +60,17 @@ El CI del core usa `generate-and-build.sh` para su prueba de humo, y `scan-depen
 
 ## Configuración en GitHub (una sola vez)
 
-**Rama por defecto y `main`**
-- Crear `develop` desde el `main` actual y ponerla como rama por defecto.
-- Ruleset de `main`: sin push directo, sin force push ni borrado. Un arreglo para 1.0.x entra por PR con aprobación.
+**Rama por defecto**
+- `develop` ya existe: ponerla como rama por defecto (hoy es `main`).
 
-**Ruleset de `develop` y de `v*`**
-- PR obligatorio con 1 aprobación (en `v*` mejor 2), descartar aprobaciones viejas al haber nuevos commits y resolver conversaciones.
-- Check obligatorio: `ci-ok`. En un PR a `v*`, `ci-ok` espera al job Approval, así que no se puede mergear sin la aprobación del environment.
-- Sin force push ni borrado. En `v*` el CI rechaza cualquier PR que no venga de `develop` (job `promotion-source`).
+**Ruleset de `develop`, `main` y `release/**`**
+- PR obligatorio con 1 aprobación (en `main` mejor 2), descartar aprobaciones viejas al haber nuevos commits y resolver conversaciones.
+- Check obligatorio: `ci-ok`. En un PR a `main`, `ci-ok` espera al job Approval, así que no se puede mergear sin la aprobación del environment.
+- Sin force push ni borrado. En `main` el CI rechaza cualquier PR que no venga de `develop` (job `promotion-source`).
+
+**Ruleset de tags `v*`**
+- Activar "Restrict updates" y "Restrict deletions": nadie puede mover ni borrar un tag publicado.
+- No restringir la creación, o el job Deploy no podría crear el tag con el `GITHUB_TOKEN`.
 
 **Environment `promote`**
 - Revisores obligatorios y "Prevent self-review".
@@ -74,9 +78,10 @@ El CI del core usa `generate-and-build.sh` para su prueba de humo, y `scan-depen
 - No guarda secretos: solo es la aprobación.
 
 **Variables del repositorio**
-- `TEST_RELEASED_PLUGIN=true` cuando ya esté publicado el primer plugin que lee `v1`. Antes de eso, el plugin publicado (1.0.5) no entiende `schemaVersion` y esa matriz fallaría.
-- `PLUGIN_MAJOR`: mayor del plugin que se integra en `develop` (por defecto `1`).
+- `TEST_RELEASED_PLUGIN=true` cuando ya esté publicado el primer plugin que lee tags de templates. Antes de eso, el plugin publicado (1.0.5) no entiende `schemaVersion` y esa matriz fallaría.
+- `PLUGIN_MAJOR`: mayor que publica `main` (por defecto `1`); se sube a `2` junto con un cambio incompatible.
 
 **Seguridad del repositorio**
-- Secret scanning con push protection y Dependabot alerts.
-- Actions: permisos del `GITHUB_TOKEN` en solo lectura. El job que crea el tag pide `contents: write` y el reporte semanal `issues: write`, solo para eso.
+- Dependabot alerts y Dependabot security updates (activas desde el 2026-11-10).
+- Secret scanning con push protection.
+- Actions: permisos del `GITHUB_TOKEN` en solo lectura. El job que crea el tag pide `contents: write`, el escaneo semanal `security-events: write` para publicar en la pestaña Security y su reporte `issues: write`, solo para eso.

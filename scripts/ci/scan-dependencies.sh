@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Scans the full dependency tree of a Gradle project (a generated project or the
 # plugin itself) with OSV-Scanner and fails when a vulnerability reaches the
-# CVSS threshold. Also writes a CycloneDX SBOM of the same tree.
+# CVSS threshold. Also writes a CycloneDX SBOM of the same tree and a SARIF
+# report for GitHub code scanning (out/osv.sarif).
 #
 #   scan-dependencies.sh --project build/generated/onion-single-reactive \
 #     [--fail-on-cvss 7.0] [--out build/scan] [--osv-scanner osv-scanner]
@@ -53,6 +54,8 @@ status=0
 "$osv" scan source --recursive --format json --output-file "$out/osv.json" "$project" || status=$?
 [[ $status -le 1 ]] || { echo "osv-scanner failed with exit code $status" >&2; exit "$status"; }
 "$osv" scan source --recursive --format cyclonedx-1-6 --output-file "$out/sbom.cdx.json" "$project" > /dev/null || true
+# SARIF for the Security tab (GitHub code scanning)
+"$osv" scan source --recursive --format sarif --output-file "$out/osv.sarif" "$project" > /dev/null || true
 
 # One row per vulnerability group: package, version, ids, max CVSS
 rows=$(jq -r '.results[]?.packages[]? | . as $p | .groups[]?

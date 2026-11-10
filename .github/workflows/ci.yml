@@ -1,20 +1,22 @@
-# develop is the integration branch; v1, v2... are what each plugin major reads.
-# main is frozen: plugins 1.0.x read it.
+# develop is the integration branch; main is what gets released. Every release
+# is a tag v<major>.x.y cut from main, and each plugin major reads the latest
+# tag of its major. release/<major>.x only exists to patch an older major.
 #
-# Quality (CI)   contract of the templates; a PR to v* must come from develop
+# Quality (CI)   contract of the templates; a PR to main must come from develop
 # Security (CI)  secrets in the history, security lint of the workflows
 # Build          every architecture x paradigm generated, built, tested and its
-#                dependencies scanned; on a promotion PR also with the released plugin
-# Approval       promotion PR (develop → v1): a reviewer of the `promote`
-#                environment approves; ci-ok stays pending until then
-# Deploy (CD)    the merge into v1 is what users read; it gets the next v1.x.y tag
+#                dependencies scanned; on a release PR also with the released plugin
+# Approval       release PR (develop -> main, or to release/<major>.x): a reviewer
+#                of the `promote` environment approves; ci-ok stays pending until then
+# Deploy (CD)    the merge gets the next tag v<major>.x.y, which users get from
+#                then on
 name: CI
 
 on:
   pull_request:
-    branches: [develop, 'v[0-9]*']
+    branches: [develop, main, 'release/**']
   push:
-    branches: [develop, 'v[0-9]*']
+    branches: [develop, main, 'release/**']
   workflow_dispatch:
 
 permissions: {}
@@ -42,8 +44,8 @@ jobs:
 
   promotion-source:
     name: Quality (CI) · Promotion source
-    # v1, v2... only receive promotions from develop
-    if: github.event_name == 'pull_request' && startsWith(github.base_ref, 'v')
+    # main only receives releases from develop
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions: {}
@@ -53,7 +55,7 @@ jobs:
           SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
           [[ $HEAD == develop && $SAME_REPO == true ]] \
-            || { echo "::error::Only develop can be promoted to a major branch (got $HEAD)"; exit 1; }
+            || { echo "::error::Only develop can be released to main (got $HEAD)"; exit 1; }
 
   secrets:
     name: Security (CI) · Secrets (gitleaks)
@@ -106,9 +108,9 @@ jobs:
 
   build-released:
     name: Build · released plugin
-    # Off until the first plugin release that reads v1 (repository variable
-    # TEST_RELEASED_PLUGIN=true): older plugins do not understand schemaVersion.
-    if: vars.TEST_RELEASED_PLUGIN == 'true' && startsWith(github.base_ref || github.ref_name, 'v')
+    # Off until the first plugin release that reads templates tags (repository
+    # variable TEST_RELEASED_PLUGIN=true): older plugins do not understand schemaVersion.
+    if: vars.TEST_RELEASED_PLUGIN == 'true' && (github.base_ref || github.ref_name) != 'develop'
     needs: [secrets, workflows]
     uses: ./.github/workflows/generation.yml
     permissions:
@@ -118,8 +120,8 @@ jobs:
       plugin: released
 
   approval:
-    name: Approval · promote to ${{ github.base_ref }}
-    if: ${{ !failure() && !cancelled() && github.event_name == 'pull_request' && startsWith(github.base_ref, 'v') }}
+    name: Approval · release to ${{ github.base_ref }}
+    if: ${{ !failure() && !cancelled() && github.event_name == 'pull_request' && github.base_ref != 'develop' }}
     needs: [build, build-released]
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -128,7 +130,7 @@ jobs:
     steps:
       - env:
           BASE: ${{ github.base_ref }}
-        run: echo "Promotion to $BASE approved. Merging the PR publishes it to every plugin user." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Release to $BASE approved. Merging the PR tags it and every plugin user of that major gets it." >> "$GITHUB_STEP_SUMMARY"
 
   ci-ok:
     # Single required check for rulesets
@@ -145,10 +147,10 @@ jobs:
           for r in $RESULTS; do [[ $r == success || $r == skipped ]] || exit 1; done
 
   deploy:
-    name: Deploy (CD) · tag v1.x.y
-    # The merge into v1 already reaches users; the tag marks what they got
-    # (next patch; bump minor by hand)
-    if: github.event_name == 'push' && startsWith(github.ref_name, 'v')
+    name: Deploy (CD) · tag v<major>.x.y
+    # The merge into main (or release/<major>.x) is tagged with the next patch;
+    # bump the minor by hand. Plugins pick the new tag up on their next run.
+    if: github.event_name == 'push' && github.ref_name != 'develop'
     needs: ci-ok
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -161,14 +163,21 @@ jobs:
           persist-credentials: false
       - env:
           BRANCH: ${{ github.ref_name }}
+          DEFAULT_MAJOR: ${{ vars.PLUGIN_MAJOR || '1' }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          major=${BRANCH#v}
-          [[ $major =~ ^[0-9]+$ ]] || { echo "::error::$BRANCH is not a major branch"; exit 1; }
-          if git describe --tags --exact-match HEAD 2>/dev/null | grep -q "^v$major\."; then
+          # main releases the current major; release/1.x patches major 1
+          if [[ $BRANCH == main ]]; then
+            major=$DEFAULT_MAJOR
+          elif [[ $BRANCH =~ ^release/([0-9]+)\.x$ ]]; then
+            major=${BASH_REMATCH[1]}
+          else
+            echo "::error::$BRANCH is not main or release/<major>.x"; exit 1
+          fi
+          if git tag --points-at HEAD | grep -qE "^v$major\.[0-9]+\.[0-9]+$"; then
             echo "HEAD is already tagged"; exit 0
           fi
-          last=$(git tag --list "v$major.*.*" | sort -V | tail -n 1)
+          last=$(git tag --list "v$major.*" | grep -E "^v$major\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 || true)
           if [[ -z $last ]]; then
             next="v$major.0.0"
           else
