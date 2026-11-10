@@ -176,7 +176,9 @@ jobs:
           PARADIGM: ${{ matrix.paradigm }}
         run: |
           scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" osv-scanner
-          scripts/ci/scan-dependencies.sh --project "$RUNNER_TEMP/generated/$ARCHITECTURE-$PARADIGM" \
+          # GITHUB_PATH only reaches the next steps: call the scanner by its path
+          scripts/ci/scan-dependencies.sh --osv-scanner "$RUNNER_TEMP/bin/osv-scanner" \
+            --project "$RUNNER_TEMP/generated/$ARCHITECTURE-$PARADIGM" \
             --out "$RUNNER_TEMP/generated/scan/$ARCHITECTURE-$PARADIGM"
       - if: inputs.keep-projects && inputs.mode == 'full'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
