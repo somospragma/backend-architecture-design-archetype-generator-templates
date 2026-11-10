@@ -4,16 +4,16 @@ Cada cambio en templates se prueba generando proyectos reales con el plugin, com
 
 ## Ramas
 
-- `develop` es la rama de integración y la rama por defecto: los PR desde `feat/*` o `fix/*` entran aquí.
-- `main` es lo publicado: solo recibe PR desde `develop`, con la aprobación del environment `promote`.
-- Cada merge a `main` crea el tag siguiente `v<mayor>.x.y`. El plugin de cada mayor lee el último tag de su mayor.
+- `main` es la rama por defecto y la única de integración: todo entra por PR desde `feat/*` o `fix/*`.
+- Cada merge a `main` crea el tag siguiente `v<mayor>.x.y`, y el plugin de cada mayor lee el último tag de su mayor. Por eso todo PR a `main` necesita la aprobación del environment `promote`.
+- `release/<mayor>.x` solo existe para parchear un mayor viejo.
 - El detalle de cómo se publica, cómo se sube el minor, cómo se saca un mayor nuevo y el corte con el plugin 1.0.x está en [publicacion-y-despliegue.md](publicacion-y-despliegue.md).
 
 ## Workflows
 
 | Workflow | Cuándo corre | Etapas |
 |---|---|---|
-| `ci.yml` | PR y push a `develop`, `main` y `release/**` | Quality: contrato y, en PR a `main`, que venga de `develop`. Security: gitleaks, actionlint y zizmor. Build: cada arquitectura × paradigma generada, compilada, probada y con sus dependencias escaneadas; en PR a `main` también con el último plugin publicado. Approval: en PR a `main` o `release/**`, aprobación del environment `promote`. Deploy: el merge crea el tag `v<mayor>.x.y` |
+| `ci.yml` | PR y push a `main` y `release/**` | Quality: contrato. Security: gitleaks, actionlint y zizmor. Build: cada arquitectura × paradigma generada, compilada, probada y con sus dependencias escaneadas; con `TEST_RELEASED_PLUGIN=true` también con el último plugin publicado. Approval: en cada PR, aprobación del environment `promote`. Deploy: el merge crea el tag `v<mayor>.x.y` |
 | `security-weekly.yml` | cada lunes a las 07:00 UTC | Build: genera un proyecto por arquitectura × paradigma con todos los adapters. Security, sobre cada uno: dependencias (OSV), código (CodeQL `security-extended`) y secretos (gitleaks). OSV publica en la pestaña Security. Report: abre o actualiza un issue `security-weekly`; una corrida limpia lo cierra |
 | `nightly.yml` | cada día a las 06:00 UTC | cada adapter solo en su propio proyecto, y violaciones metidas a propósito que el build debe rechazar |
 | `generation.yml` | lo llaman los anteriores | la matriz de generación |
@@ -38,7 +38,7 @@ Lo que reciben los usuarios son los proyectos generados, así que se escanean co
 
 Los hallazgos de OSV se publican en la pestaña Security (code scanning, una categoría `osv/<arquitectura>-<paradigma>` por proyecto). Como los lockfiles viven en el proyecto generado y no en este repositorio, cada alerta muestra el paquete y el aviso, pero no una línea de código. Los de CodeQL quedan en el resumen del run y como SARIF en sus artefactos, porque apuntan a código que no existe en el repositorio.
 
-Si el escaneo semanal corre sin `TEST_RELEASED_PLUGIN`, revisa `develop` con el plugin de core `main`. Con la variable activa, revisa el último tag `v<mayor>.x.y` con el plugin publicado, que es lo que usa la gente.
+Si el escaneo semanal corre sin `TEST_RELEASED_PLUGIN`, revisa `main` con el plugin de core `main`. Con la variable activa, revisa el último tag `v<mayor>.x.y` con el plugin publicado, que es lo que usa la gente.
 
 Para corregir una dependencia vulnerable basta subir su versión en `versions.yml`: llega a los usuarios sin publicar plugin. Si la versión vulnerable llega como transitiva de otra librería, se fuerza desde el `buildConfiguration` del adapter que la trae, con `resolutionStrategy` (como en grpc, redis y postgresql reactivo). Nunca con un bloque `dependencies { }`: el plugin metería ahí las dependencias del siguiente adapter.
 
@@ -60,20 +60,17 @@ El CI del core usa `generate-and-build.sh` para su prueba de humo, y `scan-depen
 
 ## Configuración en GitHub (una sola vez)
 
-**Rama por defecto**
-- `develop` ya existe: ponerla como rama por defecto (hoy es `main`).
-
-**Ruleset de `develop`, `main` y `release/**`**
-- PR obligatorio con 1 aprobación (en `main` mejor 2), descartar aprobaciones viejas al haber nuevos commits y resolver conversaciones.
+**Ruleset de `main` y `release/**`**
+- PR obligatorio, sin aprobaciones de código: la aprobación humana es la del environment `promote`.
 - Check obligatorio: `ci-ok`. En un PR a `main`, `ci-ok` espera al job Approval, así que no se puede mergear sin la aprobación del environment.
-- Sin force push ni borrado. En `main` el CI rechaza cualquier PR que no venga de `develop` (job `promotion-source`).
+- Sin force push ni borrado.
 
 **Ruleset de tags `v*`**
 - Activar "Restrict updates" y "Restrict deletions": nadie puede mover ni borrar un tag publicado.
 - No restringir la creación, o el job Deploy no podría crear el tag con el `GITHUB_TOKEN`.
 
 **Environment `promote`**
-- Revisores obligatorios y "Prevent self-review".
+- Revisor obligatorio: dayepesb-pragma. Sin "Prevent self-review", para que el revisor pueda aprobar sus propios PR.
 - Deployment branches: sin restricción. Corre sobre el PR de promoción, cuya ref es la del PR; la protección real es el revisor.
 - No guarda secretos: solo es la aprobación.
 

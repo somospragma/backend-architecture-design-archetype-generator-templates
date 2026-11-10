@@ -105,7 +105,7 @@ jobs:
             ./gradlew publishToMavenLocal -x test -x javadoc --console=plain
             version=$(./gradlew properties -q --console=plain | sed -n 's/^version: //p')
           else
-            # A tag v1.2.3 or release/1.x → 1; develop and main are the current major
+            # A tag v1.2.3 or release/1.x → 1; main is the current major
             if [[ $BRANCH =~ ^v([0-9]+)\. || $BRANCH =~ ^release/([0-9]+)\.x$ ]]; then
               major=${BASH_REMATCH[1]}
             else

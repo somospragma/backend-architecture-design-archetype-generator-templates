@@ -7,7 +7,7 @@
 #
 # In multi-module architectures Gradle may reject a violation before ArchUnit
 # (the domain module has no Spring on its classpath). A compile error counts as
-# caught too: either way the violation cannot reach develop.
+# caught too: either way the violation cannot reach main.
 set -euo pipefail
 
 while [[ $# -gt 0 ]]; do

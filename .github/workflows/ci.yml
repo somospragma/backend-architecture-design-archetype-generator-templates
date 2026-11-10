@@ -1,22 +1,23 @@
-# develop is the integration branch; main is what gets released. Every release
-# is a tag v<major>.x.y cut from main, and each plugin major reads the latest
-# tag of its major. release/<major>.x only exists to patch an older major.
+# Trunk-based: every change goes to main by PR, and every merge to main is a
+# release tag v<major>.x.y. Each plugin major reads the latest tag of its major.
+# release/<major>.x only exists to patch an older major.
 #
-# Quality (CI)   contract of the templates; a PR to main must come from develop
+# Quality (CI)   contract of the templates
 # Security (CI)  secrets in the history, security lint of the workflows
 # Build          every architecture x paradigm generated, built, tested and its
-#                dependencies scanned; on a release PR also with the released plugin
-# Approval       release PR (develop -> main, or to release/<major>.x): a reviewer
-#                of the `promote` environment approves; ci-ok stays pending until then
+#                dependencies scanned; also with the released plugin when
+#                TEST_RELEASED_PLUGIN=true
+# Approval       a reviewer of the `promote` environment approves the PR, since
+#                merging it releases it; ci-ok stays pending until then
 # Deploy (CD)    the merge gets the next tag v<major>.x.y, which users get from
 #                then on
 name: CI
 
 on:
   pull_request:
-    branches: [develop, main, 'release/**']
+    branches: [main, 'release/**']
   push:
-    branches: [develop, main, 'release/**']
+    branches: [main, 'release/**']
   workflow_dispatch:
 
 permissions: {}
@@ -42,25 +43,9 @@ jobs:
           persist-credentials: false
       - run: python3 scripts/ci/check-contract.py templates
 
-  promotion-source:
-    name: Quality (CI) · Promotion source
-    # main only receives releases from develop
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    permissions: {}
-    steps:
-      - env:
-          HEAD: ${{ github.head_ref }}
-          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-        run: |
-          [[ $HEAD == develop && $SAME_REPO == true ]] \
-            || { echo "::error::Only develop can be released to main (got $HEAD)"; exit 1; }
-
   secrets:
     name: Security (CI) · Secrets (gitleaks)
-    needs: [contract, promotion-source]
-    if: ${{ !failure() && !cancelled() }}
+    needs: contract
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -75,8 +60,7 @@ jobs:
 
   workflows:
     name: Security (CI) · Workflows (actionlint, zizmor)
-    needs: [contract, promotion-source]
-    if: ${{ !failure() && !cancelled() }}
+    needs: contract
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -110,7 +94,7 @@ jobs:
     name: Build · released plugin
     # Off until the first plugin release that reads templates tags (repository
     # variable TEST_RELEASED_PLUGIN=true): older plugins do not understand schemaVersion.
-    if: vars.TEST_RELEASED_PLUGIN == 'true' && (github.base_ref || github.ref_name) != 'develop'
+    if: vars.TEST_RELEASED_PLUGIN == 'true'
     needs: [secrets, workflows]
     uses: ./.github/workflows/generation.yml
     permissions:
@@ -121,7 +105,7 @@ jobs:
 
   approval:
     name: Approval · release to ${{ github.base_ref }}
-    if: ${{ !failure() && !cancelled() && github.event_name == 'pull_request' && github.base_ref != 'develop' }}
+    if: ${{ !failure() && !cancelled() && github.event_name == 'pull_request' }}
     needs: [build, build-released]
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -135,7 +119,7 @@ jobs:
   ci-ok:
     # Single required check for rulesets
     if: always()
-    needs: [contract, promotion-source, secrets, workflows, build, build-released, approval]
+    needs: [contract, secrets, workflows, build, build-released, approval]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions: {}
@@ -150,7 +134,7 @@ jobs:
     name: Deploy (CD) · tag v<major>.x.y
     # The merge into main (or release/<major>.x) is tagged with the next patch;
     # bump the minor by hand. Plugins pick the new tag up on their next run.
-    if: github.event_name == 'push' && github.ref_name != 'develop'
+    if: github.event_name == 'push'
     needs: ci-ok
     runs-on: ubuntu-latest
     timeout-minutes: 5
