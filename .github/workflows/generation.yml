@@ -4,6 +4,9 @@
 #   mode negative  full projects with injected violations the build must reject
 #   plugin core-main  plugin built from core main
 #   plugin released   latest plugin of this templates major on the Plugin Portal
+#   scan           also scans each project's dependency tree (OSV, CVSS threshold
+#                  from versions.yml)
+#   keep-projects  uploads each generated project for later jobs (security scans)
 name: Generation
 
 on:
@@ -15,6 +18,23 @@ on:
       plugin:
         type: string
         default: core-main
+      ref:
+        description: Templates ref to generate from (default the triggering ref)
+        type: string
+        default: ''
+      scan:
+        type: boolean
+        default: false
+      keep-projects:
+        type: boolean
+        default: false
+    outputs:
+      matrix:
+        value: ${{ jobs.plan.outputs.matrix }}
+      gradle:
+        value: ${{ jobs.plan.outputs.gradle }}
+      plugin-version:
+        value: ${{ jobs.plugin.outputs.version }}
 
 permissions: {}
 
@@ -34,6 +54,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ inputs.ref }}
           persist-credentials: false
       - id: plan
         env:
@@ -77,7 +98,7 @@ jobs:
       - id: version
         env:
           PLUGIN: ${{ inputs.plugin }}
-          BRANCH: ${{ github.base_ref || github.ref_name }}
+          BRANCH: ${{ inputs.ref || github.base_ref || github.ref_name }}
           DEFAULT_MAJOR: ${{ vars.PLUGIN_MAJOR || '1' }}
         run: |
           if [[ $PLUGIN == core-main ]]; then
@@ -112,6 +133,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ inputs.ref }}
           persist-credentials: false
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
@@ -142,6 +164,32 @@ jobs:
           PARADIGM: ${{ matrix.paradigm }}
         run: |
           scripts/ci/negative-check.sh --project "$RUNNER_TEMP/generated/$ARCHITECTURE-$PARADIGM" --paradigm "$PARADIGM"
+      - if: inputs.scan
+        name: Vulnerable dependencies (OSV)
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+          PARADIGM: ${{ matrix.paradigm }}
+        run: |
+          scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" osv-scanner
+          scripts/ci/scan-dependencies.sh --project "$RUNNER_TEMP/generated/$ARCHITECTURE-$PARADIGM" \
+            --out "$RUNNER_TEMP/generated/scan/$ARCHITECTURE-$PARADIGM"
+      - if: inputs.keep-projects && inputs.mode == 'full'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: project-${{ matrix.architecture }}-${{ matrix.paradigm }}
+          path: |
+            ${{ runner.temp }}/generated/${{ matrix.architecture }}-${{ matrix.paradigm }}
+            !${{ runner.temp }}/generated/${{ matrix.architecture }}-${{ matrix.paradigm }}/**/build
+            !${{ runner.temp }}/generated/${{ matrix.architecture }}-${{ matrix.paradigm }}/**/.gradle
+          include-hidden-files: true
+          retention-days: 7
+      - if: always() && inputs.scan
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependencies-${{ inputs.mode }}-${{ inputs.plugin }}-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/generated/scan
+          if-no-files-found: ignore
+          retention-days: 30
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

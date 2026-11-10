@@ -1,0 +1,188 @@
+# Every Monday: generates one project per architecture x paradigm (all adapters)
+# and runs every security scan on each, as a user would receive it. Findings
+# open or update an issue labelled `security-weekly`; a clean run closes it.
+#
+# Build           generate and build each project
+# Security        dependencies (OSV, full tree), code (CodeQL security-extended)
+#                 and secrets (gitleaks) on each generated project
+# Report          one issue with the results
+#
+# Before the first plugin that reads v1 is released it scans develop with the
+# plugin from core main; with TEST_RELEASED_PLUGIN=true it scans v<major> with
+# the released plugin, which is what users get.
+name: Security weekly
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  TEMPLATES_REF: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && format('v{0}', vars.PLUGIN_MAJOR || '1') || '' }}
+  PLUGIN: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && 'released' || 'core-main' }}
+  SAST_FAIL_ON_SEVERITY: '7.0'
+
+jobs:
+  generate:
+    name: Build · generate archetypes
+    uses: ./.github/workflows/generation.yml
+    permissions:
+      contents: read
+    with:
+      mode: full
+      plugin: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && 'released' || 'core-main' }}
+      ref: ${{ vars.TEST_RELEASED_PLUGIN == 'true' && format('v{0}', vars.PLUGIN_MAJOR || '1') || '' }}
+      keep-projects: true
+
+  dependencies:
+    name: Security · Dependencies · ${{ matrix.architecture }} ${{ matrix.paradigm }}
+    needs: generate
+    if: ${{ !cancelled() && needs.generate.outputs.matrix != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TEMPLATES_REF }}
+          persist-credentials: false
+      - uses: ./.github/actions/generated-project
+        with:
+          name: ${{ matrix.architecture }}-${{ matrix.paradigm }}
+          plugin: ${{ env.PLUGIN }}
+      - run: scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" osv-scanner
+      - env:
+          NAME: ${{ matrix.architecture }}-${{ matrix.paradigm }}
+        run: scripts/ci/scan-dependencies.sh --project "generated/$NAME" --out "$RUNNER_TEMP/scan/$NAME"
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependencies-${{ matrix.architecture }}-${{ matrix.paradigm }}
+          path: ${{ runner.temp }}/scan
+          if-no-files-found: ignore
+          retention-days: 30
+
+  code:
+    name: Security · Code (CodeQL) · ${{ matrix.architecture }} ${{ matrix.paradigm }}
+    needs: generate
+    if: ${{ !cancelled() && needs.generate.outputs.matrix != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write # CodeQL status reports; results are not uploaded
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TEMPLATES_REF }}
+          persist-credentials: false
+      - uses: ./.github/actions/generated-project
+        with:
+          name: ${{ matrix.architecture }}-${{ matrix.paradigm }}
+          plugin: ${{ env.PLUGIN }}
+      - uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          languages: java-kotlin
+          build-mode: manual
+          queries: security-extended
+          source-root: generated/${{ matrix.architecture }}-${{ matrix.paradigm }}
+      - working-directory: generated/${{ matrix.architecture }}-${{ matrix.paradigm }}
+        run: ./gradlew classes testClasses --no-build-cache --console=plain
+      # Generated files are not in this repository, so results go to the run
+      # (summary and artifact) instead of the Security tab
+      - uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          category: generated/${{ matrix.architecture }}-${{ matrix.paradigm }}
+          upload: never
+          output: ${{ runner.temp }}/codeql
+      - env:
+          NAME: ${{ matrix.architecture }}-${{ matrix.paradigm }}
+        run: |
+          scripts/ci/sarif-gate.sh --sarif "$RUNNER_TEMP/codeql/java.sarif" \
+            --title "Code (CodeQL): $NAME" --fail-on-severity "$SAST_FAIL_ON_SEVERITY"
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: codeql-${{ matrix.architecture }}-${{ matrix.paradigm }}
+          path: ${{ runner.temp }}/codeql
+          if-no-files-found: ignore
+          retention-days: 30
+
+  secrets:
+    name: Security · Secrets · ${{ matrix.architecture }} ${{ matrix.paradigm }}
+    needs: generate
+    if: ${{ !cancelled() && needs.generate.outputs.matrix != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TEMPLATES_REF }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: project-${{ matrix.architecture }}-${{ matrix.paradigm }}
+          path: ${{ runner.temp }}/project
+      - run: scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" gitleaks
+      - env:
+          NAME: ${{ matrix.architecture }}-${{ matrix.paradigm }}
+        run: |
+          gitleaks dir --no-banner --redact --exit-code 0 \
+            --report-format sarif --report-path "$RUNNER_TEMP/gitleaks.sarif" "$RUNNER_TEMP/project"
+          scripts/ci/sarif-gate.sh --sarif "$RUNNER_TEMP/gitleaks.sarif" --title "Secrets: $NAME" --fail-on-any
+
+  report:
+    name: Report
+    needs: [generate, dependencies, code, secrets]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RESULTS: >-
+            generate=${{ needs.generate.result }}
+            dependencies=${{ needs.dependencies.result }}
+            code=${{ needs.code.result }}
+            secrets=${{ needs.secrets.result }}
+        run: |
+          title="Security weekly: findings in generated projects"
+          label=security-weekly
+          issue=$(gh issue list --label "$label" --state open --json number --jq '.[0].number // empty')
+          table=$(for r in $RESULTS; do echo "| ${r%%=*} | ${r#*=} |"; done)
+          body=$(printf '%s\n\n| Stage | Result |\n|---|---|\n%s\n\nDetails, tables and SARIF files: %s\n' \
+            "Weekly security scan of every generated architecture x paradigm." "$table" "$RUN_URL")
+          echo "$body" >> "$GITHUB_STEP_SUMMARY"
+          if grep -q '| failure |' <<< "$table"; then
+            if [[ -n $issue ]]; then
+              gh issue comment "$issue" --body "$body"
+            else
+              gh label create "$label" --color B60205 --description "Weekly security scan" 2>/dev/null || true
+              gh issue create --title "$title" --label "$label" --body "$body"
+            fi
+            exit 1
+          elif [[ -n $issue ]]; then
+            gh issue close "$issue" --comment "Clean run: $RUN_URL"
+          fi

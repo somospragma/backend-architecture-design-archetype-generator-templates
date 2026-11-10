@@ -1,8 +1,13 @@
 # develop is the integration branch; v1, v2... are what each plugin major reads.
-# main is frozen: plugins 1.0.x read it. A PR to develop is tested against core
-# main. A promotion PR (develop → v1) is also tested against the latest
-# released plugin 1.x, which is what users run.
-# Every push to v1 that passes gets the next v1.x.y tag.
+# main is frozen: plugins 1.0.x read it.
+#
+# Quality (CI)   contract of the templates; a PR to v* must come from develop
+# Security (CI)  secrets in the history, security lint of the workflows
+# Build          every architecture x paradigm generated, built, tested and its
+#                dependencies scanned; on a promotion PR also with the released plugin
+# Approval       promotion PR (develop → v1): a reviewer of the `promote`
+#                environment approves; ci-ok stays pending until then
+# Deploy (CD)    the merge into v1 is what users read; it gets the next v1.x.y tag
 name: CI
 
 on:
@@ -18,13 +23,25 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  ZIZMOR_VERSION: 1.31.1
+  ACTIONLINT_VERSION: 1.7.12
+
 jobs:
-  secrets:
-    uses: ./.github/workflows/security.yml
+  contract:
+    name: Quality (CI) · Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 scripts/ci/check-contract.py templates
 
   promotion-source:
+    name: Quality (CI) · Promotion source
     # v1, v2... only receive promotions from develop
     if: github.event_name == 'pull_request' && startsWith(github.base_ref, 'v')
     runs-on: ubuntu-latest
@@ -38,31 +55,61 @@ jobs:
           [[ $HEAD == develop && $SAME_REPO == true ]] \
             || { echo "::error::Only develop can be promoted to a major branch (got $HEAD)"; exit 1; }
 
-  contract:
+  secrets:
+    name: Security (CI) · Secrets (gitleaks)
+    needs: [contract, promotion-source]
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" gitleaks
+      - run: gitleaks git --redact --no-banner --verbose --exit-code 1 .
+
+  workflows:
+    name: Security (CI) · Workflows (actionlint, zizmor)
+    needs: [contract, promotion-source]
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: python3 scripts/ci/check-contract.py templates
+      - name: actionlint (checksum verified)
+        run: |
+          base=https://github.com/rhysd/actionlint/releases/download/v$ACTIONLINT_VERSION
+          file=actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz
+          curl -fsSLO "$base/$file" -O "$base/actionlint_${ACTIONLINT_VERSION}_checksums.txt"
+          grep " $file\$" "actionlint_${ACTIONLINT_VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "$file" actionlint
+          ./actionlint -color
+      - run: pipx run "zizmor==$ZIZMOR_VERSION" --persona=regular --min-severity=medium .github/workflows
 
-  generation:
-    needs: contract
+  build:
+    name: Build · core main
+    needs: [secrets, workflows]
     uses: ./.github/workflows/generation.yml
     permissions:
       contents: read
     with:
       mode: full
       plugin: core-main
+      scan: true
 
-  released-plugin:
+  build-released:
+    name: Build · released plugin
     # Off until the first plugin release that reads v1 (repository variable
     # TEST_RELEASED_PLUGIN=true): older plugins do not understand schemaVersion.
     if: vars.TEST_RELEASED_PLUGIN == 'true' && startsWith(github.base_ref || github.ref_name, 'v')
-    needs: contract
+    needs: [secrets, workflows]
     uses: ./.github/workflows/generation.yml
     permissions:
       contents: read
@@ -70,10 +117,23 @@ jobs:
       mode: full
       plugin: released
 
+  approval:
+    name: Approval · promote to ${{ github.base_ref }}
+    if: ${{ !failure() && !cancelled() && github.event_name == 'pull_request' && startsWith(github.base_ref, 'v') }}
+    needs: [build, build-released]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: promote
+    permissions: {}
+    steps:
+      - env:
+          BASE: ${{ github.base_ref }}
+        run: echo "Promotion to $BASE approved. Merging the PR publishes it to every plugin user." >> "$GITHUB_STEP_SUMMARY"
+
   ci-ok:
     # Single required check for rulesets
     if: always()
-    needs: [secrets, promotion-source, contract, generation, released-plugin]
+    needs: [contract, promotion-source, secrets, workflows, build, build-released, approval]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions: {}
@@ -84,8 +144,10 @@ jobs:
           echo "$RESULTS"
           for r in $RESULTS; do [[ $r == success || $r == skipped ]] || exit 1; done
 
-  tag:
-    # Promotion merged into v1: tag it v1.x.y (next patch; bump minor by hand)
+  deploy:
+    name: Deploy (CD) · tag v1.x.y
+    # The merge into v1 already reaches users; the tag marks what they got
+    # (next patch; bump minor by hand)
     if: github.event_name == 'push' && startsWith(github.ref_name, 'v')
     needs: ci-ok
     runs-on: ubuntu-latest
