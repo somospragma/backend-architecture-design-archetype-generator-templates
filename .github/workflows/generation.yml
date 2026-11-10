@@ -1,0 +1,205 @@
+# Reusable: generates projects with these templates and builds them.
+#   mode full      every architecture x paradigm, all adapters in one project
+#   mode isolated  one hexagonal-single project per adapter and paradigm
+#   mode negative  full projects with injected violations the build must reject
+#   plugin core-main  plugin built from core main (or the branch in the repository
+#                     variable CORE_REF, only while both repos change together)
+#   plugin released   latest plugin of this templates major on the Plugin Portal
+#   scan           also scans each project's dependency tree (OSV, CVSS threshold
+#                  from versions.yml)
+#   keep-projects  uploads each generated project for later jobs (security scans)
+name: Generation
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        type: string
+        default: full
+      plugin:
+        type: string
+        default: core-main
+      ref:
+        description: Templates ref to generate from (default the triggering ref)
+        type: string
+        default: ''
+      scan:
+        type: boolean
+        default: false
+      keep-projects:
+        type: boolean
+        default: false
+    outputs:
+      matrix:
+        value: ${{ jobs.plan.outputs.matrix }}
+      gradle:
+        value: ${{ jobs.plan.outputs.gradle }}
+      plugin-version:
+        value: ${{ jobs.plugin.outputs.version }}
+
+permissions: {}
+
+env:
+  CORE_REPOSITORY: somospragma/backend-architecture-design-archetype-generator-core
+  PLUGIN_METADATA: https://plugins.gradle.org/m2/co/com/pragma/archetype-generator/co.com.pragma.archetype-generator.gradle.plugin/maven-metadata.xml
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      gradle: ${{ steps.plan.outputs.gradle }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - id: plan
+        env:
+          MODE: ${{ inputs.mode }}
+        run: |
+          adapters=templates/frameworks/spring
+          case "$MODE" in
+            full|negative)
+              matrix=$(yq -o=json '{"architecture": [.architectures[].name], "paradigm": ["imperative", "reactive"]}' templates/architectures/index.yml) ;;
+            isolated)
+              matrix=$(jq -n \
+                --argjson out "$(jq '[.adapters[].name | "out:" + .]' $adapters/imperative/adapters/driven-adapters/index.json)" \
+                --argjson in "$(jq '[.adapters[].name | "in:" + .]' $adapters/imperative/adapters/entry-points/index.json)" \
+                '{architecture: ["hexagonal-single"], paradigm: ["imperative", "reactive"], only: ($out + $in)}') ;;
+            *) echo "::error::Unknown mode $MODE"; exit 1 ;;
+          esac
+          echo "matrix=$(jq -c . <<< "$matrix")" >> "$GITHUB_OUTPUT"
+          echo "gradle=$(yq '.gradle' templates/versions.yml)" >> "$GITHUB_OUTPUT"
+
+  plugin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - if: inputs.plugin == 'core-main'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.CORE_REPOSITORY }}
+          ref: ${{ vars.CORE_REF || 'main' }}
+          persist-credentials: false
+      - if: inputs.plugin == 'core-main'
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - if: inputs.plugin == 'core-main'
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+      - id: version
+        env:
+          PLUGIN: ${{ inputs.plugin }}
+          BRANCH: ${{ inputs.ref || github.base_ref || github.ref_name }}
+          DEFAULT_MAJOR: ${{ vars.PLUGIN_MAJOR || '1' }}
+        run: |
+          if [[ $PLUGIN == core-main ]]; then
+            ./gradlew publishToMavenLocal -x test -x javadoc --console=plain
+            version=$(./gradlew properties -q --console=plain | sed -n 's/^version: //p')
+          else
+            # A tag v1.2.3 or release/1.x → 1; main is the current major
+            if [[ $BRANCH =~ ^v([0-9]+)\. || $BRANCH =~ ^release/([0-9]+)\.x$ ]]; then
+              major=${BASH_REMATCH[1]}
+            else
+              major=$DEFAULT_MAJOR
+            fi
+            version=$(curl -fsSL "$PLUGIN_METADATA" | grep -o "<version>$major\.[^<]*</version>" \
+              | sed 's/<[^>]*>//g' | sort -V | tail -n 1)
+            [[ -n $version ]] || { echo "::error::No released plugin $major.x on the Plugin Portal"; exit 1; }
+          fi
+          echo "Plugin $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - if: inputs.plugin == 'core-main'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: plugin-${{ inputs.mode }}-${{ inputs.plugin }}
+          path: ~/.m2/repository/co/com/pragma
+          retention-days: 1
+
+  generate:
+    needs: [plan, plugin]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    name: ${{ matrix.architecture }} ${{ matrix.paradigm }} ${{ matrix.only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          gradle-version: ${{ needs.plan.outputs.gradle }}
+      - if: inputs.plugin == 'core-main'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin-${{ inputs.mode }}-${{ inputs.plugin }}
+          path: ~/.m2/repository/co/com/pragma
+      - name: Generate and build
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+          PARADIGM: ${{ matrix.paradigm }}
+          ONLY: ${{ matrix.only }}
+          PLUGIN_VERSION: ${{ needs.plugin.outputs.version }}
+        run: |
+          scripts/ci/generate-and-build.sh --architecture "$ARCHITECTURE" --paradigm "$PARADIGM" \
+            --plugin-version "$PLUGIN_VERSION" --templates templates --out "$RUNNER_TEMP/generated" \
+            ${ONLY:+--only "$ONLY"}
+      - if: inputs.mode == 'negative'
+        name: Injected violations must fail
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+          PARADIGM: ${{ matrix.paradigm }}
+        run: |
+          scripts/ci/negative-check.sh --project "$RUNNER_TEMP/generated/$ARCHITECTURE-$PARADIGM" --paradigm "$PARADIGM"
+      - if: inputs.scan
+        name: Vulnerable dependencies (OSV)
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+          PARADIGM: ${{ matrix.paradigm }}
+        run: |
+          scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" osv-scanner
+          # GITHUB_PATH only reaches the next steps: call the scanner by its path
+          scripts/ci/scan-dependencies.sh --osv-scanner "$RUNNER_TEMP/bin/osv-scanner" \
+            --project "$RUNNER_TEMP/generated/$ARCHITECTURE-$PARADIGM" \
+            --out "$RUNNER_TEMP/generated/scan/$ARCHITECTURE-$PARADIGM"
+      - if: inputs.keep-projects && inputs.mode == 'full'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: project-${{ matrix.architecture }}-${{ matrix.paradigm }}
+          path: |
+            ${{ runner.temp }}/generated/${{ matrix.architecture }}-${{ matrix.paradigm }}
+            !${{ runner.temp }}/generated/${{ matrix.architecture }}-${{ matrix.paradigm }}/**/build
+            !${{ runner.temp }}/generated/${{ matrix.architecture }}-${{ matrix.paradigm }}/**/.gradle
+          include-hidden-files: true
+          retention-days: 7
+      - if: always() && inputs.scan
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependencies-${{ inputs.mode }}-${{ inputs.plugin }}-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/generated/scan
+          if-no-files-found: ignore
+          retention-days: 30
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: logs-${{ inputs.mode }}-${{ inputs.plugin }}-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/generated/logs
+          retention-days: 7

@@ -1,16 +1,17 @@
 name: mongodb
 type: driven
 description: MongoDB database adapter using Spring Data MongoDB Reactive
+suffix: "Adapter"
+needsMapper: true
 
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-data-mongodb-reactive
-    version: 3.2.0
 
 testDependencies:
   - group: de.flapdoodle.embed
     artifact: de.flapdoodle.embed.mongo
-    version: 4.11.0
+    versionRef: flapdoodle-mongo
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

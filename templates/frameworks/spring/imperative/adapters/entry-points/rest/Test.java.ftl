@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Uses MockMvc to test HTTP endpoints without starting a full server.
  */
 @WebMvcTest(${controllerName}Controller.class)
-class ${controllerName}ControllerTest {
+class ${controllerName}Test {
 
   private static final String BASE_PATH = "${basePath!'/api/' + controllerName?lower_case + 's'}";
   private static final String ID_PATH = BASE_PATH + "/{id}";

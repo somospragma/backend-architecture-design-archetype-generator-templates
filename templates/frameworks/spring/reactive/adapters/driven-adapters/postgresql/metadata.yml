@@ -1,19 +1,18 @@
 name: postgresql
 type: driven
 description: PostgreSQL database adapter using Spring Data R2DBC
+suffix: "Adapter"
+needsMapper: true
 
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-data-r2dbc
-    version: 3.2.0
   - group: org.postgresql
     artifact: r2dbc-postgresql
-    version: 1.0.4.RELEASE
 
 testDependencies:
   - group: io.r2dbc
     artifact: r2dbc-h2
-    version: 1.0.0.RELEASE
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl
@@ -22,3 +21,13 @@ configurationClasses:
   - name: R2dbcConfig
     packagePath: config
     templatePath: R2dbcConfig.java.ftl
+
+buildConfiguration: |
+  // r2dbc-postgresql brings an older SCRAM client with a known vulnerability
+  rootProject.allprojects {
+      configurations.configureEach {
+          resolutionStrategy.eachDependency {
+              if (requested.group == "com.ongres.scram") useVersion("${versions.libraries["scram"]}")
+          }
+      }
+  }

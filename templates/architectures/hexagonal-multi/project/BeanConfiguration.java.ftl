@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(basePackages = {
     "${basePackage}.application.usecase",
-    "${basePackage}.infrastructure.drivenadapters",
-    "${basePackage}.infrastructure.entrypoints"
+    "${drivenAdaptersPackage}",
+    "${drivingAdaptersPackage}"
 })
 public class BeanConfiguration {
     // Spring will automatically register all beans from scanned packages

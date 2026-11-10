@@ -1,4 +1,4 @@
-package ${basePackage}.infrastructure.adapter.out.${adapterName?lower_case}.entity;
+package ${packageName};
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

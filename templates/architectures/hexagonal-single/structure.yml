@@ -1,7 +1,123 @@
-name: "Hexagonal Single Module"
+architecture: "hexagonal-single"
 description: "Single module hexagonal architecture (ports & adapters)"
-type: "hexagonal-single"
 multiModule: false
+resourcesPath: "src/main/resources"
+
+# Static files to be copied from template to project
+staticFiles:
+  # Gradle Wrapper (version from versions.yml)
+  - source: "project/gradlew"
+    destination: "gradlew"
+    description: "Gradle wrapper script for Unix"
+    processAsTemplate: false
+    binary: false
+    executable: true
+    
+  - source: "project/gradlew.bat"
+    destination: "gradlew.bat"
+    description: "Gradle wrapper script for Windows"
+    processAsTemplate: false
+    binary: false
+    executable: false
+    
+  - source: "project/gradle/wrapper/gradle-wrapper.properties"
+    destination: "gradle/wrapper/gradle-wrapper.properties"
+    description: "Gradle wrapper properties (version from versions.yml)"
+    
+  - source: "project/gradle/wrapper/gradle-wrapper.jar"
+    destination: "gradle/wrapper/gradle-wrapper.jar"
+    description: "Gradle wrapper JAR"
+    processAsTemplate: false
+    binary: true
+    executable: false
+  
+  # Docker configuration
+  - source: "project/Dockerfile.ftl"
+    destination: "Dockerfile"
+    description: "Multi-stage Dockerfile with jlink optimization"
+  
+  - source: "project/.dockerignore.ftl"
+    destination: ".dockerignore"
+    description: "Docker ignore file"
+  
+  # Architecture tests (ArchUnit). Sources starting with "/" are shared by
+  # several architectures and resolved from the templates root.
+  - source: "tests/architecture/ArchitectureTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/ArchitectureTest.java"
+    description: "Rules of this architecture"
+
+  - source: "/common/tests/architecture/DomainPurityTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/DomainPurityTest.java"
+    description: "Framework-free domain and use cases (all architectures)"
+
+  - source: "/common/tests/architecture/AdapterRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/AdapterRulesTest.java"
+    description: "Adapter isolation and domain interfaces (all architectures)"
+
+  - source: "/common/tests/architecture/NamingConventionTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/NamingConventionTest.java"
+    description: "Naming conventions (all architectures)"
+
+  - source: "/common/tests/architecture/ImmutabilityTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/ImmutabilityTest.java"
+    description: "Constructor injection and final fields (all architectures)"
+
+  - source: "/common/tests/architecture/CodingRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/CodingRulesTest.java"
+    description: "General coding rules and no package cycles (all architectures)"
+
+  - source: "/frameworks/{framework}/tests/architecture/FrameworkRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/FrameworkRulesTest.java"
+    description: "Rules of the framework (Spring today)"
+
+  - source: "/frameworks/{framework}/{paradigm}/tests/architecture/ParadigmRulesTest.java.ftl"
+    destination: "src/test/java/{basePackage}/architecture/ParadigmRulesTest.java"
+    description: "Rules of the paradigm (reactive or imperative)"
+
+  # Build system files
+  - source: "project/gradle.properties.ftl"
+    destination: "gradle.properties"
+    description: "Gradle properties with performance settings"
+
+  - source: "project/main.gradle.ftl"
+    destination: "main.gradle"
+    description: "Quality tools configuration (JaCoCo, PIT, SonarQube, OWASP, MapStruct)"
+
+  - source: "project/libs.versions.toml.ftl"
+    destination: "gradle/libs.versions.toml"
+    description: "Centralized dependency version catalog"
+
+  - source: "project/lombok.config.ftl"
+    destination: "lombok.config"
+    description: "Lombok configuration"
+
+  # Configuration classes
+  - source: "project/UseCasesConfig.java.ftl"
+    destination: "{configPackagePath}/UseCasesConfig.java"
+    description: "Use case component scan configuration"
+
+  - source: "project/ErrorType.java.ftl"
+    destination: "{configPackagePath}/ErrorType.java"
+    description: "Standard error type enum"
+
+# Adapter path resolution
+# Placeholders: {name}, {type}, {basePackage}
+adapterPaths:
+  driven: "infrastructure/driven-adapters/{name}"
+  driving: "infrastructure/entry-points/{name}"
+
+# Package name transformations
+packageMappings:
+  rules:
+    removeHyphens: true
+    slashToDot: true
+  replacements:
+    entry-points: "entrypoints"
+    driven-adapters: "drivenadapters"
+
+# Module configuration for entity and use case generation
+entityModule: "domain"
+useCaseModule: "domain"
 
 directories:
   - "src/main/java"
@@ -11,9 +127,23 @@ directories:
 
 packages:
   - "domain/model"
-  - "domain/port/in"
-  - "domain/port/out"
-  - "application/usecase"
-  - "infrastructure/entry-points/rest"
+  - "domain/ports"
+  - "domain/usecases"
+  - "infrastructure/entry-points"
   - "infrastructure/driven-adapters"
   - "infrastructure/config"
+
+# Module metadata for package type resolution
+moduleMetadata:
+  - name: "domain"
+    path: "."
+    packageTypes:
+      model: "domain/model"
+      ports: "domain/ports"
+      usecases: "domain/usecases"
+  - name: "infrastructure"
+    path: "."
+    packageTypes:
+      entryPoints: "infrastructure/entry-points"
+      drivenAdapters: "infrastructure/driven-adapters"
+      config: "infrastructure/config"

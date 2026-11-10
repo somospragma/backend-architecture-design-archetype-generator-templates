@@ -1,4 +1,4 @@
-package ${packageName}.entity;
+package ${packageName};
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -12,25 +12,31 @@ dependencies {
     implementation(project(":application"))
     
     // Spring Boot
+<#if paradigm == "reactive">
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+<#else>
+    implementation("org.springframework.boot:spring-boot-starter-web")
+</#if>
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     
     // MapStruct for mapping
-    implementation("org.mapstruct:mapstruct:1.5.5.Final")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+    implementation("org.mapstruct:mapstruct:${versions.libraries["mapstruct"]}")
+    annotationProcessor("org.mapstruct:mapstruct-processor:${versions.libraries["mapstruct"]}")
     
     // Validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
     
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+<#if paradigm == "reactive">
     testImplementation("io.projectreactor:reactor-test")
+</#if>
 }
 
 // Configure bootJar task
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
-    mainClass.set("${basePackage}.infrastructure.config.${projectNamePascalCase}Application")
+    mainClass.set("${basePackage}.${projectNamePascalCase}Application")
 }
 
 // Disable plain jar

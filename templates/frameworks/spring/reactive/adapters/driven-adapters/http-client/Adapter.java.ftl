@@ -1,5 +1,8 @@
 package ${packageName};
 
+import ${portsPackage}.I${entityName}Gateway;
+import ${packageName}.mapper.${entityName}EntityMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -10,13 +13,11 @@ import reactor.core.publisher.Mono;
  * Implements HTTP operations using WebClient.
  */
 @Component
-public class ${adapterName}HttpClientAdapter {
+@RequiredArgsConstructor
+public class ${adapterName}HttpClientAdapter implements I${entityName}Gateway {
 
     private final WebClient webClient;
-
-    public ${adapterName}HttpClientAdapter(WebClient webClient) {
-        this.webClient = webClient;
-    }
+    private final ${entityName}EntityMapper mapper;
 
     /**
      * Performs a GET request.

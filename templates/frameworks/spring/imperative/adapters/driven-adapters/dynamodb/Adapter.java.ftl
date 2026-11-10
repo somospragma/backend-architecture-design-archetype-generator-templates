@@ -1,5 +1,8 @@
 package ${packageName};
 
+import ${portsPackage}.I${entityName}Gateway;
+import ${packageName}.mapper.${entityName}EntityMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -13,15 +16,12 @@ import java.util.Optional;
  * Implements DynamoDB operations using DynamoDbClient (synchronous).
  */
 @Component
-public class ${adapterName}DynamoDbAdapter {
+@RequiredArgsConstructor
+public class ${adapterName}DynamoDbAdapter implements I${entityName}Gateway {
 
     private final DynamoDbClient dynamoDbClient;
-    private final String tableName;
-
-    public ${adapterName}DynamoDbAdapter(DynamoDbClient dynamoDbClient) {
-        this.dynamoDbClient = dynamoDbClient;
-        this.tableName = "${adapterName?lower_case}_table";
-    }
+    private final ${entityName}EntityMapper mapper;
+    private final String tableName = "${adapterName?lower_case}_table";
 
     /**
      * Puts an item into DynamoDB table.
@@ -45,11 +45,11 @@ public class ${adapterName}DynamoDbAdapter {
                 .build();
 
         GetItemResponse response = dynamoDbClient.getItem(request);
-        
+
         if (response.item() == null || response.item().isEmpty()) {
             return Optional.empty();
         }
-        
+
         return Optional.of(response.item());
     }
 

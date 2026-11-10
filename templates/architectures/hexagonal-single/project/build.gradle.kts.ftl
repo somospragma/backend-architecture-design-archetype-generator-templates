@@ -1,12 +1,16 @@
 plugins {
     id("java")
+    jacoco
 <#if framework == "spring">
-    id("org.springframework.boot") version "3.2.1"
-    id("io.spring.dependency-management") version "1.1.4"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 <#elseif framework == "quarkus">
-    id("io.quarkus") version "3.6.4"
+    id("io.quarkus") version "${versions.libraries["quarkus"]}"
 </#if>
-    id("com.pragma.archetype-generator") version "${pluginVersion}"
+    id("co.com.pragma.archetype-generator") version "${pluginVersion}"
+    alias(libs.plugins.pitest)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.owasp.dependencycheck)
 }
 
 group = "${basePackage}"
@@ -14,7 +18,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(${versions.java}))
     }
 }
 
@@ -22,49 +26,45 @@ repositories {
     mavenCentral()
 }
 
+// Apply quality tools configuration
+apply(from = "main.gradle")
+
 dependencies {
 <#if framework == "spring">
-    <#if paradigm == "reactive">
-    // Spring WebFlux (Reactive)
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    
-    // R2DBC (Reactive Database)
-    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-    
-    // Redis Reactive
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-    <#else>
-    // Spring Web (Imperative)
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    
-    // Spring Data JPA
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    
-    // Redis
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    </#if>
-    
-    // Validation
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    
+    // Spring Boot Actuator
+    implementation(libs.spring.boot.starter.actuator)
+
     // MapStruct
-    implementation("org.mapstruct:mapstruct:1.5.5.Final")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
-    
-    // Lombok (optional)
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    
-    // Testing
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation(libs.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
+
+    // Lombok
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+
+    // SpringDoc OpenAPI
     <#if paradigm == "reactive">
-    testImplementation("io.projectreactor:reactor-test")
+    implementation(libs.springdoc.openapi.starter.webflux)
+    <#else>
+    implementation(libs.springdoc.openapi.starter.webmvc)
     </#if>
+
+    // Testing
+    testImplementation(libs.spring.boot.starter.test)
+    <#if paradigm == "reactive">
+    testImplementation(libs.reactor.test)
+    </#if>
+
+    // ArchUnit for architecture testing
+    testImplementation(libs.archunit.junit5)
 <#elseif framework == "quarkus">
-    implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.6.4"))
+    implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:${versions.libraries["quarkus"]}"))
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-arc")
     testImplementation("io.quarkus:quarkus-junit5")
+
+    // ArchUnit for architecture testing
+    testImplementation(libs.archunit.junit5)
 </#if>
 }
 

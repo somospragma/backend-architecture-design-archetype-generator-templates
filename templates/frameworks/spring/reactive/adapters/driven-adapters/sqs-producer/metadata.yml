@@ -1,24 +1,25 @@
 name: sqs-producer
 type: driven
 description: SQS Producer adapter using AWS SDK v2 async client
+suffix: "Producer"
+needsMapper: true
 
 dependencies:
   - group: software.amazon.awssdk
     artifact: sqs
-    version: 2.20.0
+    versionRef: aws-sdk
 
 testDependencies:
   - group: org.testcontainers
     artifact: localstack
-    version: 1.19.0
+    versionRef: testcontainers
     scope: test
   - group: org.testcontainers
     artifact: junit-jupiter
-    version: 1.19.0
+    versionRef: testcontainers
     scope: test
   - group: io.projectreactor
     artifact: reactor-test
-    version: 3.6.0
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

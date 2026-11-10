@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
  * JPA repository interface for ${entityName}Entity
  */
 @Repository
-public interface ${entityName}JpaRepository extends JpaRepository<${entityName}Entity, Long> {
+public interface ${adapterName}Repository extends JpaRepository<${entityName}Entity, Long> {
     // Add custom query methods here if needed
 }

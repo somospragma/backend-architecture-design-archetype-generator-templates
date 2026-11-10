@@ -1,0 +1,21 @@
+# Architectures this template repository provides. The plugin offers exactly
+# these, so adding one is: create architectures/<name>/ (structure.yml +
+# templates) and list it here. No plugin release needed.
+#
+# schemaVersion is the contract with the plugin: the shape of structure.yml,
+# metadata.yml and the variables templates receive. The plugin refuses
+# templates of a schema it does not understand. Bump it only for a breaking
+# change, and ship that change in the next templates branch (v1 → v2) together
+# with the plugin major that understands it. Each plugin major reads its own
+# branch: plugin 1.x reads v1.
+schemaVersion: 1
+
+architectures:
+  - name: hexagonal-single
+    description: Single module hexagonal architecture (ports and adapters)
+  - name: hexagonal-multi
+    description: Multi-module hexagonal architecture with domain, application and infrastructure modules
+  - name: hexagonal-multi-granular
+    description: Hexagonal architecture with granular modules, each adapter is a separate module
+  - name: onion-single
+    description: Single module onion architecture, domain at the center

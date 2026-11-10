@@ -1,27 +1,15 @@
-package ${packageName}.mapper;
+package ${packageName};
 
-import org.springframework.stereotype.Component;
+import ${modelPackage}.${entityName};
+import ${entityPackage}.${entityName}Entity;
+import org.mapstruct.Mapper;
 
 /**
- * Mapper for ${entityName}.
- * Converts between domain entities and data entities.
+ * MapStruct mapper for ${entityName}.
+ * Converts between domain model and data entity.
  */
-@Component
-public class ${entityName}Mapper {
-
-  /**
-   * Converts domain entity to data entity.
-   */
-  public Object toData(Object domainEntity) {
-    // TODO: Implement mapping logic
-    return domainEntity;
-  }
-
-  /**
-   * Converts data entity to domain entity.
-   */
-  public Object toDomain(Object dataEntity) {
-    // TODO: Implement mapping logic
-    return dataEntity;
-  }
+@Mapper(componentModel = "spring")
+public interface ${entityName}EntityMapper {
+    ${entityName} toDomain(${entityName}Entity entity);
+    ${entityName}Entity toEntity(${entityName} domain);
 }

@@ -1,4 +1,4 @@
-package ${basePackage}.config;
+package ${configClassPackage};
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -19,9 +19,9 @@ import java.util.Properties;
  * JPA configuration for PostgreSQL with HikariCP
  */
 @Configuration
-@EnableJpaRepositories(basePackages = "${basePackage}.infrastructure.adapter.out")
+@EnableJpaRepositories(basePackages = "${basePackage}")
 @EnableTransactionManagement
-public class JpaConfig {
+public class ${adapterName}JpaConfig {
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
@@ -38,7 +38,7 @@ public class JpaConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("${basePackage}.infrastructure.adapter.out");
+        em.setPackagesToScan("${basePackage}");
         
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

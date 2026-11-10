@@ -1,16 +1,20 @@
 name: redis
 type: driven
 description: Redis cache adapter using Spring Data Redis Reactive
+suffix: "Adapter"
+needsMapper: true
 
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-data-redis-reactive
-    version: 3.2.0
+  # Jackson 3 for the JSON value serializer (Boot 4 no longer ships Jackson 2)
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-jackson
 
 testDependencies:
   - group: it.ozimov
     artifact: embedded-redis
-    version: 0.7.3
+    versionRef: embedded-redis
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl
@@ -18,4 +22,19 @@ applicationPropertiesTemplate: application-properties.yml.ftl
 configurationClasses:
   - name: RedisConfig
     packagePath: config
-    templatePath: RedisConfig.java.ftl
+    templatePath: Config.java.ftl
+
+buildConfiguration: |
+  // embedded-redis (tests) brings old Guava and commons-io with known vulnerabilities
+  rootProject.allprojects {
+      configurations.configureEach {
+          resolutionStrategy.eachDependency {
+              when {
+                  requested.group == "com.google.guava" && requested.name == "guava" ->
+                      useVersion("${versions.libraries["guava"]}")
+                  requested.group == "commons-io" && requested.name == "commons-io" ->
+                      useVersion("${versions.libraries["commons-io"]}")
+              }
+          }
+      }
+  }

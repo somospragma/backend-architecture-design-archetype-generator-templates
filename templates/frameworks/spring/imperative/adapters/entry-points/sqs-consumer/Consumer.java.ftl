@@ -11,15 +11,15 @@ import org.springframework.stereotype.Component;
  * Listens to SQS messages and processes them synchronously.
  */
 @Component
-public class ${adapterName}SqsConsumer {
+public class ${adapterName}Consumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(${adapterName}SqsConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(${adapterName}Consumer.class);
 
     /**
      * Processes messages from the SQS queue.
      * The @SqsListener annotation handles message polling and acknowledgment.
      */
-    @SqsListener("${'${aws.sqs.consumer.queue-name}")
+    @SqsListener("${'$'}{aws.sqs.consumer.queue-name}")
     public void receiveMessage(Message<String> message) {
         try {
             processMessage(message);
@@ -46,7 +46,7 @@ public class ${adapterName}SqsConsumer {
      * Processes messages with custom acknowledgment.
      * Use this when you need manual control over message acknowledgment.
      */
-    @SqsListener(value = "${'${aws.sqs.consumer.queue-name}", acknowledgementMode = "MANUAL")
+    @SqsListener(value = "${'$'}{aws.sqs.consumer.queue-name}", acknowledgementMode = "MANUAL")
     public void receiveMessageWithManualAck(Message<String> message, 
                                             io.awspring.cloud.sqs.listener.acknowledgement.Acknowledgement acknowledgement) {
         try {

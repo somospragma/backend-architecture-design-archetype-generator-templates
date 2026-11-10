@@ -1,0 +1,15 @@
+// Writes a gradle.lockfile per project with every resolved dependency, so
+// dependency scanners see the full tree (transitives included), not only what
+// the build files declare.
+//
+//   ./gradlew --init-script lock-dependencies.init.gradle lockAllDependencies --write-locks
+allprojects {
+    dependencyLocking { lockAllConfigurations() }
+    def resolvable = configurations
+    tasks.register('lockAllDependencies') {
+        notCompatibleWithConfigurationCache('resolves every configuration')
+        doLast {
+            resolvable.findAll { it.canBeResolved }.each { it.incoming.resolutionResult.allComponents }
+        }
+    }
+}

@@ -1,11 +1,11 @@
-package ${packageName}.infrastructure.entry-points.rest.dto;
+package ${packageName};
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Response DTO for ${controllerName}.
  */
-public record ${controllerName}Response(
+public record ${controllerName}ResponseDTO(
     @JsonProperty("id")
     String id,
 

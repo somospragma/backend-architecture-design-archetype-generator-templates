@@ -1,0 +1,172 @@
+# Trunk-based: every change goes to main by PR, and every merge to main is a
+# release tag v<major>.x.y. Each plugin major reads the latest tag of its major.
+# release/<major>.x only exists to patch an older major.
+#
+# Quality (CI)   contract of the templates
+# Security (CI)  secrets in the history, security lint of the workflows
+# Build          every architecture x paradigm generated, built, tested and its
+#                dependencies scanned; also with the released plugin when
+#                TEST_RELEASED_PLUGIN=true
+# Approval       a reviewer of the `promote` environment approves the PR, since
+#                merging it releases it; ci-ok stays pending until then
+# Deploy (CD)    the merge gets the next tag v<major>.x.y, which users get from
+#                then on
+name: CI
+
+on:
+  pull_request:
+    branches: [main, 'release/**']
+  push:
+    branches: [main, 'release/**']
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  ZIZMOR_VERSION: 1.31.1
+  ACTIONLINT_VERSION: 1.7.12
+
+jobs:
+  contract:
+    name: Quality (CI) · Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 scripts/ci/check-contract.py templates
+
+  secrets:
+    name: Security (CI) · Secrets (gitleaks)
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" gitleaks
+      - run: gitleaks git --redact --no-banner --verbose --exit-code 1 .
+
+  workflows:
+    name: Security (CI) · Workflows (actionlint, zizmor)
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint (checksum verified)
+        run: |
+          base=https://github.com/rhysd/actionlint/releases/download/v$ACTIONLINT_VERSION
+          file=actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz
+          curl -fsSLO "$base/$file" -O "$base/actionlint_${ACTIONLINT_VERSION}_checksums.txt"
+          grep " $file\$" "actionlint_${ACTIONLINT_VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "$file" actionlint
+          ./actionlint -color
+      - run: pipx run "zizmor==$ZIZMOR_VERSION" --persona=regular --min-severity=medium .github/workflows
+
+  build:
+    name: Build · core main
+    needs: [secrets, workflows]
+    uses: ./.github/workflows/generation.yml
+    permissions:
+      contents: read
+    with:
+      mode: full
+      plugin: core-main
+      scan: true
+
+  build-released:
+    name: Build · released plugin
+    # Off until the first plugin release that reads templates tags (repository
+    # variable TEST_RELEASED_PLUGIN=true): older plugins do not understand schemaVersion.
+    if: vars.TEST_RELEASED_PLUGIN == 'true'
+    needs: [secrets, workflows]
+    uses: ./.github/workflows/generation.yml
+    permissions:
+      contents: read
+    with:
+      mode: full
+      plugin: released
+
+  approval:
+    name: Approval · release to ${{ github.base_ref }}
+    if: ${{ !failure() && !cancelled() && github.event_name == 'pull_request' }}
+    needs: [build, build-released]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: promote
+    permissions: {}
+    steps:
+      - env:
+          BASE: ${{ github.base_ref }}
+        run: echo "Release to $BASE approved. Merging the PR tags it and every plugin user of that major gets it." >> "$GITHUB_STEP_SUMMARY"
+
+  ci-ok:
+    # Single required check for rulesets
+    if: always()
+    needs: [contract, secrets, workflows, build, build-released, approval]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for r in $RESULTS; do [[ $r == success || $r == skipped ]] || exit 1; done
+
+  deploy:
+    name: Deploy (CD) · tag v<major>.x.y
+    # The merge into main (or release/<major>.x) is tagged with the next patch;
+    # bump the minor by hand. Plugins pick the new tag up on their next run.
+    if: github.event_name == 'push'
+    needs: ci-ok
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - env:
+          BRANCH: ${{ github.ref_name }}
+          DEFAULT_MAJOR: ${{ vars.PLUGIN_MAJOR || '1' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # main releases the current major; release/1.x patches major 1
+          if [[ $BRANCH == main ]]; then
+            major=$DEFAULT_MAJOR
+          elif [[ $BRANCH =~ ^release/([0-9]+)\.x$ ]]; then
+            major=${BASH_REMATCH[1]}
+          else
+            echo "::error::$BRANCH is not main or release/<major>.x"; exit 1
+          fi
+          if git tag --points-at HEAD | grep -qE "^v$major\.[0-9]+\.[0-9]+$"; then
+            echo "HEAD is already tagged"; exit 0
+          fi
+          last=$(git tag --list "v$major.*" | grep -E "^v$major\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 || true)
+          if [[ -z $last ]]; then
+            next="v$major.0.0"
+          else
+            IFS=. read -r _ minor patch <<< "${last#v}"
+            next="v$major.$minor.$((patch + 1))"
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$next" -f sha="$GITHUB_SHA"
+          echo "Tagged $next" >> "$GITHUB_STEP_SUMMARY"

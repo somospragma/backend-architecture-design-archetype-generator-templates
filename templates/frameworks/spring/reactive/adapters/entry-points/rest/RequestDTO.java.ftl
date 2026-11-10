@@ -1,4 +1,4 @@
-package ${packageName}.infrastructure.entry-points.rest.dto;
+package ${packageName};
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Request DTO for ${controllerName}.
  */
-public record ${controllerName}Request(
+public record ${controllerName}RequestDTO(
     @JsonProperty("id")
     @NotBlank(message = "ID is required")
     String id,

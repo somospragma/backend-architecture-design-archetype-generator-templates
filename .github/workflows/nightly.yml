@@ -1,0 +1,27 @@
+# Slower checks that do not block PRs: every adapter on its own, and injected
+# violations that the generated architecture tests must reject.
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  isolated:
+    uses: ./.github/workflows/generation.yml
+    permissions:
+      contents: read
+    with:
+      mode: isolated
+      plugin: core-main
+
+  negative:
+    uses: ./.github/workflows/generation.yml
+    permissions:
+      contents: read
+    with:
+      mode: negative
+      plugin: core-main

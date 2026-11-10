@@ -1,16 +1,16 @@
-package ${packageName}.entity;
+package ${packageName};
 
 /**
  * Data entity for ${entityName}.
  * Represents the persistence model.
  */
-public class ${entityName}Data {
+public class ${entityName}Entity {
 
   private String id;
   
   // TODO: Add fields
 
-  public ${entityName}Data() {
+  public ${entityName}Entity() {
   }
 
   public String getId() {

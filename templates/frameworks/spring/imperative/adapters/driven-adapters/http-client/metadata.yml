@@ -1,16 +1,19 @@
 name: http-client
 type: driven
-description: HTTP Client adapter using RestTemplate
+description: HTTP Client adapter using RestClient (Spring 6.1+)
+suffix: "Adapter"
+needsMapper: true
 
 dependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-web
-    version: 3.2.0
+  # Spring Boot 4 ships RestTemplateBuilder in its own module
+  - group: org.springframework.boot
+    artifact: spring-boot-starter-restclient
 
 testDependencies:
   - group: org.springframework.boot
     artifact: spring-boot-starter-test
-    version: 3.2.0
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl

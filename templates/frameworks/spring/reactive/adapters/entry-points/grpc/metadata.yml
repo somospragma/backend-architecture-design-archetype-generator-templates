@@ -1,29 +1,31 @@
 name: grpc
-type: entry-point
+type: input
 description: gRPC entry point using gRPC Spring Boot Starter with reactive support
 
 dependencies:
   - group: net.devh
     artifact: grpc-server-spring-boot-starter
-    version: 2.15.0.RELEASE
+    versionRef: grpc-spring-boot
   - group: io.grpc
     artifact: grpc-stub
-    version: 1.58.0
+    versionRef: grpc
   - group: io.grpc
     artifact: grpc-protobuf
-    version: 1.58.0
+    versionRef: grpc
+  - group: javax.annotation
+    artifact: javax.annotation-api
+    versionRef: javax-annotation-api
   - group: com.salesforce.servicelibs
     artifact: reactor-grpc-stub
-    version: 1.2.4
+    versionRef: reactor-grpc
 
 testDependencies:
   - group: net.devh
     artifact: grpc-client-spring-boot-starter
-    version: 2.15.0.RELEASE
+    versionRef: grpc-spring-boot
     scope: test
   - group: io.projectreactor
     artifact: reactor-test
-    version: 3.6.0
     scope: test
 
 applicationPropertiesTemplate: application-properties.yml.ftl
@@ -32,3 +34,54 @@ additionalResources:
   - name: service.proto
     targetPath: proto
     templatePath: service.proto.ftl
+
+buildPlugins:
+  - id: com.google.protobuf
+    versionRef: protobuf-plugin
+
+buildConfiguration: |
+  // grpc-spring-boot-starter brings an older gRPC, protobuf and Guava with known
+  // vulnerabilities: align them in every module that ends up with them
+  rootProject.allprojects {
+      configurations.configureEach {
+          resolutionStrategy.eachDependency {
+              when {
+                  requested.group == "io.grpc" -> useVersion("${versions.libraries["grpc"]}")
+                  requested.group == "com.google.protobuf" && requested.name.startsWith("protobuf-java") ->
+                      useVersion("${versions.libraries["protoc"]}")
+                  requested.group == "com.google.guava" && requested.name == "guava" ->
+                      useVersion("${versions.libraries["guava"]}")
+              }
+          }
+      }
+  }
+  protobuf {
+      protoc {
+          artifact = "com.google.protobuf:protoc:${versions.libraries["protoc"]}"
+      }
+      plugins {
+          create("grpc") {
+              artifact = "io.grpc:protoc-gen-grpc-java:${versions.libraries["grpc"]}"
+          }
+          // Generates the Reactor${r"{Service}"}Grpc stubs the reactive service extends
+          create("reactor") {
+              artifact = "com.salesforce.servicelibs:reactor-grpc:${versions.libraries["reactor-grpc"]}"
+          }
+      }
+      generateProtoTasks {
+          all().forEach { task ->
+              task.plugins {
+                  create("grpc")
+                  create("reactor")
+              }
+          }
+      }
+  }
+  
+  sourceSets {
+      main {
+          proto {
+              srcDir("${resourcesPath}/proto")
+          }
+      }
+  }

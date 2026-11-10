@@ -1,7 +1,7 @@
-package ${packageName}.config;
+package ${configClassPackage};
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -16,18 +16,18 @@ import java.time.Duration;
 @Configuration
 public class ${adapterName}RestTemplateConfig {
 
-    @Value("${'${${adapterName?lower_case}.http.base-url}")
+    @Value("${'$'}{${adapterName?lower_case}.http.base-url}")
     private String baseUrl;
 
-    @Value("${'${${adapterName?lower_case}.http.timeout:5000}")
+    @Value("${'$'}{${adapterName?lower_case}.http.timeout:5000}")
     private int timeout;
 
     @Bean
     public RestTemplate ${adapterName?uncap_first}RestTemplate(RestTemplateBuilder builder) {
         return builder
                 .rootUri(baseUrl)
-                .setConnectTimeout(Duration.ofMillis(timeout))
-                .setReadTimeout(Duration.ofMillis(timeout))
+                .connectTimeout(Duration.ofMillis(timeout))
+                .readTimeout(Duration.ofMillis(timeout))
                 .interceptors(loggingInterceptor())
                 .build();
     }

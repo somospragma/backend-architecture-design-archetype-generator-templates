@@ -9,8 +9,8 @@ dependencies {
     api(project(":domain"))
     
     // Reactive support
-    implementation("io.projectreactor:reactor-core:3.6.1")
+    implementation("io.projectreactor:reactor-core:${versions.libraries["reactor"]}")
     
     // Testing
-    testImplementation("io.projectreactor:reactor-test:3.6.1")
+    testImplementation("io.projectreactor:reactor-test:${versions.libraries["reactor"]}")
 }

@@ -45,7 +45,7 @@ app-service → usecase → ports → model
 ## Technology Stack
 
 - Java 21
-- Spring Boot 3.3.0
+- Spring Boot ${versions.libraries["spring-boot"]}
 - Spring WebFlux (Reactive)
 - Project Reactor
 - Gradle (Multi-module granular)

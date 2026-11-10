@@ -1,14 +1,18 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.3.0" apply false
-    id("io.spring.dependency-management") version "1.1.6" apply false
-    id("com.pragma.archetype-generator") version "${pluginVersion}"
+    jacoco
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management) apply false
+    id("co.com.pragma.archetype-generator") version "${pluginVersion}"
+    alias(libs.plugins.pitest) apply false
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.owasp.dependencycheck)
 }
 
 allprojects {
-    group = "${groupId}"
-    version = "${version}"
-    
+    group = "${basePackage}"
+    version = "0.0.1-SNAPSHOT"
+
     repositories {
         mavenCentral()
     }
@@ -16,30 +20,96 @@ allprojects {
 
 subprojects {
     apply(plugin = "java")
-    apply(plugin = "io.spring.dependency-management")
-    
-    configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
-        imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:3.3.0")
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(${versions.java}))
         }
     }
-    
-    java {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    
+
+    val catalog = rootProject.the<VersionCatalogsExtension>().named("libs")
+
     dependencies {
-        // Common dependencies for all modules
-        compileOnly("org.projectlombok:lombok:1.18.38")
-        annotationProcessor("org.projectlombok:lombok:1.18.38")
-        
-        testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-        testImplementation("org.mockito:mockito-core:5.7.0")
-        testImplementation("org.mockito:mockito-junit-jupiter:5.7.0")
+        // Lombok
+        compileOnly(catalog.findLibrary("lombok").get())
+        annotationProcessor(catalog.findLibrary("lombok").get())
+
+        // Testing
+        testImplementation(catalog.findLibrary("spring-boot-starter-test").get())
+        testImplementation(catalog.findLibrary("archunit-junit5").get())
     }
-    
+
     tasks.test {
         useJUnitPlatform()
     }
 }
+
+// Domain modules — no Spring dependencies
+configure(subprojects.filter { it.name in listOf("model", "ports", "usecases") }) {
+    val catalog = rootProject.the<VersionCatalogsExtension>().named("libs")
+    dependencies {
+        implementation(catalog.findLibrary("mapstruct").get())
+        annotationProcessor(catalog.findLibrary("mapstruct-processor").get())
+<#if paradigm == "reactive">
+        implementation(catalog.findLibrary("reactor-core").get())
+</#if>
+    }
+}
+
+// Ports depends on model
+configure(subprojects.filter { it.name == "ports" }) {
+    dependencies {
+        implementation(project(":model"))
+    }
+}
+
+// Usecases depends on model and ports
+configure(subprojects.filter { it.name == "usecases" }) {
+    dependencies {
+        implementation(project(":model"))
+        implementation(project(":ports"))
+    }
+}
+
+// Helpers module — shared cross-cutting utilities
+configure(subprojects.filter { it.name == "helpers" }) {
+    dependencies {
+        implementation(project(":model"))
+        implementation(project(":ports"))
+    }
+}
+
+// App-service module — wires everything together
+configure(subprojects.filter { it.name == "app-service" }) {
+    apply(plugin = "org.springframework.boot")
+    apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "info.solidsoft.pitest")
+
+    val catalog = rootProject.the<VersionCatalogsExtension>().named("libs")
+    dependencies {
+        implementation(project(":model"))
+        implementation(project(":ports"))
+        implementation(project(":usecases"))
+
+        // Spring Boot Actuator
+        implementation(catalog.findLibrary("spring-boot-starter-actuator").get())
+
+        // MapStruct
+        implementation(catalog.findLibrary("mapstruct").get())
+        annotationProcessor(catalog.findLibrary("mapstruct-processor").get())
+
+        // SpringDoc OpenAPI
+<#if paradigm == "reactive">
+        implementation(catalog.findLibrary("springdoc-openapi-starter-webflux").get())
+<#else>
+        implementation(catalog.findLibrary("springdoc-openapi-starter-webmvc").get())
+</#if>
+
+<#if paradigm == "reactive">
+        testImplementation(catalog.findLibrary("reactor-test").get())
+</#if>
+    }
+}
+
+// Apply quality tools configuration
+apply(from = "main.gradle")

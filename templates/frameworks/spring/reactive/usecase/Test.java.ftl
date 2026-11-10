@@ -1,7 +1,7 @@
-package ${packageName}.domain.usecase;
+package ${packageName};
 
-import ${packageName}.domain.model.${entityName};
-import ${packageName}.domain.port.out.${repositoryPort};
+import ${modelPackage}.${entityName};
+import ${basePackage}.domain.port.out.${repositoryPort};
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

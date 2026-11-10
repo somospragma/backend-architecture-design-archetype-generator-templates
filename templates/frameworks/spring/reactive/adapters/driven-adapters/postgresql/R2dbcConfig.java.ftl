@@ -1,37 +1,29 @@
-package ${basePackage}.config;
+package ${configClassPackage};
 
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
-import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
-import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 
 /**
- * R2DBC configuration for PostgreSQL
+ * R2DBC configuration for PostgreSQL.
+ * Spring Boot auto-configures the ConnectionFactory (spring.r2dbc.*) and the
+ * repositories under the application package; this class only adds the
+ * optional schema initializer.
  */
 @Configuration
-@EnableR2dbcRepositories(basePackages = "${basePackage}.infrastructure.adapter.out")
-public class R2dbcConfig extends AbstractR2dbcConfiguration {
-
-    @Override
-    public ConnectionFactory connectionFactory() {
-        // Connection factory is auto-configured by Spring Boot
-        return super.connectionFactory();
-    }
+public class ${adapterName}R2dbcConfig {
 
     @Bean
-    public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
+    public ConnectionFactoryInitializer ${adapterName?uncap_first}Initializer(ConnectionFactory connectionFactory) {
         ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
         initializer.setConnectionFactory(connectionFactory);
-        
+
         // Uncomment to run schema.sql on startup
-        // ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        // populator.addScript(new ClassPathResource("schema.sql"));
+        // var populator = new org.springframework.r2dbc.connection.init.ResourceDatabasePopulator();
+        // populator.addScript(new org.springframework.core.io.ClassPathResource("schema.sql"));
         // initializer.setDatabasePopulator(populator);
-        
+
         return initializer;
     }
 }

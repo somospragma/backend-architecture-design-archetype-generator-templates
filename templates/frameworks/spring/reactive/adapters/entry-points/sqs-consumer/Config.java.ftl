@@ -1,4 +1,4 @@
-package ${packageName}.config;
+package ${configClassPackage};
 
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
@@ -19,22 +19,22 @@ import java.time.Duration;
 @Configuration
 public class ${adapterName}SqsConsumerConfig {
 
-    @Value("${'${aws.sqs.consumer.endpoint:}")
+    @Value("${'$'}{aws.sqs.consumer.endpoint:}")
     private String endpoint;
 
-    @Value("${'${aws.sqs.consumer.region:us-east-1}")
+    @Value("${'$'}{aws.sqs.consumer.region:us-east-1}")
     private String region;
 
-    @Value("${'${aws.sqs.consumer.access-key:}")
+    @Value("${'$'}{aws.sqs.consumer.access-key:}")
     private String accessKey;
 
-    @Value("${'${aws.sqs.consumer.secret-key:}")
+    @Value("${'$'}{aws.sqs.consumer.secret-key:}")
     private String secretKey;
 
-    @Value("${'${aws.sqs.consumer.max-concurrent-messages:10}")
+    @Value("${'$'}{aws.sqs.consumer.max-concurrent-messages:10}")
     private int maxConcurrentMessages;
 
-    @Value("${'${aws.sqs.consumer.poll-timeout:10}")
+    @Value("${'$'}{aws.sqs.consumer.poll-timeout:10}")
     private int pollTimeoutSeconds;
 
     @Bean

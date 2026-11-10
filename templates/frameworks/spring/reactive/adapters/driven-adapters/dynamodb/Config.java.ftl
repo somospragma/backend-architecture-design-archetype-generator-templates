@@ -1,4 +1,4 @@
-package ${packageName}.config;
+package ${configClassPackage};
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,16 +16,16 @@ import java.net.URI;
 @Configuration
 public class ${adapterName}DynamoDbConfig {
 
-    @Value("${'${aws.dynamodb.endpoint:}")
+    @Value("${r"${aws.dynamodb.endpoint:}"}")
     private String endpoint;
 
-    @Value("${'${aws.dynamodb.region:us-east-1}")
+    @Value("${r"${aws.dynamodb.region:us-east-1}"}")
     private String region;
 
-    @Value("${'${aws.dynamodb.access-key:}")
+    @Value("${r"${aws.dynamodb.access-key:}"}")
     private String accessKey;
 
-    @Value("${'${aws.dynamodb.secret-key:}")
+    @Value("${r"${aws.dynamodb.secret-key:}"}")
     private String secretKey;
 
     @Bean

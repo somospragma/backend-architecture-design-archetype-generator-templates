@@ -1,6 +1,5 @@
 package ${packageName};
 
-import com.salesforce.reactorgrpc.GrpcRetry;
 import io.grpc.Status;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.slf4j.Logger;

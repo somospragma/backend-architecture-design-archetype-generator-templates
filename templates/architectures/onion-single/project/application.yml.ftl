@@ -1,40 +1,39 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: ${projectName}
-<#if paradigm == "reactive">
-  
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/${projectName}
-    username: postgres
-    password: postgres
-  
-  data:
-    redis:
-      host: localhost
-      port: 6379
-<#else>
-  
-  datasource:
-    url: jdbc:postgresql://localhost:5432/${projectName}
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-  
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-  
-  data:
-    redis:
-      host: localhost
-      port: 6379
-</#if>
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
+server:
+  port: 8080
+  shutdown: graceful
+
+# Database configuration (example — uncomment and adjust per adapter)
+# spring.datasource:
+#   url: ${r"${DB_URL}"}
+#   username: ${r"${DB_USERNAME}"}
+#   password: ${r"${DB_PASSWORD}"}
+
+# Logging — structured JSON output for production
 logging:
   level:
     root: INFO
     ${basePackage}: DEBUG
+  structured:
+    format:
+      console: logfmt
+  pattern:
+    correlation: "[${r"${spring.application.name:}"},${r"${traceId:-}"},${r"${spanId:-}"}] "
+
+# Actuator & Health Probes
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true

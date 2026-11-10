@@ -1,4 +1,4 @@
-package ${packageName}.config;
+package ${configClassPackage};
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -19,10 +19,10 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class ${adapterName}WebClientConfig {
 
-    @Value("${'${${adapterName?lower_case}.http.base-url}")
+    @Value("${'$'}{${adapterName?lower_case}.http.base-url}")
     private String baseUrl;
 
-    @Value("${'${${adapterName?lower_case}.http.timeout:5000}")
+    @Value("${'$'}{${adapterName?lower_case}.http.timeout:5000}")
     private int timeout;
 
     @Bean

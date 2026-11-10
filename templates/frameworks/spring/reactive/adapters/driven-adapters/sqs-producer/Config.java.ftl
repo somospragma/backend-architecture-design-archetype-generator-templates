@@ -1,4 +1,4 @@
-package ${packageName}.config;
+package ${configClassPackage};
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,16 +16,16 @@ import java.net.URI;
 @Configuration
 public class ${adapterName}SqsConfig {
 
-    @Value("${'${aws.sqs.endpoint:}")
+    @Value("${r"${aws.sqs.endpoint:}"}")
     private String endpoint;
 
-    @Value("${'${aws.sqs.region:us-east-1}")
+    @Value("${r"${aws.sqs.region:us-east-1}"}")
     private String region;
 
-    @Value("${'${aws.sqs.access-key:}")
+    @Value("${r"${aws.sqs.access-key:}"}")
     private String accessKey;
 
-    @Value("${'${aws.sqs.secret-key:}")
+    @Value("${r"${aws.sqs.secret-key:}"}")
     private String secretKey;
 
     @Bean

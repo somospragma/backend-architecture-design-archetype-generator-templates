@@ -1,8 +1,8 @@
-package ${packageName}.infrastructure.entry-points.rest;
+package ${packageName};
 
-import ${packageName}.domain.port.in.${useCasePort};
-import ${packageName}.infrastructure.entry-points.rest.dto.${controllerName}Request;
-import ${packageName}.infrastructure.entry-points.rest.dto.${controllerName}Response;
+import ${basePackage}.domain.port.in.${useCasePort};
+import ${packageName}.${controllerName}Request;
+import ${packageName}.${controllerName}Response;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
  * Unit tests for ${controllerName}Controller.
  */
 @WebFluxTest(${controllerName}Controller.class)
-class ${controllerName}ControllerTest {
+class ${controllerName}Test {
 
   @Autowired
   private WebTestClient webTestClient;
