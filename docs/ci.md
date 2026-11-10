@@ -77,6 +77,7 @@ El CI del core usa `generate-and-build.sh` para su prueba de humo, y `scan-depen
 **Variables del repositorio**
 - `TEST_RELEASED_PLUGIN=true` cuando ya esté publicado el primer plugin que lee tags de templates. Antes de eso, el plugin publicado (1.0.5) no entiende `schemaVersion` y esa matriz fallaría.
 - `PLUGIN_MAJOR`: mayor que publica `main` (por defecto `1`); se sube a `2` junto con un cambio incompatible.
+- `CORE_REF`: solo mientras un cambio toca los dos repos a la vez. El CI construye el plugin desde esa rama del core en vez de `main`. Se borra al mergear.
 
 **Seguridad del repositorio**
 - Dependabot alerts y Dependabot security updates (activas desde el 2026-11-10).

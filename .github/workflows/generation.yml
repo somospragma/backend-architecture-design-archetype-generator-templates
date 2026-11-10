@@ -2,7 +2,8 @@
 #   mode full      every architecture x paradigm, all adapters in one project
 #   mode isolated  one hexagonal-single project per adapter and paradigm
 #   mode negative  full projects with injected violations the build must reject
-#   plugin core-main  plugin built from core main
+#   plugin core-main  plugin built from core main (or the branch in the repository
+#                     variable CORE_REF, only while both repos change together)
 #   plugin released   latest plugin of this templates major on the Plugin Portal
 #   scan           also scans each project's dependency tree (OSV, CVSS threshold
 #                  from versions.yml)
@@ -86,7 +87,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ env.CORE_REPOSITORY }}
-          ref: main
+          ref: ${{ vars.CORE_REF || 'main' }}
           persist-credentials: false
       - if: inputs.plugin == 'core-main'
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
