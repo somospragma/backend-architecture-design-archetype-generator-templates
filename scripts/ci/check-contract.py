@@ -7,6 +7,8 @@
 - every staticFiles source of every architecture exists, for each framework and
   paradigm it can be generated with
 - every adapter listed in an index.json has a folder with metadata.yml
+- no file is a symbolic link: the plugin downloads the templates as a GitHub
+  archive, which keeps a symlink as a text file with the target path
 
 Usage: check-contract.py [templates-dir]   (default: templates)
 """
@@ -75,6 +77,10 @@ for index_json in root.glob("frameworks/*/*/adapters/*/index.json"):
     for adapter in json.loads(index_json.read_text(encoding="utf-8")).get("adapters", []):
         if not (index_json.parent / adapter["name"] / "metadata.yml").is_file():
             errors.append(f"{index_json}: adapter {adapter['name']} has no metadata.yml")
+
+for path in root.rglob("*"):
+    if path.is_symlink():
+        errors.append(f"{path}: symbolic link; copy the file instead")
 
 for e in sorted(set(errors)):
     print(f"::error::{e}")
