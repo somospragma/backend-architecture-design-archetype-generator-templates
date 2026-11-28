@@ -1,10 +1,11 @@
-# Slower checks that do not block PRs: every adapter on its own, and injected
-# violations that the generated architecture tests must reject.
-name: Nightly
+# Slower checks that do not block PRs, every Monday before the security scan:
+# every adapter on its own, and injected violations that the generated
+# architecture tests must reject.
+name: Weekly checks
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 6 * * 1'
   workflow_dispatch:
 
 permissions: {}
