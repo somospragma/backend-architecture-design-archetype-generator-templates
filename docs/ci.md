@@ -15,7 +15,7 @@ Cada cambio en templates se prueba generando proyectos reales con el plugin, com
 |---|---|---|
 | `ci.yml` | PR y push a `main` y `release/**` | Quality: contrato. Security: gitleaks, actionlint y zizmor. Build: cada arquitectura × paradigma generada, compilada, probada y con sus dependencias escaneadas; con `TEST_RELEASED_PLUGIN=true` también con el último plugin publicado. Approval: en cada PR, aprobación del environment `promote`. Deploy: el merge crea el tag `v<mayor>.x.y` |
 | `security-weekly.yml` | cada lunes a las 07:00 UTC | Build: genera un proyecto por arquitectura × paradigma con todos los adapters. Security, sobre cada uno: dependencias (OSV), código (CodeQL `security-extended`) y secretos (gitleaks). OSV publica en la pestaña Security. Report: abre o actualiza un issue `security-weekly`; una corrida limpia lo cierra |
-| `nightly.yml` | cada día a las 06:00 UTC | cada adapter solo en su propio proyecto, y violaciones metidas a propósito que el build debe rechazar |
+| `weekly-checks.yml` | cada lunes a las 06:00 UTC | cada adapter solo en su propio proyecto, y violaciones metidas a propósito que el build debe rechazar |
 | `generation.yml` | lo llaman los anteriores | la matriz de generación |
 
 La matriz sale de `architectures/index.yml` y de los `index.json` de adapters. Una arquitectura o un adapter nuevo entra a la matriz, y al escaneo semanal, sin tocar los workflows.
